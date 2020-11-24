@@ -1,0 +1,50 @@
+version: "3.0"
+services:
+ 
+  api:
+    image: node
+    container_name: "sc-johnson_api"
+    restart: always
+    depends_on:
+      - redis
+    volumes:
+      - ./api:/opt/sc-johnson
+    working_dir: "/opt/sc-johnson"
+    command: ["bash", "run.sh"]
+    networks:
+      - net
+  client:
+    image: node
+    container_name: "sc-johnson_client"
+    restart: always
+    depends_on:
+      - api
+    volumes:
+      - ./client:/opt/sc-johnson
+    working_dir: "/opt/sc-johnson"
+    environment:
+      MODE: dev
+      HOST: 0.0.0.0
+      PORT: 3000
+    command: ["bash", "run.sh"]
+    networks:
+      - net
+       proxy:
+    image: nginx
+    container_name: "sc-johnson_proxy_dev"
+    volumes:
+      - ./proxy:/opt/sc-johnson
+    working_dir: "/opt/sc-johnson"
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./proxy:/etc/nginx/conf.d
+    depends_on:
+      - api
+      - client
+    networks:
+      - net
+networks:
+  net:
+    driver: bridge

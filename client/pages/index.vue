@@ -1,0 +1,369 @@
+<template>
+  <v-container>
+    <v-row class="pa-0 ma-0">
+      <v-col class="pa-0 ma-0">
+        <v-card color="#FFE4D5">
+          <v-container class="py-0">
+            <v-row  >
+              <v-col cols="12"  sm="2" md="3" class="py-0 ma-0 d-flex align-center">
+                <v-btn
+                  depressed
+                  color="success"
+                  @click="descargaCSV"
+                  block
+                  dark
+                  class="my-2"          
+                >
+                 <div class="d-sm-none d-md-flex">Descargar .CSV</div> 
+                  <v-icon class="d-sm-none d-md-flex" right dark>mdi-cloud-download</v-icon>
+
+                  <v-icon class="d-none d-sm-flex d-md-none" dark>mdi-cloud-download</v-icon>
+                </v-btn>
+              </v-col>
+              <v-spacer/>
+              <v-col cols="12"  sm=6 md="3" class="py-0 ma-0">
+                <v-file-input
+                  v-model="datosCsv"
+                  placeholder=" Archivo .csv"
+                  accept=".csv"
+                  ref="fileupload"
+                  @change="csvImport"
+                  hide-details
+                  outlined
+                  dense
+                  prepend-icon
+                  prepend-inner-icon="attach_file"
+                  background-color="#FFFFFF"
+                  color="black"
+                  class="my-2"
+                >
+                </v-file-input>
+              </v-col>
+
+              <v-col cols="12"  sm="4" md="3" class="py-0 ma-0 d-flex align-center">
+                <v-btn
+                  depressed
+                  color="#F44336"
+                  @click="csvModelo(product)"
+                  block
+                  dark
+                  class="my-2"
+                >
+                  Plantilla CSV
+                  <v-icon right dark>cloud_download</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card>
+      </v-col>
+    </v-row>
+{{datosCsv}}
+    <v-row>
+      <v-col>
+        <v-card>
+          <v-container>
+            <v-row>
+              <v-col cols="2" sm="2" class="ml-3">
+                <create @reload="producto" />
+              </v-col>
+              <v-spacer />
+              <v-col cols="8" sm="8" class="mt-0 pt-0">
+                <v-text-field
+                  type="number"
+                  v-model="codigo"
+                  append-icon="mdi-magnify"
+                  label="Ingrese un código y presione Enter"
+                  single-line
+                  hide-details
+                  class="mr-1"
+                  ref="codigo"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+
+          <v-data-table
+            :headers="headers"
+            :items="product"
+            class="m-2"
+            :page="page"
+            :itemsPerPage="10"
+            :server-items-length="total"
+            @pagination="indexPage($event)"
+            :footer-props="{ itemsPerPageOptions: [5, 10, 25] }"
+            no-data-text="No se encontraron resultados"
+          >
+            <template v-slot:[`item.editar`]="{ item }">
+              <edit :editar="item" @reload="producto" />
+            </template>
+
+            <template v-slot:[`item.eliminar`]="{ item }">
+              <delet :delet="item" @reload="producto" />
+            </template>
+
+            <template v-slot:[`item.crimper`]="{ item }">
+              <v-simple-checkbox
+                :value="
+                  item.crimper == '1'
+                    ? (item.crimper = true)
+                    : (item.crimper = false)
+                "
+              />
+            </template>
+          </v-data-table>
+
+          <v-dialog v-model="dialogSpinner" hide-overlay>
+            <v-progress-circular
+              :size="70"
+              :width="7"
+              color="primary"
+              indeterminate
+              class="spinner"
+            ></v-progress-circular>
+          </v-dialog>
+        </v-card>
+      </v-col>
+    </v-row>
+    <password />
+    <infoModal />
+  </v-container>
+</template>
+
+<script>
+import password from "@/components/common/cambiarPassword";
+import "material-design-icons-iconfont/dist/material-design-icons.css";
+import edit from "@/components/common/editar";
+import axios from "../plugins/axios";
+import delet from "@/components/common/eliminar";
+import create from "@/components/common/crear";
+import infoModal from "@/components/common/infoModal";
+import Cookies from "js-cookie";
+let CSVtoJSON = require("csvtojson");
+import { mapState, mapMutations } from "vuex";
+/* import { delete } from 'vue/types/umd'; */
+
+export default {
+  middleware: "NOAUTH",
+  components: {
+    edit,
+    delet,
+    create,
+    password,
+    infoModal,
+  },
+  data: () => ({
+    datosCsv:null,
+    pag : null,
+    dialogSpinner: false,
+    total: null,
+    perPage: 10,
+    page: 1,
+    codigo: null,
+    product: [],
+    files: null,
+    headers: [
+      {
+        text: "Codigo",
+        value: "codigo",
+        align: "center",
+        filterable: false,
+      },
+      { text: "SP Temperatura", value: "sp_temperatura", align: "center" },
+      { text: "SP Velocidad", value: "sp_velocidad", align: "center" },
+      { text: "Descripción", value: "description", align: "center" },
+      { text: "Editar", value: "editar", align: "center" },
+      { text: "Eliminar", value: "eliminar", align: "center" },
+      { text: "Válvula crimper", value: "crimper", align: "center" },
+    ],
+  }),
+  computed: {
+    ...mapState(["infoModal"]),
+  },
+  watch: {
+
+            codigo: function () { 
+                if(this.codigo === ""){
+                  this.page = this.pag
+                  this.codigo = null
+                  this.indexPage(this.$emit("pagination"))                
+                } 
+                  if(this.codigo){
+                      if(this.codigo.length == 6){   
+
+                      let pg = this.$emit("pagination")
+                      if(pg.page>1){
+                      this.pag = pg.page
+                      }
+                      this.indexPage(pg)
+                      pg.page = 1                    
+                    }
+                  }
+        }
+
+  },
+  methods: {
+    ...mapMutations(["toggleInfoModal",'SET_DESLOGIN']),
+    async indexPage(e) {
+      this.page = e.page;
+      this.perPage = e.itemsPerPage;
+      this.producto() 
+    },
+    async producto() {
+      this.dialogSpinner = true;
+      let token = Cookies.get("token");
+      await axios
+        .get("product", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            page: this.page,
+            perPage: this.perPage,
+            codigo: this.codigo
+          }
+        })
+        .then((res) => {
+          this.product = res.data.data.data;
+          this.total = res.data.data.total;
+          this.dialogSpinner = false;
+        }).catch(error =>{
+          console.log(error)
+        })
+    },
+    csvModelo() {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      let arr = [
+        {
+          codigo: 100,
+          sp_temperatura: "99",
+          sp_velocidad: "99",
+          description: "Lorem ipsum dolor sit amet",
+          crimper: "0",
+        },
+        {
+          codigo: 101,
+          sp_temperatura: "100",
+          sp_velocidad: "100",
+          description: "Lorem ipsum dolor sit amet",
+          crimper: "1",
+        },
+      ];
+      csvContent += [
+        Object.keys(arr[0]).join(";"),
+        ...arr.map((item) => Object.values(item).join(";")),
+      ]
+        .join("\n")
+        .replace(/(^\[)|(\]$)/gm, "");
+
+      const data = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", data);
+      link.setAttribute("download", "plantilla.csv");
+      link.click();
+    },
+ async callAllProducts(){
+            let token = Cookies.get("token");
+      let allProducts = await axios
+        .get("product", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            perPage: '*',
+            codigo: this.codigo
+          }
+        })
+        .then((res) => {
+          return res.data.data.data
+        }).catch(error =>{
+          console.log(error)
+        })
+        return allProducts;
+    }
+    ,
+    async descargaCSV(){
+    let productos =  await this.callAllProducts();
+    await this.csvExport(productos)
+    }
+    ,
+    csvExport(arrData) {
+      for (let i = 0; i < arrData.length; i++) {
+        delete arrData[i].fecha;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,";
+
+      csvContent += [
+        Object.keys(arrData[0]).join(";"),
+        ...arrData.map((item) => Object.values(item).join(";")),
+      ]
+        .join("\n")
+        .replace(/(^\[)|(\]$)/gm, "");
+      const data = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", data);
+      link.setAttribute("download", "export.csv");
+      link.click();
+    },
+    async cargarProduct(obj) {
+      let token = Cookies.get("token");
+      await axios.post("product", obj, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    csvImport(files) {
+      try {
+        var file = files;
+        var reader = new FileReader();
+        file =  new Blob([file], { type: "text/plain" });
+        reader.readAsBinaryString(file);
+        reader.onload = (event) => {
+          var lines = event.target.result.split("\n");
+
+          const result = [];
+          const headers = lines[0].split(";");
+
+          for (let i = 0; i < lines.length; i++) {
+            if (!lines[i]) continue;
+            const obj = {};
+            let currentline = lines[i].split(";");
+
+            for (let j = 0; j < headers.length; j++) {
+              obj[headers[j]] = currentline[j];
+            }
+          this.cargarProduct(obj);
+          }
+          this.datosCsv= null
+          this.producto();
+          this.toggleInfoModal({
+            dialog: true,
+            msj: `Producto(s) agregado(s) correctamente`,
+            titulo: "Importar CSV",
+            alertType: "success",
+          });
+        };
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+/* .CSV {
+  width: 100%;
+  text-align: right;
+} */
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.div {
+  border-radius: 5px;
+  border: 2px solid #F44336;
+  padding: 5px;
+}
+</style>

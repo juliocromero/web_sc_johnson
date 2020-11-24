@@ -1,0 +1,2 @@
+
+command nodemon server.js

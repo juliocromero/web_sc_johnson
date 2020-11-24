@@ -1,0 +1,1 @@
+command nodemon server/index.js
