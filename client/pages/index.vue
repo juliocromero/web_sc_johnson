@@ -26,7 +26,6 @@
                   v-model="datosCsv"
                   placeholder=" Archivo .csv"
                   accept=".csv"
-                  ref="fileupload"
                   @change="csvImport"
                   hide-details
                   outlined
@@ -73,7 +72,7 @@
                   type="number"
                   v-model="codigo"
                   append-icon="mdi-magnify"
-                  label="Ingrese un código y presione Enter"
+                  label="Ingrese un código válido (6 dígitos)"
                   single-line
                   hide-details
                   class="mr-1"
@@ -196,7 +195,7 @@ export default {
                       this.pag = pg.page
                       }
                       this.indexPage(pg)
-                      pg.page = 1                    
+                      pg.page = 1        
                     }
                   }
         }
@@ -227,6 +226,7 @@ export default {
           this.product = res.data.data.data;
           this.total = res.data.data.total;
           this.dialogSpinner = false;
+          if(this.codigo != null){this.$refs.codigo.focus()}
         }).catch(error =>{
           console.log(error)
         })
@@ -283,8 +283,10 @@ export default {
     }
     ,
     async descargaCSV(){
+    this.dialogSpinner = true;
     let productos =  await this.callAllProducts();
     await this.csvExport(productos)
+    this.dialogSpinner = false;
     }
     ,
     csvExport(arrData) {
