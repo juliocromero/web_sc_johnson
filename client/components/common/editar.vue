@@ -42,12 +42,16 @@
                     required
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="6">
-                  <v-simple-checkbox
+                <v-col cols="12" md="6" class="d-flex">
+                  <div class="mr-5 d-flex align-center">Crimper: </div>
+                  <v-switch
                     v-model="producto.crimper"
-                    label="Crimper"
-                    :value="'1' ? true : false"
-                  ></v-simple-checkbox>
+                    color="success"
+                    inset
+                    hide-details
+                    left
+                    class="my-0 pb-1 d-flex align-center"
+                  ></v-switch>
                 </v-col>
                 <v-col cols="12" md="12">
                   <v-text-field
@@ -97,7 +101,7 @@ export default {
       codigo: null,
       sp_temperatura: "",
       sp_velocidad: "",
-      crimper: "0",
+      crimper:true,
       description: "",
     },
   }),
@@ -108,15 +112,13 @@ export default {
       try {
         this.dialog = false;
         let token = Cookies.get("token");
-        this.producto.crimper === true
-          ? (this.producto.crimper = "1")
-          : (this.producto.crimper = "0");
+        this.producto.crimper==false ? this.producto.crimper="false" : this.producto.crimper;
+        console.log(this.producto)
         await axios.put(`product/${this.editar.id}`, this.producto, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        this.producto.crimper === "1"
-          ? (this.producto.crimper = true)
-          : (this.producto.crimper = false);
+        this.producto.crimper=="false" ? this.producto.crimper=false : this.producto.crimper;
+        this.$emit("reload");
         this.toggleInfoModal({
           dialog: true,
           msj: `Producto: ${this.editar.codigo} Actualizado correctamente`,

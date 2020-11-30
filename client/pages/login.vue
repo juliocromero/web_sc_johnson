@@ -1,7 +1,7 @@
 <template>
   <div class="fondo">
     <div class="form">
-      <v-form v-model="valid">
+      <v-form>
         <v-img class="login" src="logo.png" />
         <v-container>
           <v-img class="login" src="user.png" />

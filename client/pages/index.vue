@@ -102,12 +102,11 @@
             </template>
 
             <template v-slot:[`item.crimper`]="{ item }">
-              <v-simple-checkbox
-                :value="
-                  item.crimper == '1'
-                    ? (item.crimper = true)
-                    : (item.crimper = false)
-                "
+              <input 
+              :class="item.crimper ? 'crimperON' : 'crimperOFF'"  
+              type="text" 
+              :value="item.crimper ?  'On' : 'Off'" 
+              disabled
               />
             </template>
           </v-data-table>
@@ -239,14 +238,14 @@ export default {
           sp_temperatura: "99",
           sp_velocidad: "99",
           description: "Lorem ipsum dolor sit amet",
-          crimper: "0",
+          crimper: "false",
         },
         {
           codigo: 101,
           sp_temperatura: "100",
           sp_velocidad: "100",
           description: "Lorem ipsum dolor sit amet",
-          crimper: "1",
+          crimper: "true",
         },
       ];
       csvContent += [
@@ -263,7 +262,7 @@ export default {
       link.click();
     },
  async callAllProducts(){
-            let token = Cookies.get("token");
+      let token = Cookies.get("token");
       let allProducts = await axios
         .get("product", {
           headers: {
@@ -367,5 +366,20 @@ export default {
   border-radius: 5px;
   border: 2px solid #F44336;
   padding: 5px;
+}
+
+.crimperON{
+  background-color: #4CAF50 ;
+  color: white;
+  width: 30px;
+  text-align: center;
+  border-radius: 15px;
+}
+.crimperOFF{
+  background-color: #F44336 ;
+  color: white;
+  width: 30px;
+  text-align: center;
+  border-radius: 15px;
 }
 </style>

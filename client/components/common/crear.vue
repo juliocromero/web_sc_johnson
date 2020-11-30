@@ -55,12 +55,16 @@
                     required
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="6">
-                  <v-simple-checkbox
+                <v-col cols="12" md="6" class="d-flex">
+                  <div class="mr-5 d-flex align-center">Crimper: </div>
+                  <v-switch
                     v-model="producto.crimper"
-                    label="Crimper"
-                    :value="'1' ? true : false"
-                  ></v-simple-checkbox>
+                    color="success"
+                    inset
+                    hide-details
+                    left
+                    class="my-0 pb-1 d-flex align-center"
+                  ></v-switch>
                 </v-col>
                 <v-col cols="12" md="12">
                   <v-textarea
@@ -79,7 +83,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn color="red" text @click="dialog = false">Cancelar</v-btn>
+          <v-btn color="red" text @click="toggleDialog">Cancelar</v-btn>
 
           <v-btn color="green darken-1" text @click="Create_Products_table()"
             >Aceptar</v-btn
@@ -104,32 +108,39 @@ export default {
       codigo: null,
       sp_temperatura: "",
       sp_velocidad: "",
-      crimper: false,
+      crimper: true,
       description: "",
     },
   }),
   methods: {
     ...mapMutations(["toggleInfoModal"]),
+    toggleDialog(){
+      this.dialog = false
+      this.producto.codigo=null;
+      this.producto.sp_temperatura="";
+      this.producto.sp_velocidad="";
+      this.producto.crimper=true;
+      this.producto.description="";
+    },
     async Create_Products_table() {
       try {
         this.dialog = false;
         let token = Cookies.get("token");
-        this.producto.crimper === false
-          ? (this.producto.crimper = "0")
-          : (this.producto.crimper = "1");
         await axios.post("product", this.producto, {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.$emit("reload");
-          this.producto.crimper === "1"
-          ? (this.producto.crimper = true)
-          : (this.producto.crimper = false);
         this.toggleInfoModal({
           dialog: true,
           msj: `Producto agregado correctamente`,
           titulo: "Agregar Producto",
           alertType: "success",
         });
+        this.producto.codigo=null;
+        this.producto.sp_temperatura="";
+        this.producto.sp_velocidad="";
+        this.producto.crimper=true;
+        this.producto.description="";
       } catch (error) {
         this.toggleInfoModal({
           dialog: true,
