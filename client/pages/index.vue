@@ -169,9 +169,10 @@ export default {
       { text: "SP Temperatura", value: "sp_temperatura", align: "center" },
       { text: "SP Velocidad", value: "sp_velocidad", align: "center" },
       { text: "Descripción", value: "description", align: "center" },
+      { text: "Válvula crimper", value: "crimper", align: "center" },
       { text: "Editar", value: "editar", align: "center" },
       { text: "Eliminar", value: "eliminar", align: "center" },
-      { text: "Válvula crimper", value: "crimper", align: "center" },
+
     ],
   }),
   computed: {

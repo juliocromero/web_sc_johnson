@@ -1,12 +1,12 @@
 <template>
   <v-app dark>
     <v-app-bar :clipped-left="clipped" fixed color="#f44336" app>
-      <v-img max-width="100px" max-height="100px" src="logo-white.png" />
+      <v-img max-width="100px" max-height="100px" src="iconos/logo-white.png" />
       <v-spacer />
       <v-menu bottom left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn dark icon v-bind="attrs" v-on="on">
-            <v-img max-width="40px" max-height="40px" src="user.png" />
+            <v-img max-width="40px" max-height="40px" src="iconos/user.png" />
           </v-btn>
         </template>
 

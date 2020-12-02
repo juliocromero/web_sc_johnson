@@ -2,9 +2,8 @@
   <div class="fondo">
     <div class="form">
       <v-form>
-        <v-img class="login" src="logo.png" />
         <v-container>
-          <v-img class="login" src="user.png" />
+          <v-img class="login" src="iconos/logo-red.svg" />
           <v-row
             align="center"
             justify="center"
@@ -16,7 +15,7 @@
               v-model="username" 
               :counter="50" 
               label="Email"
-              append-outer-icon="email"
+              append-outer-icon="mdi-email"
               required
               >
               </v-text-field>
@@ -30,7 +29,7 @@
                 type="password"
                 label="Contraseña"
                 required
-                append-outer-icon="lock"
+                append-outer-icon="mdi-lock"
                 @keyup.enter="ingresar()"
               ></v-text-field>
               <v-alert
@@ -138,8 +137,8 @@ export default {
   z-index: 100;
 }
 .login {
-  width: 100px;
-  height: 100%;
+  width: 40vh;
+  height: 200px;
   margin: 0px auto;
   margin-top: 0px;
   top: 10px;
