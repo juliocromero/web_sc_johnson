@@ -1,7 +1,7 @@
 <template>
   <v-row justify="center">
     <v-btn icon @click.stop="dialog = true">
-      <v-icon color="red">mdi-delete</v-icon>
+      <img src="@/static/iconos/baseline_delete_black_18dp.png" alt="create">
     </v-btn>
     <v-dialog v-model="dialog" max-width="290">
       <v-card>

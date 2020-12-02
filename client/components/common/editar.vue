@@ -1,7 +1,7 @@
 <template>
   <v-row justify="center">
     <v-btn icon @click.stop="dialog = true">
-      <v-icon color="#00aae4">mdi-pencil</v-icon>
+      <img src="@/static/iconos/baseline_create_black_18dp.png" alt="create">
     </v-btn>
 
     <v-dialog v-model="dialog" max-width="50%">

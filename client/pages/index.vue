@@ -15,9 +15,8 @@
                   class="my-2"          
                 >
                  <div class="d-sm-none d-md-flex">Descargar .CSV</div> 
-                  <v-icon class="d-sm-none d-md-flex" right dark>mdi-cloud-download</v-icon>
-
-                  <v-icon class="d-none d-sm-flex d-md-none" dark>mdi-cloud-download</v-icon>
+                  <img class="ml-2 d-sm-none d-md-flex" src="@/static/iconos/baseline_cloud_download_white_1x.png" alt="upload">
+                  <img class="d-none d-sm-flex d-md-none" src="@/static/iconos/baseline_cloud_download_white_2x.png" alt="upload">
                 </v-btn>
               </v-col>
               <v-spacer/>
@@ -49,7 +48,7 @@
                   class="my-2"
                 >
                   Plantilla CSV
-                  <v-icon right dark>cloud_download</v-icon>
+                   <img class="ml-2" src="@/static/iconos/baseline_cloud_download_white_1x.png" alt="upload">
                 </v-btn>
               </v-col>
             </v-row>

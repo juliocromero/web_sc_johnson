@@ -13,13 +13,13 @@
         <v-list>
           <v-list-item class="menuUser pointer">
             <v-list-item-title  @click="toggleDialogPassword(true)">
-              <v-icon left color="#f44336" align="center" >lock</v-icon>
+              <img src="@/static/iconos/baseline_lock_black_18dp.png" alt="">
               Cambiar Contraseña
             </v-list-item-title>
           </v-list-item>
           <v-list-item class="menuUser poiter" @click="Salir()">
             <v-list-item-title>
-              <v-icon left color="#f44336" >west</v-icon>
+              <img class="pt-2" src="@/static/iconos/baseline_west_white_18dp.png" alt="">
               Salir
             </v-list-item-title>
           </v-list-item>

@@ -1,6 +1,6 @@
 <template>
   <v-row justify="start">
-    <v-dialog v-model="dialogPassword" max-width="50%">
+    <v-dialog v-model="dialogPassword" width="500">
       <v-card>
         <v-card-title class="headline v-card-titulo white--text"
           >Cambiar Contraseña</v-card-title

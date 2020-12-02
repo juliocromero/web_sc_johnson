@@ -10,13 +10,13 @@
           class="px-0"
           @click.stop="dialog = true"
         >
-          <v-icon dark large class="px-0 mx-0"> mdi-plus </v-icon>
+          <img src="@/static/iconos/baseline_add_white_24dp.png" alt="plus">
         </v-btn>
       </template>
       <span>Agregar Producto</span>
     </v-tooltip>
 
-    <v-dialog v-model="dialog" max-width="50%">
+    <v-dialog v-model="dialog" width="500">
       <v-card>
         <v-card-title class="headline v-card-titulo white--text"
           >Crear producto</v-card-title
