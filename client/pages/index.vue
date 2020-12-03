@@ -71,11 +71,15 @@
                   type="number"
                   v-model="codigo"
                   append-icon="mdi-magnify"
-                  label="Ingrese un código válido (6 dígitos)"
+                  label="Ingrese un código y presione Enter"
                   single-line
                   hide-details
                   class="mr-1"
                   ref="codigo"
+                  counter
+                  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                  maxlength="8"
+                  @keyup.enter="filtrarTabla"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -180,28 +184,31 @@ export default {
   },
   watch: {
 
-            codigo: function () { 
+        codigo: function () { 
                 if(this.codigo === ""){
                   this.page = this.pag
                   this.codigo = null
                   this.indexPage(this.$emit("pagination"))                
                 } 
-                  if(this.codigo){
-                      if(this.codigo.length == 6){   
-
-                      let pg = this.$emit("pagination")
-                      if(pg.page>1){
-                      this.pag = pg.page
-                      }
-                      this.indexPage(pg)
-                      pg.page = 1        
-                    }
-                  }
         }
-
   },
   methods: {
     ...mapMutations(["toggleInfoModal",'SET_DESLOGIN']),
+    filtrarTabla(){
+      try {
+        if(this.codigo){
+        this.dialogSpinner = true;
+        let pg = this.$emit("pagination")
+        if(pg.page>1){
+        this.pag = pg.page
+        }
+      this.indexPage(pg)
+      pg.page = 1        
+      }
+      } catch (error) {
+        console.log(erro)
+      }
+    },
     async indexPage(e) {
       this.page = e.page;
       this.perPage = e.itemsPerPage;
@@ -228,6 +235,12 @@ export default {
           if(this.codigo != null){this.$refs.codigo.focus()}
         }).catch(error =>{
           console.log(error)
+            this.toggleInfoModal({
+            dialog: true,
+            msj: `Ha ocurrido un error`,
+            titulo: "Filtrar Datos",
+            alertType: "error",
+          });
         })
     },
     csvModelo() {

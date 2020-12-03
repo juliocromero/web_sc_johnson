@@ -6,7 +6,7 @@
       <v-menu bottom left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn dark icon v-bind="attrs" v-on="on">
-            <img class="user" src="@/static/iconos/user.png" >
+            <img src="@/static/iconos/person-white-48dp.svg" >
           </v-btn>
         </template>
 
@@ -88,9 +88,5 @@ export default {
 .scj{
   max-width: 70%;
   max-height: 70%;
-}
-.user{
-  width: 8%;
-  height: 8%;
 }
 </style>
