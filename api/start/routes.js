@@ -28,6 +28,8 @@ Route.get("api/v1/user", "UserController.index");
 Route.get("api/v1/loginUsersAutomatico", "UserController.loginToken");
 Route.put("api/v1/change_pass", "UserController.update");
 Route.put("api/v1/restore_pass", "UserController.restore");
+Route.put("api/v1/user/:id", "UserController.edit");
+Route.delete("api/v1/user/:id", "UserController.destroy");
 
 //PRODUCTO
 Route.get("api/v1/product", "ProductController.index");

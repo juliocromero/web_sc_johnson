@@ -18,12 +18,18 @@ class UserController {
       page = page || 1
       perPage = perPage || 10
 
-      let users = await User.query().paginate(page, perPage);
+      let users = await User.query().with('rol').paginate(page, perPage);
       users = users.toJSON()
       var arrUsers = users.data.map(item => {
-        delete item.password
+        return{
+          "username": item.username,
+          "lastname": item.lastname , 
+          "email": item.email,
+          "rol_id" : item.rol.tipo
+        }
       })
-      response.status(200).json({ menssage: 'Listado de Usuarios', data: users })
+      let resp = await Promise.all(arrUsers)
+      response.status(200).json({ menssage: 'Listado de Usuarios', data: resp })
     } catch (error) {
       console.log(error)
       if (error.name == 'InvalidJwtToken') {
@@ -38,33 +44,32 @@ class UserController {
   async store({ request, response, auth }) {
     try {
       const user = await auth.getUser()
-      let { username, lastname, password, email, rol } = request.all();
+      let { username, lastname, password, email, rol_id } = request.all();
 
       const rules = {
         username: 'required',
         lastname: 'required',
         password: 'required',
         email: 'required',
-        rol: 'required'
+        rol_id: 'required'
 
       }
-      let validation = await validate({ username, lastname, password, email, rol }, rules)
+      let validation = await validate({ username, lastname, password, email, rol_id }, rules)
       if (validation.fails()) {
         response.status(403).json({ message: "Datos insuficiente" })
       }
-      if (user.rol == 0) {
+      if (user.rol_id == 1) {
         const users = await User.create({
           username,
           lastname,
           password,
           email,
-          rol
+          rol_id
         })
         return response.status(200).json({ message: 'Usuario creado con exito' })
       } else {
         return response.status(400).json({ message: 'Usuario sin permisos suficiente' })
       }
-
 
     } catch (error) {
       console.log(error)
@@ -133,7 +138,7 @@ class UserController {
       const user = await auth.getUser();
       const {email , new_password}= request.all();
       var userEmail = await User.findByOrFail('email' , email)
-      if(user.rol == 0){
+      if(user.rol_id == 1){
         userEmail.password = new_password
         userEmail.save()
         return response.status(200).json({menssage : `Constraseña restablecida con exito al mail ${email}`})
@@ -153,6 +158,36 @@ class UserController {
     }
   }
 
+  async edit({params : {id} , request , response, auth}){
+    try{
+      const user = await auth.getUser();
+      const users = await User.find(id);
+      const data = request.only(["username", "lastname" , "password" , "email" , "rol_id"]);
+
+      if(user.rol_id == 1){
+      
+        users.username = data.username || users.email;
+        users.lastname = data.lastname || users.lastname;
+        users.password = data.password || users.password;
+        users.email = data.email || users.email;
+        users.rol_id = data.rol_id || users.rol_id;
+        
+        await users.save();
+        response.status(400).json({menssage: 'Usuario modificado con exito' , users});
+      }else{
+        return response.status(400).json({menssage: 'Usuario sin permiso suficiente para realizar la operación'})
+      }
+
+    }catch(error){
+      console.log(error)
+      if (error.name == 'InvalidJwtToken') {
+        return response.status(400).json({ menssage: 'Usuario no Valido' })
+    }
+    response.status(400).json({ menssage: 'Hubo un error al realizar la operación' })
+    }
+
+  }
+
   /**
    * Delete a user with id.
    * DELETE users/:id
@@ -161,7 +196,27 @@ class UserController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy({ params, request, response }) {
+  async destroy({ params, response, auth }) {
+    const id = params.id
+
+    const user = await auth.getUser();
+    if (user.rol_id == 1) {
+        try {
+            const user = await User.findOrFail(id);
+            await user.delete();
+            response.status(200).json({menssage: 'usuario borrado con exito!'});
+            return;
+        } catch (error) {
+            response.status(404).json({
+                message: "Usuario a eliminar no encontrado",
+                id
+            });
+            return;
+        }
+    } else {
+        response.status(403).json({ message: "Usuario sin permisos suficientes" });
+        return;
+    }
   }
 }
 

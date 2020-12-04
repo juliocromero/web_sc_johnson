@@ -14,6 +14,9 @@ class User extends Model {
     static get updatedAtColumn() {
         return null;
     }
+    rol() {
+      return this.belongsTo('App/Models/Rol');
+    }
       static boot () {
         super.boot()
     

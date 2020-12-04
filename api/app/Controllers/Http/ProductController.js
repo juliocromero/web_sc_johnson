@@ -29,7 +29,6 @@ class ProductController {
         const products = await query.paginate(page, perPage);
         response.status(200).json({ menssage: 'Listado de Productos', data: products })
       }
-
     } catch (error) {
       console.log(error)
       if (error.name == 'InvalidJwtToken') {
