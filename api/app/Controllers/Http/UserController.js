@@ -29,7 +29,8 @@ class UserController {
         }
       })
       let resp = await Promise.all(arrUsers)
-      response.status(200).json({ menssage: 'Listado de Usuarios', data: resp })
+      users.data = resp
+      response.status(200).json({ menssage: 'Listado de Usuarios', data: users })
     } catch (error) {
       console.log(error)
       if (error.name == 'InvalidJwtToken') {
