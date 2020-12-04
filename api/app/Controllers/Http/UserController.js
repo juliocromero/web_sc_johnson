@@ -22,6 +22,7 @@ class UserController {
       users = users.toJSON()
       var arrUsers = users.data.map(item => {
         return{
+          "id": item.id,
           "username": item.username,
           "lastname": item.lastname , 
           "email": item.email,
