@@ -57,7 +57,7 @@ import "material-design-icons-iconfont/dist/material-design-icons.css";
 import cookie from "cookie";
 import Cookies from "js-cookie";
 import axios from "../plugins/axios";
-import { mapMutations } from "vuex";
+import { mapMutations, mapState } from "vuex";
 export default {
   layout: "login",
   data() {
@@ -72,13 +72,13 @@ export default {
   },
   middleware: 'AUTH',
   methods: {
-    ...mapMutations(["SET_AUTH"]),
+    ...mapMutations(["SET_AUTH","setUser"]),
     async ingresar() {
         await axios 
           .post("login", { email: this.username, password: this.password })
           .then(res => {
-          let token = res.data.datos
-          console.log(res.data)
+          let token = res.data.datos;
+          this.setUser(res.data.data)
           this.SET_AUTH(token)
         }).catch(error =>{
           console.log(error.response)
@@ -102,7 +102,8 @@ export default {
   },
   created(){ 
    this.conexion()
-  }
+  },
+  computed:{...mapState(['user'])}
 };
 </script>
 

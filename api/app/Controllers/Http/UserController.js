@@ -91,13 +91,8 @@ class UserController {
      // let resp = await Promise.all(arrUser)
       const token = await auth.attempt(email, password)
       const resCustom = new Response(true, 'Logueado con exito', token.token)
-
-<<<<<<< HEAD
+      resCustom.data = validationUser
       response.status(200).json(resCustom);
-
-=======
-      response.status(200).json({ resCustom, user: validationUser });
->>>>>>> 581afb0c2150fa2e8bc0d5b8221b008b70e2cdb3
     } catch (error) {
       console.log(error.message)
       var resCustom = ''
@@ -185,15 +180,9 @@ class UserController {
         users.rol_id = data.rol_id || users.rol_id;
 
         await users.save();
-<<<<<<< HEAD
-        response.status(200).json({menssage: 'Usuario modificado con exito' , users});
-      }else{
-        return response.status(400).json({menssage: 'Usuario sin permiso suficiente para realizar la operación'})
-=======
         response.status(400).json({ menssage: 'Usuario modificado con exito', users });
       } else {
         return response.status(400).json({ menssage: 'Usuario sin permiso suficiente para realizar la operación' })
->>>>>>> 581afb0c2150fa2e8bc0d5b8221b008b70e2cdb3
       }
 
     } catch (error) {

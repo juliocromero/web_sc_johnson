@@ -91,7 +91,7 @@
             class="m-2"
             :page="page"
             :itemsPerPage="10"
-            :server-items-length="total"
+            :server-items-length="parseInt(total)"
             @pagination="indexPage($event)"
             :footer-props="{ itemsPerPageOptions: [5, 10, 25] }"
             no-data-text="No se encontraron resultados"

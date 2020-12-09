@@ -3,6 +3,7 @@
     <v-app-bar :clipped-left="clipped" fixed color="#f44336" app>
       <img class="scj" src="@/static/iconos/logo-white.png" >
       <v-spacer />
+      <v-card-title class="white--text">{{name}} {{lastname}}</v-card-title>
       <v-menu bottom left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn dark icon v-bind="attrs" v-on="on">
@@ -11,7 +12,7 @@
         </template>
 
         <v-list>
-          <v-list-item class="menuUser poiter" to="/admin">
+          <v-list-item v-if="rol == 1" class="menuUser poiter" to="/admin">
             <v-list-item-title>
               <img class="pt-2" src="@/static/iconos/account_circle-white-18dp.svg" alt="admin">
               Administración de Usuarios
@@ -45,10 +46,14 @@
       
 import { mapState, mapMutations, mapActions } from "vuex";
 import password from "@/components/common/cambiarPassword";
+import Cookies from "js-cookie";
 
 export default {
   data() {
     return {
+      name: Cookies.get("name"),
+      lastname: Cookies.get("lastname"),
+      rol: Cookies.get("rol"),
       clipped: false,
       drawer: false,
       fixed: false,
@@ -78,6 +83,7 @@ export default {
     Salir(){
       this.SET_DESLOGIN()
     },
+
   },
   mounted(){
     this.data()
