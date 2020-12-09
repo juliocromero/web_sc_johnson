@@ -21,12 +21,12 @@ class UserController {
       let users = await User.query().with('rol').paginate(page, perPage);
       users = users.toJSON()
       var arrUsers = users.data.map(item => {
-        return{
+        return {
           "id": item.id,
           "username": item.username,
-          "lastname": item.lastname , 
+          "lastname": item.lastname,
           "email": item.email,
-          "rol_id" : item.rol.tipo
+          "rol_id": item.rol.tipo
         }
       })
       let resp = await Promise.all(arrUsers)
@@ -82,12 +82,22 @@ class UserController {
   async login({ request, response, auth }) {
     try {
       const { email, password } = request.all();
+      let validationUser = await User.findBy('email', email);
+      validationUser = validationUser.toJSON();
+      console.log(validationUser)
+     if(validationUser != null){
+       delete validationUser.password
+     }
+     // let resp = await Promise.all(arrUser)
       const token = await auth.attempt(email, password)
-
       const resCustom = new Response(true, 'Logueado con exito', token.token)
 
+<<<<<<< HEAD
       response.status(200).json(resCustom);
 
+=======
+      response.status(200).json({ resCustom, user: validationUser });
+>>>>>>> 581afb0c2150fa2e8bc0d5b8221b008b70e2cdb3
     } catch (error) {
       console.log(error.message)
       var resCustom = ''
@@ -105,7 +115,7 @@ class UserController {
     try {
       const user = await auth.getUser();
       if (user) {
-        let data = { email: user.email, password: user.password}
+        let data = { email: user.email, password: user.password }
         return response.status(200).json(data)
       }
     } catch (error) {
@@ -115,77 +125,83 @@ class UserController {
 
   }
   async update({ auth, request, response }) {
-    try{
+    try {
       const user = await auth.getUser();
-      const { actual_password , new_password , confirm_password} = request.all();
-      const validationpassw = await Hash.verify(actual_password , user.password);
-      if(validationpassw == false){
+      const { actual_password, new_password, confirm_password } = request.all();
+      const validationpassw = await Hash.verify(actual_password, user.password);
+      if (validationpassw == false) {
         return response.status(400).json({ menssage: 'Constraseña actual Incorrecta' })
       }
-      if(new_password !=confirm_password){
+      if (new_password != confirm_password) {
         return response.status(400).json({ menssage: 'Las contraseña no coinciden' })
       }
-      user.password = new_password 
+      user.password = new_password
       await user.save()
       return response.status(200).json({ menssage: 'Cambio de contraseña con exito!' })
-    }catch(error){
+    } catch (error) {
       console.log(error)
       return response.status(400).json({ menssage: 'Hubo un error al intentar cambiar la contraseña!' })
     }
   }
 
   //restablezco la contrasaseña solo pasandole el mail y la nueva contraseña 
-  async restore({auth , request , response}){
-    try{
+  async restore({ auth, request, response }) {
+    try {
       const user = await auth.getUser();
-      const {email , new_password}= request.all();
-      var userEmail = await User.findByOrFail('email' , email)
-      if(user.rol_id == 1){
+      const { email, new_password } = request.all();
+      var userEmail = await User.findByOrFail('email', email)
+      if (user.rol_id == 1) {
         userEmail.password = new_password
         userEmail.save()
-        return response.status(200).json({menssage : `Constraseña restablecida con exito al mail ${email}`})
-      }else{
-        return response.status(400).json({menssage: 'Usuario sin permiso suficiente para realizar la operación'})
+        return response.status(200).json({ menssage: `Constraseña restablecida con exito al mail ${email}` })
+      } else {
+        return response.status(400).json({ menssage: 'Usuario sin permiso suficiente para realizar la operación' })
       }
 
-    }catch(error){
+    } catch (error) {
       console.log(error)
       if (error.name == 'InvalidJwtToken') {
         return response.status(400).json({ menssage: 'Usuario no Valido' })
-    }
-    if (error.name == 'ModelNotFoundException') {
+      }
+      if (error.name == 'ModelNotFoundException') {
         return response.status(400).json({ menssage: 'El Mail ingresado no existe!' })
-    }
-    return response.status(400).json({ menssage: 'Hubo un error al intentar reestablecer la contraseña' })
+      }
+      return response.status(400).json({ menssage: 'Hubo un error al intentar reestablecer la contraseña' })
     }
   }
 
-  async edit({params : {id} , request , response, auth}){
-    try{
+  async edit({ params: { id }, request, response, auth }) {
+    try {
       const user = await auth.getUser();
       const users = await User.find(id);
-      const data = request.only(["username", "lastname" , "password" , "email" , "rol_id"]);
+      const data = request.only(["username", "lastname", "password", "email", "rol_id"]);
 
-      if(user.rol_id == 1){
-      
+      if (user.rol_id == 1) {
+
         users.username = data.username || users.email;
         users.lastname = data.lastname || users.lastname;
         users.password = data.password || users.password;
         users.email = data.email || users.email;
         users.rol_id = data.rol_id || users.rol_id;
-        
+
         await users.save();
+<<<<<<< HEAD
         response.status(200).json({menssage: 'Usuario modificado con exito' , users});
       }else{
         return response.status(400).json({menssage: 'Usuario sin permiso suficiente para realizar la operación'})
+=======
+        response.status(400).json({ menssage: 'Usuario modificado con exito', users });
+      } else {
+        return response.status(400).json({ menssage: 'Usuario sin permiso suficiente para realizar la operación' })
+>>>>>>> 581afb0c2150fa2e8bc0d5b8221b008b70e2cdb3
       }
 
-    }catch(error){
+    } catch (error) {
       console.log(error)
       if (error.name == 'InvalidJwtToken') {
         return response.status(400).json({ menssage: 'Usuario no Valido' })
-    }
-    response.status(400).json({ menssage: 'Hubo un error al realizar la operación' })
+      }
+      response.status(400).json({ menssage: 'Hubo un error al realizar la operación' })
     }
 
   }
@@ -203,21 +219,21 @@ class UserController {
 
     const user = await auth.getUser();
     if (user.rol_id == 1) {
-        try {
-            const user = await User.findOrFail(id);
-            await user.delete();
-            response.status(200).json({menssage: 'usuario borrado con exito!'});
-            return;
-        } catch (error) {
-            response.status(404).json({
-                message: "Usuario a eliminar no encontrado",
-                id
-            });
-            return;
-        }
-    } else {
-        response.status(403).json({ message: "Usuario sin permisos suficientes" });
+      try {
+        const user = await User.findOrFail(id);
+        await user.delete();
+        response.status(200).json({ menssage: 'usuario borrado con exito!' });
         return;
+      } catch (error) {
+        response.status(404).json({
+          message: "Usuario a eliminar no encontrado",
+          id
+        });
+        return;
+      }
+    } else {
+      response.status(403).json({ message: "Usuario sin permisos suficientes" });
+      return;
     }
   }
 }
