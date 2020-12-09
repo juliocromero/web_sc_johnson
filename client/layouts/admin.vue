@@ -1,7 +1,8 @@
 <template>
   <v-app dark>
     <v-app-bar :clipped-left="clipped" fixed color="#f44336" app>
-      <img class="scj" src="@/static/iconos/logo-white.png" >
+     <v-btn icon to="/"><img class="scj" src="@/static/iconos/west-white-24dp.svg" alt="volver" ></v-btn>
+     <v-card-title class="white--text pl-0">Administración de Usuarios</v-card-title>
       <v-spacer />
       <v-menu bottom left>
         <template v-slot:activator="{ on, attrs }">
@@ -11,22 +12,10 @@
         </template>
 
         <v-list>
-          <v-list-item class="menuUser poiter" to="/admin">
-            <v-list-item-title>
-              <img class="pt-2" src="@/static/iconos/account_circle-white-18dp.svg" alt="admin">
-              Administración de Usuarios
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item class="menuUser pointer">
-            <v-list-item-title  @click="toggleDialogPassword(true)">
-              <img src="@/static/iconos/baseline_lock_black_18dp.png" alt="">
-              Cambiar Contraseña
-            </v-list-item-title>
-          </v-list-item>
           <v-list-item class="menuUser poiter" @click="Salir()">
-            <v-list-item-title>
-              <img class="pt-2" src="@/static/iconos/baseline_west_white_18dp.png" alt="">
-              Salir
+            <v-list-item-title class="d-flex align-center">
+              <img class="mr-2" src="@/static/iconos/baseline_west_white_18dp.png" alt="salir">
+               Salir
             </v-list-item-title>
           </v-list-item>
         </v-list>

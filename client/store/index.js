@@ -58,9 +58,7 @@ export const actions = {
            .then(res => {
              this.commit('SET_AUTH_AUTOMATIC', true );                    
            }).catch(err => {               
-           })
-         
-         
+           })                
      }
    },
  

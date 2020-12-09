@@ -56,7 +56,7 @@
         </v-card>
       </v-col>
     </v-row>
-{{datosCsv}}
+
     <v-row>
       <v-col>
         <v-card>
@@ -126,13 +126,11 @@
         </v-card>
       </v-col>
     </v-row>
-    <password />
     <infoModal />
   </v-container>
 </template>
 
 <script>
-import password from "@/components/common/cambiarPassword";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import edit from "@/components/common/editar";
 import axios from "../plugins/axios";
@@ -150,7 +148,6 @@ export default {
     edit,
     delet,
     create,
-    password,
     infoModal,
   },
   data: () => ({

@@ -87,6 +87,7 @@ class UserController {
       const resCustom = new Response(true, 'Logueado con exito', token.token)
 
       response.status(200).json(resCustom);
+
     } catch (error) {
       console.log(error.message)
       var resCustom = ''
@@ -103,7 +104,6 @@ class UserController {
   async loginToken({ auth, response }) {
     try {
       const user = await auth.getUser();
-      //console.log(user)
       if (user) {
         let data = { email: user.email, password: user.password}
         return response.status(200).json(data)
@@ -175,7 +175,7 @@ class UserController {
         users.rol_id = data.rol_id || users.rol_id;
         
         await users.save();
-        response.status(400).json({menssage: 'Usuario modificado con exito' , users});
+        response.status(200).json({menssage: 'Usuario modificado con exito' , users});
       }else{
         return response.status(400).json({menssage: 'Usuario sin permiso suficiente para realizar la operación'})
       }

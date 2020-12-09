@@ -73,11 +73,12 @@ export default {
   middleware: 'AUTH',
   methods: {
     ...mapMutations(["SET_AUTH"]),
-    async ingresar() {  
+    async ingresar() {
         await axios 
           .post("login", { email: this.username, password: this.password })
           .then(res => {
           let token = res.data.datos
+          console.log(res.data)
           this.SET_AUTH(token)
         }).catch(error =>{
           console.log(error.response)
