@@ -180,7 +180,7 @@ class UserController {
         users.rol_id = data.rol_id || users.rol_id;
 
         await users.save();
-        response.status(400).json({ menssage: 'Usuario modificado con exito', users });
+        response.status(200).json({ menssage: 'Usuario modificado con exito', users });
       } else {
         return response.status(400).json({ menssage: 'Usuario sin permiso suficiente para realizar la operación' })
       }

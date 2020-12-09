@@ -53,7 +53,7 @@
               <admin-reset-pass :editar="item" @reload="cargarUsuarios" />
             </template>
 
-            <template v-for="(item, i) in usuarios" v-slot:[`item.username`]="{ item }">
+            <template v-for="(item, i) in usuarios"  v-slot:[`item.username`]="{ item }">
                 <span :key="i">
                   <img src="@/static/iconos/verified_user-black-18dp.svg" alt="username" class="mr-2" v-if="item.rol_id=='administrador'"/>
                   {{ item.username }}
@@ -106,13 +106,13 @@ export default {
     usuarios: [],
     files: null,
     headers: [
-      { text: "Nombre", value: "username", align: "center" },
-      { text: "Apellido", value: "lastname", align: "center" },
-      { text: "Email", value: "email", align: "center" },
-      { text: "Tipo de Usuario", value: "rol_id", align: "center" },
-      { text: "Editar", value: "editar", align: "center" },
-      { text: "Reestablecer", value: "reset", align: "center" },
-      { text: "Eliminar", value: "eliminar", align: "center" },
+      { text: "Nombre", value: "username", align: "center", sortable: false },
+      { text: "Apellido", value: "lastname", align: "center", sortable: false },
+      { text: "Email", value: "email", align: "center", sortable: false },
+      { text: "Tipo de Usuario", value: "rol_id", align: "center", sortable: false },
+      { text: "Editar", value: "editar", align: "center", sortable: false },
+      { text: "Reestablecer", value: "reset", align: "center", sortable: false },
+      { text: "Eliminar", value: "eliminar", align: "center", sortable: false },
     ],
   }),
   computed: {
