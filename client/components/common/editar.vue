@@ -15,7 +15,7 @@
               <v-row>
                 <v-col cols="12" md="6">
                   <v-text-field
-                    v-model="producto.codigo"
+                    v-model="producto.cod_pt"
                     type="number"
                     :rules="nameRules"
                     label="Código"
@@ -25,7 +25,7 @@
 
                 <v-col cols="12" md="6">
                   <v-text-field
-                    v-model="producto.sp_temperatura"
+                    v-model="producto.sp_temp"
                     :rules="nameRules"
                     label="Temperatura"
                     type="number"
@@ -35,7 +35,7 @@
 
                 <v-col cols="12" md="6">
                   <v-text-field
-                    v-model="producto.sp_velocidad"
+                    v-model="producto.sp_vel"
                     :rules="nameRules"
                     label="Velocidad de Cinta"
                     type="number"
@@ -45,7 +45,7 @@
                 <v-col cols="12" md="6" class="d-flex">
                   <div class="mr-5 d-flex align-center">Crimper: </div>
                   <v-switch
-                    v-model="producto.crimper"
+                    v-model="producto.oncrimp"
                     color="success"
                     inset
                     hide-details

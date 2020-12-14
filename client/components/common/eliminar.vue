@@ -13,7 +13,7 @@
           <h3 class="my-3">¿Deseas eliminar el siguiente Producto?:</h3>
           <v-alert dense outlined type="error">
             <span outlined>
-              <strong>codigo: </strong>{{ delet.codigo }} <br />
+              <strong>codigo: </strong>{{ delet.cod_pt }} <br />
               <strong>Descripción: </strong>{{ delet.description }}
             </span>
           </v-alert>
@@ -69,7 +69,7 @@ export default {
         console.log('Se elimino: ', this.delet.id)
         this.toggleInfoModal({
           dialog: true,
-          msj:`Producto: ${this.delet.codigo} Eliminado correctamente`,
+          msj:`Producto: ${this.delet.cod_pt} Eliminado correctamente`,
           titulo:"Eliminar Producto",
           alertType: "success"
         })
