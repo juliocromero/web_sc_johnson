@@ -23,7 +23,7 @@ cron.schedule("*/10 * * * * *", async function (){
                 .from('baprueba')
                 .whereNotIn('cod_pt', codigosPGaux);
 
-            console.log(codigosSV1)
+            //console.log(codigosSV1)
             for (let i = 0; i < codigosSV1.length; i++) {
                 codigosSV1aux.push(codigosSV1[i].cod_pt) ;
             }
@@ -84,7 +84,7 @@ cron.schedule("*/10 * * * * *", async function (){
     //console.log(server1)
    // let sync = await Database.table('fecha').insert({ fecha_ser_web : `${fechas.fecha}`})
 
-    //console.log('servidor ejecutandose cada 10 seg' , moment().format('HH:mm:ss'))
+    console.log('servidor ejecutandose cada 10 seg' , moment().format('HH:mm:ss'))
 })
 
 cron.schedule("*/15 * * * * *", async function (){
