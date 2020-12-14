@@ -3,7 +3,6 @@ const Fecha = use("App/Models/Fecha");
 var moment = require('moment');
 const Database = use('Database');
 const Product = use("App/Models/Product");
-const ProductSV1 = use("App/Models/SV1/ProductSV1");
 
 
 cron.schedule("*/10 * * * * *", async function (){
@@ -66,15 +65,13 @@ cron.schedule("*/10 * * * * *", async function (){
     } catch (error) {
         console.log('ERROR BORRANDO CODIGOS: ' + error);
     }
-    
-    console.log(await ProductSV1.all());
 
    // Sincronización de datos.
     try{
         //Determina Fecha mas reciente en postgres
         var fechaMaxUpdatedPg = await Database.from('products').max('updated_at');
         var fechaMaxCreatedPg = await Database.from('products').max('created_at');
-        var fechaMaxPg;
+        var fechaMaxPg = moment().subtract(3, 'hours');
 
         if (fechaMaxUpdatedPg > fechaMaxCreatedPg) {
             fechaMaxPg = fechaMaxUpdatedPg;
@@ -98,14 +95,14 @@ cron.schedule("*/10 * * * * *", async function (){
             {
                 fechaMaxSV1 = fechaMaxCreatedSV1;
             }
-
+                console.log(fechaMaxSV1 , fechaMaxPg)
             if (fechaMaxPg > fechaMaxSV1) {
-                /*var datosAux = await Database.from('products')
+                var datosAux = await Database.from('products')
                                             .where('created_at', '>=', fechaMaxSV1)
                                             .orWhere('updated_at', '>=', fechaMaxSV1);
 
-                var result = await Database.connection('Server1').from('baprueba')
-                */
+                var result = await Database.connection('Server1').from('baprueba').updateOrCreateMany(datosAux);
+                
             }
 
         } catch (error) {
@@ -119,7 +116,7 @@ cron.schedule("*/10 * * * * *", async function (){
     //console.log(server1)
    // let sync = await Database.table('fecha').insert({ fecha_ser_web : `${fechas.fecha}`})
 
-    console.log('servidor ejecutandose cada 10 seg' , moment().format('HH:mm:ss'))
+    //console.log('servidor ejecutandose cada 10 seg' , moment().format('HH:mm:ss'))
 })
 
 cron.schedule("*/15 * * * * *", async function (){
