@@ -10,18 +10,29 @@ cron.schedule("*/10 * * * * *", async function (){
     try {
         //Traigo codigos en BD Postgres
         var codigosPG = await Database.select('cod_pt').from('baprueba');
+        var codigosPGaux, codigosSV1aux, codigosSV2aux = [];
+
+        for (let i = 0; i < codigosPG.length; i++) {
+            codigosPGaux[i] = codigosPG[i].cod_pt;
+        }
+
 
         //Verifico y borro códigos del server1 que ya no están en PG
         try {
             var codigosSV1 = await Database.connection('Server1')
                 .select('cod_pt')
                 .from('baprueba')
-                .whereNotIn('cod_pt', codigosPG);
+                .whereNotIn('cod_pt', codigosPGaux);
 
-            if (codigosSV1.length > 0) {
+
+            for (let i = 0; i < codigosSV1.length; i++) {
+                codigosSV1aux[i] = codigosSV1aux[i].cod_pt;
+            }
+            
+            if (codigosSV1aux.length > 0) {
                 const affectedRows = await Database.connection('Server1')
                                                     .table('baprueba')
-                                                    .whereIn('cod_pt', codigosSV1)
+                                                    .whereIn('cod_pt', codigosSV1aux)
                                                     .delete();
             }
         } catch (error) {
@@ -35,10 +46,14 @@ cron.schedule("*/10 * * * * *", async function (){
                 .from('baprueba')
                 .whereNotIn('cod_pt', codigosPG);
 
-            if (codigosSV2.length > 0) {
+            for (let i = 0; i < codigosSV2.length; i++) {
+                codigosSV2aux[i] = codigosSV2aux[i].cod_pt;
+            }
+            
+            if (codigosSV2aux.length > 0) {
                 const affectedRows = await Database.connection('Server2')
                                                     .table('baprueba')
-                                                    .whereIn('cod_pt', codigosSV2)
+                                                    .whereIn('cod_pt', codigosSV2aux)
                                                     .delete();
             }
         } catch (error) {
