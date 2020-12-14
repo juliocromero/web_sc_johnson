@@ -163,12 +163,12 @@ export default {
     headers: [
       {
         text: "Codigo",
-        value: "codigo",
+        value: "cod_pt",
         align: "center",
         filterable: false,
       },
-      { text: "SP Temperatura", value: "sp_temperatura", align: "center" },
-      { text: "SP Velocidad", value: "sp_velocidad", align: "center" },
+      { text: "SP Temperatura", value: "sp_temp", align: "center" },
+      { text: "SP Velocidad", value: "sp_vel", align: "center" },
       { text: "Descripción", value: "description", align: "center" },
       { text: "Válvula crimper", value: "crimper", align: "center" },
       { text: "Editar", value: "editar", align: "center" },
