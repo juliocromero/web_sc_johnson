@@ -91,8 +91,8 @@ class UserController {
      // let resp = await Promise.all(arrUser)
       const token = await auth.attempt(email, password)
       const resCustom = new Response(true, 'Logueado con exito', token.token)
-
-      response.status(200).json({ resCustom, user: validationUser });
+      resCustom.data = validationUser
+      response.status(200).json( resCustom );
     } catch (error) {
       console.log(error.message)
       var resCustom = ''

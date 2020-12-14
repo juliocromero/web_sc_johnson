@@ -103,4 +103,25 @@ module.exports = {
     database: Env.get('DB_DATABASE_SQL', 'adonis'), 
   }
 },
+
+    /*
+  |--------------------------------------------------------------------------
+  | Microsoft SQL Server
+  |--------------------------------------------------------------------------
+  |
+  | Here we define connection settings for SQLServer database.
+  |
+  | npm i --save mssql
+  |
+  */
+ Server2: {
+  client: 'mssql',
+  connection: {
+    type: 'mssql',
+    host: Env.get('DB_HOST_SERVER2', 'localhost'), 
+    user: Env.get('DB_USER_SERVER2', 'root'), 
+    password: Env.get('DB_PASSWORD_SERVER2', ''), 
+    database: Env.get('DB_DATABASE_SERVER2', 'adonis'), 
+  }
+},
 }

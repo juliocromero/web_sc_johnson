@@ -59,11 +59,17 @@ class ProductController {
           codigo,
           sp_temperatura,
           sp_velocidad,
-          crimper,
+          crimper:1,
           description,
           fecha: moment().format('YYYY-MM-DD HH:mm:ss') 
         })
-       /*  let table = await Database.connection('historicos').table('product').insert({ id: product.id, codigo: product.codigo, sp_temperatura: product.sp_temperatura, sp_velocidad: product.sp_velocidad, crimper: product.crimper, description: product.description }) */
+        if(product){
+          let server1 = await Database.connection('historicos').table('baprueba').insert({ cod_pt: product.codigo, sp_temp: product.sp_temperatura, sp_vel: product.sp_velocidad, oncrimp: product.crimper, description: product.description , created_at: product.fecha , updated_at: product.fecha})
+    
+        }else{
+          return response.status(400).json({menssage: 'EL producto no pudo se agregado al server 1, comunicarse con el administrador!'})
+        }
+        //let server2 = await Database.connection('Server2').table('baprueba').insert({ cod_pt: product.codigo, sp_temp: product.sp_temperatura, sp_vel: product.sp_velocidad, oncrimp: product.crimper, description: product.description , created_at: product.fecha , updated_at: product.fecha}) 
         return response.status(200).json({ message: 'Producto creado con exito', data: product })
       } else {
         return response.status(400).json({ menssage: 'Usuario sin permiso Suficiente' })
@@ -101,6 +107,12 @@ class ProductController {
         product.crimper = data.crimper || product.crimper;
         product.description = data.description || product.description;
         await product.save();
+        if(product){
+          let server1 = await Database.connection('historicos').table('baprueba').update({ cod_pt: product.codigo, sp_temp: product.sp_temperatura, sp_vel: product.sp_velocidad, oncrimp: product.crimper, description: product.description , created_at: product.fecha , updated_at: product.fecha}).where('cod_pt' , product.codigo)
+
+        }else{
+          return response.status(400).json({menssage: 'El producto editado no se puedo editar o no fue encontrado en el server 1'})
+        }
         return response.status(200).json({ menssage: 'Producto modificado con exito', data: product })
       } else {
         return response.status(400).json({ menssage: 'Usuario sin permisos para realizar la operación' })

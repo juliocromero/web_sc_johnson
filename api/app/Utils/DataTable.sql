@@ -38,3 +38,12 @@ create table rols(
   rol varchar(20) NOT NULL UNIQUE,
   PRIMARY KEY (id)
 );
+
+/* base de datos sync Fecha*/
+create table fecha(
+    id smallserial not null,
+    fecha_ser_web datetime not null , 
+    fecha_server1 datetime not null,
+    fecha_server2 datetime not null,
+    PRIMARY KEY(id)
+)
