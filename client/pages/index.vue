@@ -56,7 +56,7 @@
         </v-card>
       </v-col>
     </v-row>
-{{datosCsv}}
+
     <v-row>
       <v-col>
         <v-card>
@@ -91,7 +91,7 @@
             class="m-2"
             :page="page"
             :itemsPerPage="10"
-            :server-items-length="total"
+            :server-items-length="parseInt(total)"
             @pagination="indexPage($event)"
             :footer-props="{ itemsPerPageOptions: [5, 10, 25] }"
             no-data-text="No se encontraron resultados"
@@ -126,13 +126,11 @@
         </v-card>
       </v-col>
     </v-row>
-    <password />
     <infoModal />
   </v-container>
 </template>
 
 <script>
-import password from "@/components/common/cambiarPassword";
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import edit from "@/components/common/editar";
 import axios from "../plugins/axios";
@@ -150,7 +148,6 @@ export default {
     edit,
     delet,
     create,
-    password,
     infoModal,
   },
   data: () => ({

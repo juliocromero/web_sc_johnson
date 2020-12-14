@@ -2,7 +2,7 @@
   <div class="text-center">
     <v-dialog
       v-model="infoModal.dialog"
-      width="290"
+      width="320"
     >
       <v-card>
         <v-card-title class="dark headline lighten-2 v-card-titulo white--text">

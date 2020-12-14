@@ -12,13 +12,17 @@ export const state = () => ({
   },
   dialogPassword: false,
   auth: false,
-  dataUser:null
+  dataUser:null,
+  user:{}
 });
 
 export const mutations = {
   async SET_AUTH(state, token) {
     state.auth = true;  
-    Cookies.set('token', token)   
+    Cookies.set('token', token)
+    Cookies.set('name', state.user.username)
+    Cookies.set('lastname', state.user.lastname)
+    Cookies.set('rol', state.user.rol_id)   
     this.$router.push('/')
   },
   async SET_AUTH_AUTOMATIC(state, res) {
@@ -27,7 +31,10 @@ export const mutations = {
   },
   async SET_DESLOGIN(state) {  
     state.auth = false;
-    Cookies.remove('token')   
+    Cookies.remove('token')
+    Cookies.remove('name')
+    Cookies.remove('lastname')
+    Cookies.remove('rol')   
     location.reload();
   },
   async toggleDialogPassword(state, payload){
@@ -41,7 +48,10 @@ export const mutations = {
   },
   async ocultarInfoModal(state, payload){
     state.infoModal.dialog = payload
-  }
+  },
+  async setUser(state, payload){
+    state.user = payload
+  },
  
 };
 export const actions = {
@@ -58,9 +68,7 @@ export const actions = {
            .then(res => {
              this.commit('SET_AUTH_AUTOMATIC', true );                    
            }).catch(err => {               
-           })
-         
-         
+           })                
      }
    },
  
