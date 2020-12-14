@@ -61,9 +61,9 @@ class ProductController {
           oncrimp:1,
           description, 
         })
-        console.log(product)
+       // console.log(product)
         try{
-          let server1 = await Database.connection('historicos').table('baprueba').insert({ cod_pt: product.cod_pt, sp_temp: product.sp_temp, sp_vel: product.sp_vel, oncrimp: product.oncrimp, description: product.description , created_at: product.created_at , updated_at: product.updated_at})
+          let server1 = await Database.connection('Server1').table('baprueba').insert({ cod_pt: product.cod_pt, sp_temp: product.sp_temp, sp_vel: product.sp_vel, oncrimp: product.oncrimp, description: product.description , created_at: product.created_at , updated_at: product.updated_at})
 
         }catch(error){
           console.log(error)
@@ -113,7 +113,7 @@ class ProductController {
         await product.save();
         try {
           let server1 = await Database.connection('Server1').table('baprueba').update({ cod_pt: product.cod_pt, sp_temp: product.sp_temp, sp_vel: product.sp_vel, oncrimp: product.oncrimp, description: product.description , created_at: product.created_at , updated_at: product.updated_at}).where('cod_pt' , product.cod_pt) 
-          console.log(server1) 
+         // console.log(server1) 
         } catch (error) {
           return response.status(400).json({menssage: 'El producto editado no se puedo editar o no fue encontrado en el server 1'})
         }
@@ -144,6 +144,17 @@ class ProductController {
       if (user.rol_id == 1) {
         const product = await Product.findOrFail(id);
         await product.delete();
+        try {
+          let server1 = await Database.connection('Server1').table('baprueba').where('cod_pt' , product.cod_pt).delete();
+        } catch (error) {
+          console.log(error)
+          return response.status(400).json({menssage: 'El producto Eliminado no se puedo editar o no fue encontrado en el server 1'})
+        }
+        try {
+          let server2 = await Database.connection('Server2').table('baprueba').where('cod_pt' , product.cod_pt).delete();
+        } catch (error) {
+          return response.status(400).json({menssage: 'El producto Eliminado no se puedo editar o no fue encontrado en el server 2'})
+        }
         response.status(200).json({ menssage: 'Producto eliminado con exito!' });
         return;
       } else {

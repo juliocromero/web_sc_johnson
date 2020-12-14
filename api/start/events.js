@@ -1,6 +1,5 @@
 var cron = require("node-cron");
 const Fecha = use("App/Models/Fecha");
-const Product = use("App/Models/Product");
 var moment = require('moment');
 const Database = use('Database');
 const Product = use("App/Models/Product");
@@ -10,15 +9,15 @@ cron.schedule("*/10 * * * * *", async function (){
 
     try {
         //Traigo codigos en BD Postgres
-        var codigosPG = await Database.select('cod_pt').from('baprueba');
-
+        var codigosPG = await Database.select('cod_pt').from('products');
+       
         //Verifico y borro códigos del server1 que ya no están en PG
         try {
             var codigosSV1 = await Database.connection('Server1')
                 .select('cod_pt')
                 .from('baprueba')
                 .whereNotIn('cod_pt', codigosPG);
-
+                console.log(codigosSV1)
             if (codigosSV1.length > 0) {
                 const affectedRows = await Database.connection('Server1')
                                                     .table('baprueba')
@@ -31,6 +30,7 @@ cron.schedule("*/10 * * * * *", async function (){
 
         //Verifico y borro códigos del server2 que ya no están en PG
         try {
+            
             var codigosSV2 = await Database.connection('Server2')
                 .select('cod_pt')
                 .from('baprueba')
