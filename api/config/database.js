@@ -16,7 +16,7 @@ module.exports = {
   | interacting with SQL databases.
   |
   */
-  connection: Env.get('DB_CONNECTION', 'sqlite'),
+  connection: Env.get('DB_CONNECTION', 'pg'),
 
   /*
   |--------------------------------------------------------------------------
@@ -93,7 +93,7 @@ module.exports = {
   | npm i --save mssql
   |
   */
- historicos: {
+ Server1: {
   client: 'mssql',
   connection: {
     type: 'mssql',

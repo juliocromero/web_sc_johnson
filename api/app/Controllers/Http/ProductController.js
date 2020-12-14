@@ -42,34 +42,38 @@ class ProductController {
   async store({ request, response, auth }) {
     try {
       const user = await auth.getUser()
-      let { codigo, sp_temperatura, sp_velocidad, crimper, description } = request.all();
+      let { cod_pt, sp_temp, sp_vel,  description } = request.all();
       const rules = {
-        codigo: 'required',
-        sp_temperatura: 'requiered',
-        sp_velocidad: 'required',
-        crimper: 'required',
+        cod_pt: 'required',
+        sp_temp: 'requiered',
+        sp_vel: 'required',
         description: 'required'
       }
-      let validation = await validate({ codigo, sp_temperatura, sp_velocidad, crimper, description }, rules)
+      let validation = await validate({ cod_pt, sp_temp, sp_vel, description }, rules)
       if (validation.fails()) {
         response.status(403).json({ message: "Datos insuficiente" })
       }
       if (user.rol_id == 1) {
         const product = await Product.create({
-          codigo,
-          sp_temperatura,
-          sp_velocidad,
-          crimper:1,
-          description,
-          fecha: moment().format('YYYY-MM-DD HH:mm:ss') 
+          cod_pt,
+          sp_temp,
+          sp_vel,
+          oncrimp:1,
+          description, 
         })
-        if(product){
-          let server1 = await Database.connection('historicos').table('baprueba').insert({ cod_pt: product.codigo, sp_temp: product.sp_temperatura, sp_vel: product.sp_velocidad, oncrimp: product.crimper, description: product.description , created_at: product.fecha , updated_at: product.fecha})
-    
-        }else{
+        console.log(product)
+        try{
+          let server1 = await Database.connection('historicos').table('baprueba').insert({ cod_pt: product.cod_pt, sp_temp: product.sp_temp, sp_vel: product.sp_vel, oncrimp: product.oncrimp, description: product.description , created_at: product.created_at , updated_at: product.updated_at})
+
+        }catch(error){
+          console.log(error)
           return response.status(400).json({menssage: 'EL producto no pudo se agregado al server 1, comunicarse con el administrador!'})
         }
-        //let server2 = await Database.connection('Server2').table('baprueba').insert({ cod_pt: product.codigo, sp_temp: product.sp_temperatura, sp_vel: product.sp_velocidad, oncrimp: product.crimper, description: product.description , created_at: product.fecha , updated_at: product.fecha}) 
+        try {
+          let server2 = await Database.connection('Server2').table('baprueba').insert({ cod_pt: product.cod_pt, sp_temp: product.sp_temp, sp_vel: product.sp_vel, oncrimp: product.oncrimp, description: product.description , created_at: product.created_at , updated_at: product.updated_at}) 
+        } catch (error) {
+          return response.status(400).json({menssage: 'EL producto no pudo se agregado al server 2, comunicarse con el administrador!'})
+        }
         return response.status(200).json({ message: 'Producto creado con exito', data: product })
       } else {
         return response.status(400).json({ menssage: 'Usuario sin permiso Suficiente' })
@@ -97,21 +101,26 @@ class ProductController {
 
   async update({ params: { id }, request, response, auth }) {
     try {
-      const data = request.only(["codigo", "sp_temperatura", "sp_velocidad", "crimper", "description"])
+      const data = request.only(["cod_pt", "sp_temp", "sp_vel", "oncrimp", "description"])
       const user = await auth.getUser();
       if (user.rol_id == 1) {
         const product = await Product.find(id);
-        product.codigo = data.codigo || product.codigo;
-        product.sp_temperatura = data.sp_temperatura || product.sp_temperatura;
-        product.sp_velocidad = data.sp_velocidad || product.sp_velocidad;
-        product.crimper = data.crimper || product.crimper;
+        product.cod_pt = data.cod_pt || product.cod_pt;
+        product.sp_temp = data.sp_temp || product.sp_temp;
+        product.sp_vel = data.sp_vel || product.sp_vel;
+        product.oncrimp = data.oncrimp || product.oncrimp;
         product.description = data.description || product.description;
         await product.save();
-        if(product){
-          let server1 = await Database.connection('historicos').table('baprueba').update({ cod_pt: product.codigo, sp_temp: product.sp_temperatura, sp_vel: product.sp_velocidad, oncrimp: product.crimper, description: product.description , created_at: product.fecha , updated_at: product.fecha}).where('cod_pt' , product.codigo)
-
-        }else{
+        try {
+          let server1 = await Database.connection('Server1').table('baprueba').update({ cod_pt: product.cod_pt, sp_temp: product.sp_temp, sp_vel: product.sp_vel, oncrimp: product.oncrimp, description: product.description , created_at: product.created_at , updated_at: product.updated_at}).where('cod_pt' , product.cod_pt) 
+          console.log(server1) 
+        } catch (error) {
           return response.status(400).json({menssage: 'El producto editado no se puedo editar o no fue encontrado en el server 1'})
+        }
+        try {
+          let server2 = await Database.connection('Server2').table('baprueba').update({ cod_pt: product.cod_pt, sp_temp: product.sp_temp, sp_vel: product.sp_vel, oncrimp: product.oncrimp, description: product.description , created_at: product.created_at , updated_at: product.updated_at}).where('cod_pt' , product.cod_pt)
+        } catch (error) {
+          return response.status(400).json({menssage: 'El producto editado no se puedo editar o no fue encontrado en el server 2'})
         }
         return response.status(200).json({ menssage: 'Producto modificado con exito', data: product })
       } else {
