@@ -3,7 +3,6 @@ const Fecha = use("App/Models/Fecha");
 var moment = require('moment');
 const Database = use('Database');
 const Product = use("App/Models/Product");
-const ProductSV1 = use("App/Models/SV1/ProductSV1");
 
 
 cron.schedule("*/10 * * * * *", async function (){
@@ -66,8 +65,6 @@ cron.schedule("*/10 * * * * *", async function (){
     } catch (error) {
         console.log('ERROR BORRANDO CODIGOS: ' + error);
     }
-    
-    console.log(await ProductSV1.all());
 
    // Sincronización de datos.
     try{
@@ -100,12 +97,12 @@ cron.schedule("*/10 * * * * *", async function (){
             }
 
             if (fechaMaxPg > fechaMaxSV1) {
-                /*var datosAux = await Database.from('products')
+                var datosAux = await Database.from('products')
                                             .where('created_at', '>=', fechaMaxSV1)
                                             .orWhere('updated_at', '>=', fechaMaxSV1);
 
-                var result = await Database.connection('Server1').from('baprueba')
-                */
+                var result = await Database.connection('Server1').from('baprueba').updateOrCreateMany(datosAux);
+                
             }
 
         } catch (error) {
