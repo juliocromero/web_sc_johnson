@@ -101,6 +101,7 @@ class ProductController {
 
   async update({ params: { id }, request, response, auth }) {
     try {
+      console.log('hshsh')
       const data = request.only(["cod_pt", "sp_temp", "sp_vel", "oncrimp", "description"])
       const user = await auth.getUser();
       if (user.rol_id == 1) {
