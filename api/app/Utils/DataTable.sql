@@ -29,6 +29,8 @@ create table products(
     sp_temperatura nvarchar(30) NOT NULL,
     sp_velocidad  nvarchar(30) NOT NULL,
     description varchar(255) NOT NULL, 
+    created_at timestamp NOT NULL,
+    updated_at timestamp NOT NULL,
 )
 
 
@@ -42,8 +44,8 @@ create table rols(
 /* base de datos sync Fecha*/
 create table fecha(
     id smallserial not null,
-    fecha_ser_web datetime not null , 
-    fecha_server1 datetime not null,
-    fecha_server2 datetime not null,
+    fecha_ser_web timestamp not null , 
+    fecha_server1 timestamp not null,
+    fecha_server2 timestamp not null,
     PRIMARY KEY(id)
 )
