@@ -3,14 +3,17 @@ const Fecha = use("App/Models/Fecha");
 var moment = require('moment');
 const Database = use('Database');
 const Product = use("App/Models/Product");
+const ProductSV1 = use("App/Models/SV1/ProductSV1");
 
 
 cron.schedule("*/10 * * * * *", async function (){
 
+    // BORRANDO registros que se borraron del postgres y no fueron borrados en algun server.
     try {
         //Traigo codigos en BD Postgres
         var codigosPG = await Database.select('cod_pt').from('products');
         var codigosPGaux = [], codigosSV1aux= [], codigosSV2aux = [];
+
         for (let i = 0; i < codigosPG.length; i++) {
             codigosPGaux.push(codigosPG[i].cod_pt) ;
         }
@@ -23,7 +26,6 @@ cron.schedule("*/10 * * * * *", async function (){
                 .from('baprueba')
                 .whereNotIn('cod_pt', codigosPGaux);
 
-            console.log(codigosSV1)
             for (let i = 0; i < codigosSV1.length; i++) {
                 codigosSV1aux.push(codigosSV1[i].cod_pt) ;
             }
@@ -57,6 +59,7 @@ cron.schedule("*/10 * * * * *", async function (){
                                                     .whereIn('cod_pt', codigosSV2aux)
                                                     .delete();
             }
+
         } catch (error) {
             console.log('ERROR BORRANDO SERVER2: ' + error);
         }
@@ -64,17 +67,49 @@ cron.schedule("*/10 * * * * *", async function (){
         console.log('ERROR BORRANDO CODIGOS: ' + error);
     }
     
+    console.log(await ProductSV1.all());
 
-
-   
+   // Sincronización de datos.
     try{
-        let fechaWeb = await Database.from('products').max('updated_at')
-        //fechaWeb = fechaWeb.toJSON()
-        //console.log(fechaWeb)
+        //Determina Fecha mas reciente en postgres
+        var fechaMaxUpdatedPg = await Database.from('products').max('updated_at');
+        var fechaMaxCreatedPg = await Database.from('products').max('created_at');
+        var fechaMaxPg;
+
+        if (fechaMaxUpdatedPg > fechaMaxCreatedPg) {
+            fechaMaxPg = fechaMaxUpdatedPg;
+        }
+        else
+        {
+            fechaMaxPg = fechaMaxCreatedPg;
+        }
+
+        //Verifico y actualizo server1
         try {
-            const server1 = await Database.connection('historicos').from('baprueba').max('updated_at')
+            //Determino fecha max SV1
+            var fechaMaxUpdatedSV1 = await Database.connection('Server1').from('baprueba').max('updated_at');
+            var fechaMaxCreatedSV1 = await Database.connection('Server1').from('baprueba').max('created_at');
+            var fechaMaxSV1;
+
+            if (fechaMaxUpdatedSV1 > fechaMaxCreatedSV1) {
+                fechaMaxSV1 = fechaMaxUpdatedSV1;
+            }
+            else
+            {
+                fechaMaxSV1 = fechaMaxCreatedSV1;
+            }
+
+            if (fechaMaxPg > fechaMaxSV1) {
+                /*var datosAux = await Database.from('products')
+                                            .where('created_at', '>=', fechaMaxSV1)
+                                            .orWhere('updated_at', '>=', fechaMaxSV1);
+
+                var result = await Database.connection('Server1').from('baprueba')
+                */
+            }
+
         } catch (error) {
-            
+            console.log('ERROR SYNC SV1: ' + error)
         }
         
     }catch(error){
