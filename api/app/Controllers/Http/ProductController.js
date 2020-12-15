@@ -15,15 +15,15 @@ class ProductController {
       var {
         page,
         perPage,
-        codigo
+        cod_pt
       } = request.all()
       //seteo valores por defectos
       page = page || 1
       perPage = perPage || 10
-      codigo = codigo || null
+      cod_pt = cod_pt || null
 
-      if (codigo) {
-        const products = await query.where('codigo', codigo).paginate(page, perPage);
+      if (cod_pt) {
+        const products = await query.where('cod_pt', cod_pt).paginate(page, perPage);
         response.status(200).json({ menssage: 'Listado de Productos', data: products })
       } else {
         const products = await query.paginate(page, perPage);

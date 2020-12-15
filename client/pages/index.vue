@@ -69,13 +69,13 @@
               <v-col cols="8" sm="8" class="mt-0 pt-0">
                 <v-text-field
                   type="number"
-                  v-model="codigo"
+                  v-model="cod_pt"
                   append-icon="mdi-magnify"
                   label="Ingrese un código y presione Enter"
                   single-line
                   hide-details
                   class="mr-1"
-                  ref="codigo"
+                  ref="cod_pt"
                   counter
                   oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                   maxlength="8"
@@ -104,11 +104,11 @@
               <delet :delet="item" @reload="producto" />
             </template>
 
-            <template v-slot:[`item.crimper`]="{ item }">
+            <template v-slot:[`item.oncrimp`]="{ item }">
               <input 
-              :class="item.crimper ? 'crimperON' : 'crimperOFF'"  
+              :class="item.oncrimp ? 'crimperON' : 'crimperOFF'"  
               type="text" 
-              :value="item.crimper ?  'On' : 'Off'" 
+              :value="item.oncrimp ?  'On' : 'Off'" 
               disabled
               />
             </template>
@@ -157,7 +157,7 @@ export default {
     total: null,
     perPage: 10,
     page: 1,
-    codigo: null,
+    cod_pt: null,
     product: [],
     files: null,
     headers: [
@@ -170,7 +170,7 @@ export default {
       { text: "SP Temperatura", value: "sp_temp", align: "center" },
       { text: "SP Velocidad", value: "sp_vel", align: "center" },
       { text: "Descripción", value: "description", align: "center" },
-      { text: "Válvula crimper", value: "crimper", align: "center" },
+      { text: "Válvula crimper", value: "oncrimp", align: "center" },
       { text: "Editar", value: "editar", align: "center" },
       { text: "Eliminar", value: "eliminar", align: "center" },
 
@@ -181,10 +181,10 @@ export default {
   },
   watch: {
 
-        codigo: function () { 
-                if(this.codigo === ""){
+        cod_pt: function () { 
+                if(this.cod_pt === ""){
                   this.page = this.pag
-                  this.codigo = null
+                  this.cod_pt = null
                   this.indexPage(this.$emit("pagination"))                
                 } 
         }
@@ -193,7 +193,7 @@ export default {
     ...mapMutations(["toggleInfoModal",'SET_DESLOGIN']),
     filtrarTabla(){
       try {
-        if(this.codigo){
+        if(this.cod_pt){
         this.dialogSpinner = true;
         let pg = this.$emit("pagination")
         if(pg.page>1){
@@ -222,14 +222,14 @@ export default {
           params: {
             page: this.page,
             perPage: this.perPage,
-            codigo: this.codigo
+            cod_pt: this.cod_pt
           }
         })
         .then((res) => {
           this.product = res.data.data.data;
           this.total = res.data.data.total;
           this.dialogSpinner = false;
-          if(this.codigo != null){this.$refs.codigo.focus()}
+          if(this.cod_pt != null){this.$refs.cod_pt.focus()}
         }).catch(error =>{
           console.log(error)
             this.toggleInfoModal({
@@ -280,7 +280,7 @@ export default {
           },
           params: {
             perPage: '*',
-            codigo: this.codigo
+            cod_pt: this.cod_pt
           }
         })
         .then((res) => {

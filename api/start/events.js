@@ -67,11 +67,11 @@ cron.schedule("*/10 * * * * *", async function (){
     }
 
    // Sincronización de datos.
-   /* try{
+    try{
         //Determina Fecha mas reciente en postgres
         var fechaMaxUpdatedPg = await Database.from('products').max('updated_at');
         var fechaMaxCreatedPg = await Database.from('products').max('created_at');
-        var fechaMaxPg = moment().subtract(3, 'hours');
+        var fechaMaxPg;
 
         if (fechaMaxUpdatedPg > fechaMaxCreatedPg) {
             fechaMaxPg = fechaMaxUpdatedPg;
@@ -101,7 +101,7 @@ cron.schedule("*/10 * * * * *", async function (){
                                             .where('created_at', '>=', fechaMaxSV1)
                                             .orWhere('updated_at', '>=', fechaMaxSV1);
 
-                
+                var result = await Database.connection('Server1').from('baprueba').updateOrCreateMany(datosAux);
                 
             }
 
@@ -112,7 +112,7 @@ cron.schedule("*/10 * * * * *", async function (){
     }catch(error){
         console.log(error)
     }
-   */
+   
     //console.log(server1)
    // let sync = await Database.table('fecha').insert({ fecha_ser_web : `${fechas.fecha}`})
 
