@@ -113,7 +113,7 @@
               />
             </template>
           </v-data-table>
-
+          {{product}}
           <v-dialog v-model="dialogSpinner" hide-overlay>
             <v-progress-circular
               :size="70"

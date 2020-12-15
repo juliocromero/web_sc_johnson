@@ -101,7 +101,7 @@ export default {
       codigo: null,
       sp_temperatura: "",
       sp_velocidad: "",
-      crimper:true,
+      oncrimp:true,
       description: "",
     },
   }),
@@ -112,12 +112,12 @@ export default {
       try {
         this.dialog = false;
         let token = Cookies.get("token");
-        this.producto.crimper==false ? this.producto.crimper="false" : this.producto.crimper;
+        this.producto.oncrimp==false ? this.producto.oncrimp="false" : this.producto.oncrimp; 
         console.log(this.producto)
         await axios.put(`product/${this.editar.id}`, this.producto, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        this.producto.crimper=="false" ? this.producto.crimper=false : this.producto.crimper;
+        this.producto.oncrimp=="false" ? this.producto.oncrimp=false : this.producto.oncrimp;
         this.$emit("reload");
         this.toggleInfoModal({
           dialog: true,

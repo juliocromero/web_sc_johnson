@@ -56,7 +56,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6" class="d-flex">
-                  <div class="mr-5 d-flex align-center">Crimper: </div>
+                  <div class="mr-5 d-flex align-center">Válvula Crimper: </div>
                   <v-switch
                     v-model="producto.oncrimp"
                     color="success"
@@ -108,7 +108,7 @@ export default {
       codigo: null,
       sp_temperatura: "",
       sp_velocidad: "",
-      crimper: true,
+      oncrimp: true,
       description: "",
     },
   }),
@@ -119,7 +119,7 @@ export default {
       this.producto.codigo=null;
       this.producto.sp_temperatura="";
       this.producto.sp_velocidad="";
-      this.producto.crimper=true;
+      this.producto.oncrimp=true;
       this.producto.description="";
     },
     async Create_Products_table() {
@@ -139,7 +139,7 @@ export default {
         this.producto.codigo=null;
         this.producto.sp_temperatura="";
         this.producto.sp_velocidad="";
-        this.producto.crimper=true;
+        this.producto.oncrimp=true;
         this.producto.description="";
       } catch (error) {
         this.toggleInfoModal({
