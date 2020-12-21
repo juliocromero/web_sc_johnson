@@ -93,8 +93,14 @@
             :itemsPerPage="10"
             :server-items-length="parseInt(total)"
             @pagination="indexPage($event)"
-            :footer-props="{ itemsPerPageOptions: [5, 10, 25] }"
             no-data-text="No se encontraron resultados"
+            :footer-props="{
+                prevIcon: 'mdi-arrow-left',
+                nextIcon:'mdi-arrow-right',
+                itemsPerPageText: 'items por página',
+                pageText: 'páginas',
+                itemsPerPageOptions: [5, 10, 25] 
+              }"
           >
             <template v-slot:[`item.editar`]="{ item }">
               <edit :editar="item" @reload="producto" />
@@ -113,7 +119,6 @@
               />
             </template>
           </v-data-table>
-          {{product}}
           <v-dialog v-model="dialogSpinner" hide-overlay>
             <v-progress-circular
               :size="70"
@@ -362,10 +367,6 @@ export default {
 </script>
 
 <style scoped>
-/* .CSV {
-  width: 100%;
-  text-align: right;
-} */
 .spinner {
   position: absolute;
   top: 50%;
