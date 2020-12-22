@@ -4,23 +4,36 @@
       <v-col class="pa-0 ma-0">
         <v-card color="#FFE4D5">
           <v-container class="py-0">
-            <v-row  >
-              <v-col cols="12"  sm="2" md="3" class="py-0 ma-0 d-flex align-center">
+            <v-row>
+              <v-col
+                cols="12"
+                sm="2"
+                md="3"
+                class="py-0 ma-0 d-flex align-center"
+              >
                 <v-btn
                   depressed
                   color="success"
                   @click="descargaCSV"
                   block
                   dark
-                  class="my-2"          
+                  class="my-2"
                 >
-                 <div class="d-sm-none d-md-flex">Descargar .CSV</div> 
-                  <img class="ml-2 d-sm-none d-md-flex" src="@/static/iconos/baseline_cloud_download_white_1x.png" alt="upload">
-                  <img class="d-none d-sm-flex d-md-none" src="@/static/iconos/baseline_cloud_download_white_2x.png" alt="upload">
+                  <div class="d-sm-none d-md-flex">Descargar .CSV</div>
+                  <img
+                    class="ml-2 d-sm-none d-md-flex"
+                    src="@/static/iconos/baseline_cloud_download_white_1x.png"
+                    alt="upload"
+                  />
+                  <img
+                    class="d-none d-sm-flex d-md-none"
+                    src="@/static/iconos/baseline_cloud_download_white_2x.png"
+                    alt="upload"
+                  />
                 </v-btn>
               </v-col>
-              <v-spacer/>
-              <v-col cols="12"  sm=6 md="3" class="py-0 ma-0">
+              <v-spacer />
+              <v-col cols="12" sm="6" md="3" class="py-0 ma-0">
                 <v-file-input
                   v-model="datosCsv"
                   placeholder=" Archivo .csv"
@@ -38,7 +51,12 @@
                 </v-file-input>
               </v-col>
 
-              <v-col cols="12"  sm="4" md="3" class="py-0 ma-0 d-flex align-center">
+              <v-col
+                cols="12"
+                sm="4"
+                md="3"
+                class="py-0 ma-0 d-flex align-center"
+              >
                 <v-btn
                   depressed
                   color="#F44336"
@@ -48,7 +66,11 @@
                   class="my-2"
                 >
                   Plantilla CSV
-                   <img class="ml-2" src="@/static/iconos/baseline_cloud_download_white_1x.png" alt="upload">
+                  <img
+                    class="ml-2"
+                    src="@/static/iconos/baseline_cloud_download_white_1x.png"
+                    alt="upload"
+                  />
                 </v-btn>
               </v-col>
             </v-row>
@@ -94,13 +116,8 @@
             :server-items-length="parseInt(total)"
             @pagination="indexPage($event)"
             no-data-text="No se encontraron resultados"
-            :footer-props="{
-                prevIcon: 'mdi-arrow-left',
-                nextIcon:'mdi-arrow-right',
-                itemsPerPageText: 'items por página',
-                pageText: 'páginas',
-                itemsPerPageOptions: [5, 10, 25] 
-              }"
+            hide-actions
+            :footer-props="footerProps"
           >
             <template v-slot:[`item.editar`]="{ item }">
               <edit :editar="item" @reload="producto" />
@@ -111,13 +128,48 @@
             </template>
 
             <template v-slot:[`item.oncrimp`]="{ item }">
-              <input 
-              :class="item.oncrimp ? 'crimperON' : 'crimperOFF'"  
-              type="text" 
-              :value="item.oncrimp ?  'On' : 'Off'" 
-              disabled
+              <input
+                :class="item.oncrimp ? 'crimperON' : 'crimperOFF'"
+                type="text"
+                :value="item.oncrimp ? 'On' : 'Off'"
+                disabled
               />
             </template>
+
+
+            <template slot="footer">
+                <!-- Carrusel de botones -->
+                <!-- <v-divider></v-divider>
+                <div class="text-center pa-5">
+                <v-pagination
+                  v-model="page"
+                  :length="pageCount"
+                  color="success"
+                ></v-pagination>
+                </div> -->
+      
+              <v-btn
+                @click="indexPagePrev($event)"
+                style="position: absolute; right: 6%; bottom: 10px"
+                icon
+              >
+                <img
+                  src="@/static/iconos/baseline_keyboard_arrow_left_black_24.png"
+                  alt="upload"
+                />
+              </v-btn>
+              <v-btn
+                @click="indexPageNext($event)"
+                style="position: absolute; right: 0%; bottom: 10px"
+                icon
+              >
+                <img
+                  src="@/static/iconos/baseline_keyboard_arrow_right_black_24.png"
+                  alt="upload"
+                />
+              </v-btn>
+            </template>
+
           </v-data-table>
           <v-dialog v-model="dialogSpinner" hide-overlay>
             <v-progress-circular
@@ -145,7 +197,7 @@ import infoModal from "@/components/common/infoModal";
 import Cookies from "js-cookie";
 let CSVtoJSON = require("csvtojson");
 import { mapState, mapMutations } from "vuex";
-/* import { delete } from 'vue/types/umd'; */
+
 
 export default {
   middleware: "NOAUTH",
@@ -156,65 +208,70 @@ export default {
     infoModal,
   },
   data: () => ({
-    datosCsv:null,
-    pag : null,
+    footerProps: {
+      disablePagination: true,
+      prevIcon: null,
+      nextIcon: null,
+      itemsPerPageText: "items por página",
+      itemsPerPageOptions: [5, 10, 25],
+    },
+    datosCsv: null,
+    pag: null,
     dialogSpinner: false,
     total: null,
     perPage: 10,
     page: 1,
+    pageCount: 1,
     cod_pt: null,
     product: [],
     files: null,
     headers: [
-      {
-        text: "Codigo",
-        value: "cod_pt",
-        align: "center",
-        filterable: false,
-      },
+      { text: "Codigo", value: "cod_pt", align: "center" },
       { text: "SP Temperatura", value: "sp_temp", align: "center" },
       { text: "SP Velocidad", value: "sp_vel", align: "center" },
       { text: "Descripción", value: "description", align: "center" },
       { text: "Válvula crimper", value: "oncrimp", align: "center" },
       { text: "Editar", value: "editar", align: "center" },
       { text: "Eliminar", value: "eliminar", align: "center" },
-
     ],
   }),
   computed: {
     ...mapState(["infoModal"]),
   },
-  watch: {
-
-        cod_pt: function () { 
-                if(this.cod_pt === ""){
-                  this.page = this.pag
-                  this.cod_pt = null
-                  this.indexPage(this.$emit("pagination"))                
-                } 
-        }
-  },
   methods: {
-    ...mapMutations(["toggleInfoModal",'SET_DESLOGIN']),
-    filtrarTabla(){
+    ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
+    filtrarTabla() {
       try {
-        if(this.cod_pt){
-        this.dialogSpinner = true;
-        let pg = this.$emit("pagination")
-        if(pg.page>1){
-        this.pag = pg.page
+        if (this.cod_pt) {
+          this.dialogSpinner = true;
+          let pg = this.$emit("pagination");
+          if (pg.page > 1) {
+            this.pag = pg.page;
+          }
+          this.indexPage(pg);
+          pg.page = 1;
         }
-      this.indexPage(pg)
-      pg.page = 1        
-      }
       } catch (error) {
-        console.log(erro)
+        console.log(erro);
       }
     },
     async indexPage(e) {
       this.page = e.page;
       this.perPage = e.itemsPerPage;
-      this.producto() 
+      this.pageCount = e.pageCount;
+      this.producto();
+    },
+    async indexPageNext(e) {
+      if (this.page < this.pageCount) {
+        this.page++;
+        this.producto();
+      }
+    },
+    async indexPagePrev(e) {
+      if (this.page > 1) {
+        this.page--;
+        this.producto();
+      }
     },
     async producto() {
       this.dialogSpinner = true;
@@ -227,23 +284,26 @@ export default {
           params: {
             page: this.page,
             perPage: this.perPage,
-            cod_pt: this.cod_pt
-          }
+            cod_pt: this.cod_pt,
+          },
         })
         .then((res) => {
           this.product = res.data.data.data;
           this.total = res.data.data.total;
           this.dialogSpinner = false;
-          if(this.cod_pt != null){this.$refs.cod_pt.focus()}
-        }).catch(error =>{
-          console.log(error)
-            this.toggleInfoModal({
+          if (this.cod_pt != null) {
+            this.$refs.cod_pt.focus();
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.toggleInfoModal({
             dialog: true,
             msj: `Ha ocurrido un error`,
             titulo: "Filtrar Datos",
             alertType: "error",
           });
-        })
+        });
     },
     csvModelo() {
       let csvContent = "data:text/csv;charset=utf-8,";
@@ -276,7 +336,7 @@ export default {
       link.setAttribute("download", "plantilla.csv");
       link.click();
     },
- async callAllProducts(){
+    async callAllProducts() {
       let token = Cookies.get("token");
       let allProducts = await axios
         .get("product", {
@@ -284,25 +344,24 @@ export default {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            perPage: '*',
-            cod_pt: this.cod_pt
-          }
+            perPage: "*",
+            cod_pt: this.cod_pt,
+          },
         })
         .then((res) => {
-          return res.data.data.data
-        }).catch(error =>{
-          console.log(error)
+          return res.data.data.data;
         })
-        return allProducts;
-    }
-    ,
-    async descargaCSV(){
-    this.dialogSpinner = true;
-    let productos =  await this.callAllProducts();
-    await this.csvExport(productos)
-    this.dialogSpinner = false;
-    }
-    ,
+        .catch((error) => {
+          console.log(error);
+        });
+      return allProducts;
+    },
+    async descargaCSV() {
+      this.dialogSpinner = true;
+      let productos = await this.callAllProducts();
+      await this.csvExport(productos);
+      this.dialogSpinner = false;
+    },
     csvExport(arrData) {
       for (let i = 0; i < arrData.length; i++) {
         delete arrData[i].fecha;
@@ -331,7 +390,7 @@ export default {
       try {
         var file = files;
         var reader = new FileReader();
-        file =  new Blob([file], { type: "text/plain" });
+        file = new Blob([file], { type: "text/plain" });
         reader.readAsBinaryString(file);
         reader.onload = (event) => {
           var lines = event.target.result.split("\n");
@@ -347,9 +406,9 @@ export default {
             for (let j = 0; j < headers.length; j++) {
               obj[headers[j]] = currentline[j];
             }
-          this.cargarProduct(obj);
+            this.cargarProduct(obj);
           }
-          this.datosCsv= null
+          this.datosCsv = null;
           this.producto();
           this.toggleInfoModal({
             dialog: true,
@@ -363,10 +422,19 @@ export default {
       }
     },
   },
+  watch: {
+    cod_pt: function () {
+      if (this.cod_pt === "") {
+        this.page = this.pag;
+        this.cod_pt = null;
+        this.indexPage(this.$emit("pagination"));
+      }
+    },
+  }
 };
 </script>
 
-<style scoped>
+<style lang="css" scoped>
 .spinner {
   position: absolute;
   top: 50%;
@@ -375,22 +443,28 @@ export default {
 }
 .div {
   border-radius: 5px;
-  border: 2px solid #F44336;
+  border: 2px solid #f44336;
   padding: 5px;
 }
 
-.crimperON{
-  background-color: #4CAF50 ;
+.crimperON {
+  background-color: #4caf50;
   color: white;
   width: 30px;
   text-align: center;
   border-radius: 15px;
 }
-.crimperOFF{
-  background-color: #F44336 ;
+.crimperOFF {
+  background-color: #f44336;
   color: white;
   width: 30px;
   text-align: center;
   border-radius: 15px;
+}
+</style>
+
+<style >
+#table .v-data-footer .v-icon {
+  color: blue !important;
 }
 </style>
