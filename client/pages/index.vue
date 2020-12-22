@@ -116,7 +116,6 @@
             :server-items-length="parseInt(total)"
             @pagination="indexPage($event)"
             no-data-text="No se encontraron resultados"
-            hide-actions
             :footer-props="footerProps"
           >
             <template v-slot:[`item.editar`]="{ item }">
@@ -150,7 +149,7 @@
       
               <v-btn
                 @click="indexPagePrev($event)"
-                style="position: absolute; right: 6%; bottom: 10px"
+                style="position: absolute; right: 7%; bottom: 10px"
                 icon
               >
                 <img
@@ -160,7 +159,7 @@
               </v-btn>
               <v-btn
                 @click="indexPageNext($event)"
-                style="position: absolute; right: 0%; bottom: 10px"
+                style="position: absolute; right: 1%; bottom: 10px"
                 icon
               >
                 <img
