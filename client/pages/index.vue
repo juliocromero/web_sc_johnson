@@ -171,13 +171,14 @@
 
             <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ header }">
 
-                <span :key="i">{{h.text}}</span>
+                <span :key="i+1">{{h.text}}</span>
      
                     <v-btn
                     v-if="i<3"
-                    @click="flag ? sortAc(product, h.value) : sortDc(product, h.value)"
+                    @click="flag ? sortAc(product, h.value, i) : sortDc(product, h.value, i)"
                     icon
                     :key="i"
+                    :class="ctrl[i]"
                   >
                     <img
                       src="@/static/iconos/filter_list-white-24dp.svg"
@@ -225,7 +226,9 @@ export default {
     infoModal,
   },
   data: () => ({
-    flag: 1,
+    ctrl:[],
+    flag:true,
+    sortClass: '',
     footerProps: {
       disablePagination: true,
       prevIcon: null,
@@ -257,16 +260,20 @@ export default {
     ...mapState(["infoModal"]),
   },
   methods: {
-    sortAc(arr, parametro){
+    sortAc(arr, parametro, i){
       let ordenado = [];
       ordenado =  arr.sort(function( a, b){ return a[parametro] - b[parametro]; });
       this.flag = !this.flag
+      this.ctrl=[];
+      this.ctrl[i]='anim1';
       return ordenado;
     },
-    sortDc(arr, parametro){
+    sortDc(arr, parametro, i){
       let ordenado = [];
       ordenado =  arr.sort(function( a, b){ return b[parametro] - a[parametro]; });
       this.flag = !this.flag
+      this.ctrl=[];
+      this.ctrl[i]='anim2';
       return ordenado;
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
@@ -495,7 +502,7 @@ export default {
 
 @keyframes rotate360 {
   to { 
-    transform: rotate(180deg);
+    transform: rotate(360deg);
   }
        
 }
@@ -506,6 +513,17 @@ export default {
 -o-transform: rotate(180deg);
 -ms-transform: rotate(180deg);
 transform: rotate(180deg);
+background-color: rgb(219, 214, 214);
+}
+
+.anim2 { 
+/* animation: 1s rotate360; */
+-webkit-transform: rotate(360deg);
+-moz-transform: rotate(180deg);
+-o-transform: rotate(360deg);
+-ms-transform: rotate(360deg);
+transform: rotate(360deg);
+background-color: rgb(219, 214, 214);
 }
 </style>
 
