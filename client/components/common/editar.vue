@@ -98,9 +98,9 @@ export default {
     dialog: false,
     nameRules: [(v) => !!v || "Este campo es requerido"],
     producto: {
-      codigo: null,
-      sp_temperatura: "",
-      sp_velocidad: "",
+      cod_pt: null,
+      sp_temp: "",
+      sp_vel: "",
       oncrimp:true,
       description: "",
     },
@@ -121,7 +121,7 @@ export default {
         this.$emit("reload");
         this.toggleInfoModal({
           dialog: true,
-          msj: `Producto: ${this.editar.codigo} Actualizado correctamente`,
+          msj: `Producto: ${this.editar.cod_pt} Actualizado correctamente`,
           titulo: "Actualizar Producto",
           alertType: "success",
         });

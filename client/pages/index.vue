@@ -169,6 +169,24 @@
               </v-btn>
             </template>
 
+            <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ header }">
+
+                <span :key="i">{{h.text}}</span>
+     
+                    <v-btn
+                    v-if="i<3"
+                    @click="flag ? sortAc(product, h.value) : sortDc(product, h.value)"
+                    icon
+                    :key="i"
+                  >
+                    <img
+                      src="@/static/iconos/filter_list-white-24dp.svg"
+                      alt="sort"
+                    />
+                  </v-btn>
+                  
+            </template>
+
           </v-data-table>
           <v-dialog v-model="dialogSpinner" hide-overlay>
             <v-progress-circular
@@ -207,6 +225,7 @@ export default {
     infoModal,
   },
   data: () => ({
+    flag: 1,
     footerProps: {
       disablePagination: true,
       prevIcon: null,
@@ -225,19 +244,31 @@ export default {
     product: [],
     files: null,
     headers: [
-      { text: "Codigo", value: "cod_pt", align: "center" },
-      { text: "SP Temperatura", value: "sp_temp", align: "center" },
-      { text: "SP Velocidad", value: "sp_vel", align: "center" },
-      { text: "Descripción", value: "description", align: "center" },
-      { text: "Válvula crimper", value: "oncrimp", align: "center" },
-      { text: "Editar", value: "editar", align: "center" },
-      { text: "Eliminar", value: "eliminar", align: "center" },
+      { text: "Codigo", value: "cod_pt", align: "center", sortable: false},
+      { text: "SP Temperatura", value: "sp_temp", align: "center" , sortable: false},
+      { text: "SP Velocidad", value: "sp_vel", align: "center", sortable: false},
+      { text: "Descripción", value: "description", align: "center" , sortable: false},
+      { text: "Válvula crimper", value: "oncrimp", align: "center", sortable: false},
+      { text: "Editar", value: "editar", align: "center", sortable: false},
+      { text: "Eliminar", value: "eliminar", align: "center", sortable: false},
     ],
   }),
   computed: {
     ...mapState(["infoModal"]),
   },
   methods: {
+    sortAc(arr, parametro){
+      let ordenado = [];
+      ordenado =  arr.sort(function( a, b){ return a[parametro] - b[parametro]; });
+      this.flag = !this.flag
+      return ordenado;
+    },
+    sortDc(arr, parametro){
+      let ordenado = [];
+      ordenado =  arr.sort(function( a, b){ return b[parametro] - a[parametro]; });
+      this.flag = !this.flag
+      return ordenado;
+    },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
     filtrarTabla() {
       try {
@@ -459,6 +490,22 @@ export default {
   width: 30px;
   text-align: center;
   border-radius: 15px;
+}
+
+
+@keyframes rotate360 {
+  to { 
+    transform: rotate(180deg);
+  }
+       
+}
+.anim1 { 
+/* animation: 1s rotate360; */
+-webkit-transform: rotate(180deg);
+-moz-transform: rotate(180deg);
+-o-transform: rotate(180deg);
+-ms-transform: rotate(180deg);
+transform: rotate(180deg);
 }
 </style>
 

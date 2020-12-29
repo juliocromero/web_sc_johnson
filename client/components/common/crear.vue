@@ -105,10 +105,10 @@ export default {
     dialog: false,
     nameRules: [(v) => !!v || "Este campo es requerido"],
     producto: {
-      codigo: null,
-      sp_temperatura: "",
-      sp_velocidad: "",
-      oncrimp: true,
+      cod_pt: null,
+      sp_temp: "",
+      sp_vel: "",
+      oncrimp:true,
       description: "",
     },
   }),
@@ -116,9 +116,9 @@ export default {
     ...mapMutations(["toggleInfoModal"]),
     toggleDialog(){
       this.dialog = false
-      this.producto.codigo=null;
-      this.producto.sp_temperatura="";
-      this.producto.sp_velocidad="";
+      this.producto.cod_pt=null;
+      this.producto.sp_temp="";
+      this.producto.sp_vel="";
       this.producto.oncrimp=true;
       this.producto.description="";
     },
@@ -136,9 +136,9 @@ export default {
           titulo: "Agregar Producto",
           alertType: "success",
         });
-        this.producto.codigo=null;
-        this.producto.sp_temperatura="";
-        this.producto.sp_velocidad="";
+        this.producto.cod_pt=null;
+        this.producto.sp_temp="";
+        this.producto.sp_vel="";
         this.producto.oncrimp=true;
         this.producto.description="";
       } catch (error) {
