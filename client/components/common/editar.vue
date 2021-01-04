@@ -26,17 +26,18 @@
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="producto.sp_temp"
-                    :rules="nameRules"
+                    :rules="[rules.loanMin, rules.loanMax, rules.decimal, rules.counter]"
                     label="Temperatura"
                     type="number"
                     required
+                    maxlength="4"
                   ></v-text-field>
                 </v-col>
 
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="producto.sp_vel"
-                    :rules="nameRules"
+                    :rules="[rules.loanMin, rules.loanMax, rules.decimal, rules.counter]"
                     label="Velocidad de Cinta"
                     type="number"
                     required
@@ -104,6 +105,15 @@ export default {
       oncrimp:true,
       description: "",
     },
+    rules: {
+            required: value => !!value || 'Requrido.',
+            loanMin: value => value >= 40 || 'Valor mínimo 40',
+            loanMax: value => value <= 70 || 'Valor máximo 70',
+            decimal: value => {
+              const pattern = /^\d+\.\d{1,1}$/
+              return pattern.test(value) || 'Solo 1 decimal'
+            }
+          }
   }),
   methods: {
     ...mapMutations(["toggleInfoModal"]),
@@ -113,18 +123,47 @@ export default {
         this.dialog = false;
         let token = Cookies.get("token");
         this.producto.oncrimp==false ? this.producto.oncrimp="false" : this.producto.oncrimp; 
-        console.log(this.producto)
-        await axios.put(`product/${this.editar.id}`, this.producto, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        this.producto.oncrimp=="false" ? this.producto.oncrimp=false : this.producto.oncrimp;
-        this.$emit("reload");
-        this.toggleInfoModal({
+        
+        this.producto.sp_temp = parseFloat(this.producto.sp_temp).toFixed(1)
+        this.producto.sp_vel = parseFloat(this.producto.sp_vel).toFixed(1)
+
+        if(this.producto.sp_temp <= 70 && this.producto.sp_temp >= 40 && this.producto.sp_vel  <= 70 && this.producto.sp_vel  >= 40){
+            await axios.put(`product/${this.editar.id}`, this.producto, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+
+            this.producto.oncrimp=="false" ? this.producto.oncrimp=false : this.producto.oncrimp;
+            this.$emit("reload");
+            this.toggleInfoModal({
+              dialog: true,
+              msj: `Producto: ${this.editar.cod_pt} Actualizado correctamente`,
+              titulo: "Actualizar Producto",
+              alertType: "success",
+            });
+        }
+        
+        if(this.producto.sp_temp < 40 || this.producto.sp_vel < 40){
+          this.producto.sp_temp = this.editar.sp_temp
+          this.producto.sp_vel = this.editar.sp_vel
+          this.toggleInfoModal({
+            dialog: true,
+            msj: `El valor minimo de velocidad y temperaatura permitido es: 40`,
+            titulo: "Actualizar Producto",
+            alertType: "error",
+            });
+        }
+        
+        if(this.producto.sp_temp > 70 || this.producto.sp_vel > 70){
+          this.producto.sp_temp = this.editar.sp_temp
+          this.producto.sp_vel = this.editar.sp_vel
+          this.toggleInfoModal({
           dialog: true,
-          msj: `Producto: ${this.editar.cod_pt} Actualizado correctamente`,
+          msj: `El valor maximo de velocidad o temperaatura permitido es: 70`,
           titulo: "Actualizar Producto",
-          alertType: "success",
-        });
+          alertType: "error",
+          });
+        }
+
       } catch (error) {
         this.toggleInfoModal({
           dialog: true,

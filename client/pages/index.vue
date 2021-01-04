@@ -169,7 +169,7 @@
               </v-btn>
             </template>
 
-            <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ header }">
+            <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
 
                 <span :key="i+1">{{h.text}}</span>
      
