@@ -10,7 +10,11 @@
           >Editar Producto</v-card-title
         >
         <v-card-text>
-          <v-form>
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
             <v-container>
               <v-row>
                 <v-col cols="12" md="6">
@@ -69,7 +73,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn color="red" text @click="dialog = false">Cancelar</v-btn>
+          <v-btn color="red" text @click="toggleDialog">Cancelar</v-btn>
 
           <v-btn
             color="green darken-1"
@@ -96,6 +100,7 @@ export default {
     },
   },
   data: () => ({
+    valid: true,
     dialog: false,
     nameRules: [(v) => !!v || "Este campo es requerido"],
     producto: {
@@ -109,31 +114,30 @@ export default {
             required: value => !!value || 'Requrido.',
             loanMin: value => value >= 40 || 'Valor mínimo 40',
             loanMax: value => value <= 70 || 'Valor máximo 70',
-            decimal: value => {
-              const pattern = /^\d+\.\d{1,1}$/
-              return pattern.test(value) || 'Solo 1 decimal'
-            }
           }
   }),
   methods: {
     ...mapMutations(["toggleInfoModal"]),
-
+    toggleDialog(){
+      this.dialog = false;
+      this.producto = { ...this.editar };
+    },
     async Actualizar_Products_table() {
       try {
-        this.dialog = false;
-        let token = Cookies.get("token");
-        this.producto.oncrimp==false ? this.producto.oncrimp="false" : this.producto.oncrimp; 
-        
-        this.producto.sp_temp = parseFloat(this.producto.sp_temp).toFixed(1)
-        this.producto.sp_vel = parseFloat(this.producto.sp_vel).toFixed(1)
-
+        this.$refs.form.validate();
         if(this.producto.sp_temp <= 70 && this.producto.sp_temp >= 40 && this.producto.sp_vel  <= 70 && this.producto.sp_vel  >= 40){
+            let token = Cookies.get("token");
+            this.producto.oncrimp==false ? this.producto.oncrimp="false" : this.producto.oncrimp; 
+            this.producto.sp_temp = parseFloat(this.producto.sp_temp).toFixed(1);
+            this.producto.sp_vel = parseFloat(this.producto.sp_vel).toFixed(1);
+
             await axios.put(`product/${this.editar.id}`, this.producto, {
               headers: { Authorization: `Bearer ${token}` },
             });
 
             this.producto.oncrimp=="false" ? this.producto.oncrimp=false : this.producto.oncrimp;
             this.$emit("reload");
+            this.dialog = false;
             this.toggleInfoModal({
               dialog: true,
               msj: `Producto: ${this.editar.cod_pt} Actualizado correctamente`,
@@ -142,7 +146,7 @@ export default {
             });
         }
         
-        if(this.producto.sp_temp < 40 || this.producto.sp_vel < 40){
+/*         if(this.producto.sp_temp < 40 || this.producto.sp_vel < 40){
           this.producto.sp_temp = this.editar.sp_temp
           this.producto.sp_vel = this.editar.sp_vel
           this.toggleInfoModal({
@@ -162,7 +166,7 @@ export default {
           titulo: "Actualizar Producto",
           alertType: "error",
           });
-        }
+        } */
 
       } catch (error) {
         this.toggleInfoModal({
