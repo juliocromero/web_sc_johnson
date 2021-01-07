@@ -34,7 +34,7 @@
                   <v-text-field
                     v-model="producto.cod_pt"
                     type="number"
-                    :rules="nameRules"
+                    :rules="[rules.required]"
                     label="Código"
                     required
                   ></v-text-field>
@@ -43,7 +43,7 @@
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="producto.sp_temp"
-                    :rules="[rules.loanMin, rules.loanMax, rules.counter]"
+                    :rules="[rules.minTemp, rules.maxTemp, rules.required]"
                     label="Temperatura"
                     type="number"
                     required
@@ -53,7 +53,7 @@
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="producto.sp_vel"
-                    :rules="[rules.loanMin, rules.loanMax, rules.counter]"
+                    :rules="[rules.minVel, rules.maxVel, rules.required]"
                     label="Velocidad de Cinta"
                     type="number"
                     required
@@ -73,7 +73,6 @@
                 <v-col cols="12" md="12">
                   <v-textarea
                     v-model="producto.description"
-                    :rules="nameRules"
                     label="Descripción"
                     required
                     rows="3"
@@ -110,16 +109,18 @@ export default {
     dialog: false,
     nameRules: [(value) => !!value || "Este campo es requerido"],
     producto: {
-      cod_pt: null,
+      cod_pt: "",
       sp_temp: null,
       sp_vel: null,
       oncrimp:true,
       description: "",
     },
     rules: {
-            required: value => !!value || 'Requrido.',
-            loanMin: value => value >= 40 || 'Valor mínimo 40',
-            loanMax: value => value <= 70 || 'Valor máximo 70',
+            required: value => !!value || 'Requerido.',
+            minTemp: value => value >= 40 || 'Valor mínimo 40',
+            maxTemp: value => value <= 70 || 'Valor máximo 70',
+            minVel: value => value >= 0 || 'Valor mínimo 0',
+            maxVel: value => value <= 100 || 'Valor máximo 100',
           }
   }),
   methods: {
@@ -131,7 +132,8 @@ export default {
     async Create_Products_table() {
       try {
         this.$refs.form.validate()
-        if(this.producto.sp_temp <= 70 && this.producto.sp_temp >= 40 && this.producto.sp_vel  <= 70 && this.producto.sp_vel  >= 40){
+        if(this.producto.sp_temp <= 70 && this.producto.sp_temp >= 40 && this.producto.sp_vel  <= 100 && this.producto.sp_vel  >= 0 && this.producto.cod_pt !=""){
+            this.producto.description=="" ? this.producto.description="NULL" : this.producto.description;
             let token = Cookies.get("token");
             this.producto.sp_temp = parseFloat(this.producto.sp_temp).toFixed(1)
             this.producto.sp_vel = parseFloat(this.producto.sp_vel).toFixed(1)
