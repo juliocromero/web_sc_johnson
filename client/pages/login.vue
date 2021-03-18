@@ -72,7 +72,7 @@ export default {
   },
   middleware: 'AUTH',
   methods: {
-    ...mapMutations(["SET_AUTH","setUser"]),
+    ...mapMutations(["SET_AUTH","setUser","inactividad"]),
     async ingresar() {
         await axios 
           .post("login", { email: this.username, password: this.password })

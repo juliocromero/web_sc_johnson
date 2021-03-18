@@ -13,21 +13,22 @@ export const state = () => ({
   dialogPassword: false,
   auth: false,
   dataUser:null,
-  user:{}
+  user:{},
+  time : null
 });
 
 export const mutations = {
   async SET_AUTH(state, token) {
-    state.auth = true;  
+    state.auth = true;
     Cookies.set('token', token)
     Cookies.set('name', state.user.username)
     Cookies.set('lastname', state.user.lastname)
     Cookies.set('rol', state.user.rol_id)   
-    this.$router.push('/')
+    $nuxt.$router.push('/')
   },
   async SET_AUTH_AUTOMATIC(state, res) {
     state.auth = true;
-    this.$router.push('/')
+    $nuxt.$router.push('/')
   },
   async SET_DESLOGIN(state) {  
     state.auth = false;
@@ -35,7 +36,7 @@ export const mutations = {
     Cookies.remove('name')
     Cookies.remove('lastname')
     Cookies.remove('rol')   
-    location.reload();
+    $nuxt.$router.push('/login')
   },
   async toggleDialogPassword(state, payload){
     state.dialogPassword = payload
@@ -66,11 +67,9 @@ export const actions = {
              headers: { Authorization: `Bearer ${token}` }
            })
            .then(res => {
-             this.commit('SET_AUTH_AUTOMATIC', true );                    
+             commit('SET_AUTH_AUTOMATIC', true );                    
            }).catch(err => {               
            })                
      }
    },
- 
-
 };

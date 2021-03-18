@@ -93,16 +93,17 @@
                   type="number"
                   v-model="cod_pt"
                   append-icon="mdi-magnify"
+                  @click:append="filtrarTabla"
                   label="Ingrese un código y presione Enter"
                   single-line
                   hide-details
                   class="mr-1"
                   ref="cod_pt"
                   counter
-                  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
                   maxlength="8"
                   @keyup.enter="filtrarTabla"
-                ></v-text-field>
+                >
+                </v-text-field>                           
               </v-col>
             </v-row>
           </v-container>
@@ -296,7 +297,7 @@ export default {
       this.page = e.page;
       this.perPage = e.itemsPerPage;
       this.pageCount = e.pageCount;
-      this.producto();
+      //this.producto();
     },
     async indexPageNext(e) {
       if (this.page < this.pageCount) {

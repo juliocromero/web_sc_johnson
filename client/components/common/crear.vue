@@ -1,7 +1,7 @@
 <template>
   <v-row justify="start">
     <v-tooltip bottom>
-      <template  v-slot:activator="{ on, attrs }">
+      <template v-slot:activator="{ on, attrs }">
         <v-btn
           color="#F44336"
           dark
@@ -10,7 +10,7 @@
           class="px-0"
           @click.stop="dialog = true"
         >
-          <img src="@/static/iconos/baseline_add_white_24dp.png" alt="plus">
+          <img src="@/static/iconos/baseline_add_white_24dp.png" alt="plus" />
         </v-btn>
       </template>
       <span>Agregar Producto</span>
@@ -23,11 +23,7 @@
         >
 
         <v-card-text>
-          <v-form
-            ref="form"
-            v-model="valid"
-            lazy-validation
-          >
+          <v-form ref="form" v-model="valid" lazy-validation>
             <v-container>
               <v-row>
                 <v-col cols="12" md="6">
@@ -60,7 +56,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6" class="d-flex">
-                  <div class="mr-5 d-flex align-center">Válvula Crimper: </div>
+                  <div class="mr-5 d-flex align-center">Válvula Crimper:</div>
                   <v-switch
                     v-model="producto.oncrimp"
                     color="success"
@@ -112,31 +108,38 @@ export default {
       cod_pt: "",
       sp_temp: null,
       sp_vel: null,
-      oncrimp:true,
+      oncrimp: true,
       description: "",
     },
     rules: {
-            required: value => !!value || 'Requerido.',
-            minTemp: value => value >= 40 || 'Valor mínimo 40',
-            maxTemp: value => value <= 70 || 'Valor máximo 70',
-            minVel: value => value >= 0 || 'Valor mínimo 0',
-            maxVel: value => value <= 100 || 'Valor máximo 100',
-          }
+      required: (value) => !!value || "Requerido.",
+      minTemp: (value) => value >= 40 || "Valor mínimo 40",
+      maxTemp: (value) => value <= 70 || "Valor máximo 70",
+      minVel: (value) => value >= 0 || "Valor mínimo 0",
+      maxVel: (value) => value <= 100 || "Valor máximo 100",
+    },
   }),
   methods: {
     ...mapMutations(["toggleInfoModal"]),
-    toggleDialog(){
-      this.dialog = false
-      this.$refs.form.reset()
+    toggleDialog() {
+      this.dialog = false;
+      this.$refs.form.reset();
     },
     async Create_Products_table() {
       try {
-        this.$refs.form.validate()
-        if(this.producto.sp_temp <= 70 && this.producto.sp_temp >= 40 && this.producto.sp_vel  <= 100 && this.producto.sp_vel  >= 0 && this.producto.cod_pt !=""){
-            this.producto.description=="" ? this.producto.description="NULL" : this.producto.description;
+        this.$refs.form.validate();
+
+        if (
+          this.producto.sp_temp <= 70 &&
+          this.producto.sp_temp >= 40 &&
+          this.producto.sp_vel <= 100 &&
+          this.producto.sp_vel >= 0 &&
+          this.producto.cod_pt != ""
+        ) {
+            this.producto.description == "" ? (this.producto.description = "NULL") : this.producto.description;
             let token = Cookies.get("token");
-            this.producto.sp_temp = parseFloat(this.producto.sp_temp).toFixed(1)
-            this.producto.sp_vel = parseFloat(this.producto.sp_vel).toFixed(1)
+            this.producto.sp_temp = parseFloat(this.producto.sp_temp).toFixed(1);
+            this.producto.sp_vel = parseFloat(this.producto.sp_vel).toFixed(1);
             await axios.post("product", this.producto, {
               headers: { Authorization: `Bearer ${token}` },
             });
@@ -148,15 +151,15 @@ export default {
               alertType: "success",
             });
             this.dialog = false;
-            this.$refs.form.reset()
-        } 
+            this.$refs.form.reset();
+        }
       } catch (error) {
-        this.toggleInfoModal({
+          this.toggleInfoModal({
           dialog: true,
           msj: `Ha ocurrido un error al crear el producto`,
           titulo: "Agregar Producto",
           alertType: "error",
-        });
+          });
       }
     },
   },
@@ -169,10 +172,12 @@ export default {
 }
 </style>
 <style>
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
-input[type=number] { -moz-appearance:textfield; }
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 </style>

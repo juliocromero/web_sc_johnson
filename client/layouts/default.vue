@@ -3,7 +3,7 @@
     <v-app-bar :clipped-left="clipped" fixed color="#f44336" app>
       <img class="scj" src="@/static/iconos/logo-white.png" >
       <v-spacer />
-      <v-card-title class="white--text">{{name}}</v-card-title>
+      <v-card-title class="white--text">{{name}} {{lastname}}</v-card-title>
       <v-menu bottom left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn dark icon v-bind="attrs" v-on="on">
@@ -57,6 +57,7 @@ export default {
       clipped: false,
       drawer: false,
       fixed: false,
+      timer: null,
       items: [
         {
           icon: "mdi-apps",
@@ -78,15 +79,26 @@ export default {
   },
   methods:{
     ...mapActions(['data']),
-    ...mapMutations(['SET_DESLOGIN']),
-    ...mapMutations(['toggleDialogPassword']),
+    ...mapMutations(['SET_DESLOGIN','toggleDialogPassword']),
     Salir(){
       this.SET_DESLOGIN()
     },
-
+    setTimer(){
+     this.timer = setTimeout(()=>{
+        this.SET_DESLOGIN();
+      },120000);
+    },
+    resetTimer(){
+      clearTimeout(this.timer);
+      this.setTimer();
+    }
   },
   mounted(){
     this.data()
+    this.setTimer();
+    document.body.addEventListener('click',this.resetTimer,false);
+    document.body.addEventListener('keypress',this.resetTimer,false);
+    
   },
   computed:{
     ...mapState(['dialogPassword']) 
