@@ -468,7 +468,7 @@ export default {
         this.indexPage(this.$emit("pagination"));
       }
     },
-  }
+  },
 };
 </script>
 

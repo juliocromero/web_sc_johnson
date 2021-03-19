@@ -28,7 +28,7 @@ export const mutations = {
   },
   async SET_AUTH_AUTOMATIC(state, res) {
     state.auth = true;
-    $nuxt.$router.push('/')
+    this.$router.push('/')
   },
   async SET_DESLOGIN(state) {  
     state.auth = false;
