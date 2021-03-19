@@ -86,7 +86,7 @@ export default {
     setTimer(){
      this.timer = setTimeout(()=>{
         this.SET_DESLOGIN();
-      },120000);
+      },30000);
     },
     resetTimer(){
       clearTimeout(this.timer);
@@ -98,13 +98,6 @@ export default {
     this.setTimer();
     document.body.addEventListener('click',this.resetTimer,false);
     document.body.addEventListener('keypress',this.resetTimer,false);
-    //window.addEventListener('closed', this.SET_DESLOGIN)
-  },
- beforeDestroy(){
-    //window.addEventListener('closed', this.SET_DESLOGIN())
-
-        //this.SET_DESLOGIN();
-  
   },
   computed:{
     ...mapState(['dialogPassword']) 

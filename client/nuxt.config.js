@@ -3,6 +3,11 @@ import colors from 'vuetify/es5/util/colors'
 export default {
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
+    script: [
+      {
+        src: "",
+      },
+    ],
     titleTemplate: '%s - scjonhson',
     title: 'scjonhson',
     meta: [
@@ -12,7 +17,10 @@ export default {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-    ]
+    ],
+    BeforeUnloadEvent:{
+      src: "@/middleware/DESLOGUIN.js",
+    }
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)

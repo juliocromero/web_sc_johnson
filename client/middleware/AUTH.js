@@ -1,6 +1,4 @@
-import cookie from 'cookie'
 import Cookies from 'js-cookie';
-
 
 export default function ({ store, redirect , req}) {
     // If the user is not authenticated
