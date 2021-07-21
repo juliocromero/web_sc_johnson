@@ -18,7 +18,7 @@ export default {
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ],
-    BeforeUnloadEvent:{
+    closed:{
       src: "@/middleware/DESLOGUIN.js",
     }
   },
