@@ -356,6 +356,8 @@ export default {
       let token = Cookies.get("token");
       let all = [];
 
+
+      try {
      await axios
         .get("products", {
           headers: {
@@ -393,16 +395,16 @@ export default {
             this.$refs.cod_pt.focus();
           }
         })
-        .catch((error) => {
+        return all;        
+      } catch (error) {
           console.log(error);
           this.toggleInfoModal({
             dialog: true,
-            msj: `Ha ocurrido un error`,
-            titulo: "Filtrar Datos",
+            msj: `Ha ocurrido al consultar los datos`,
+            titulo: "Descargar .CSV",
             alertType: "error",
-          });
-        });
-        return all;
+          });        
+      }
     },
     async descargaCSV() {
       this.dialogSpinner = true;
@@ -430,7 +432,7 @@ export default {
     },
     async cargarProduct(obj) {
       let token = Cookies.get("token");
-      await axios.post("product", obj, {
+      await axios.post("products", obj, {
         headers: { Authorization: `Bearer ${token}` },
       });
     },
