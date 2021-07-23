@@ -367,11 +367,27 @@ export default {
           },
         })
         .then((res) => {
-          all = res.data.data.products;
-          this.products = res.data.data.products;
-          this.lineas = res.data.data.lines
-          this.total = res.data.data.total;
-          this.cod_pt ? this.expanded : this.expanded = []; //para expandir la tabla de linea solo al filtrar
+          let products = res.data.data.products;
+          let lineas = res.data.data.lines
+
+          lineas = lineas.map((item)=> item.setPoints)
+          all = products.map((item, index) => {
+            return{
+              ...item,
+              l310_sp_temp : lineas[index][0].temperature,
+              l310_sp_vel  : lineas[index][0].velocity,
+              l310_oncrimp : lineas[index][0].onCrimp,
+              l320_sp_temp : lineas[index][1].temperature,
+              l320_sp_vel  : lineas[index][1].velocity,
+              l320_oncrimp : lineas[index][1].onCrimp,
+              l330_sp_temp : lineas[index][2].temperature,
+              l330_sp_vel  : lineas[index][2].velocity,
+              l330_oncrimp : lineas[index][2].onCrimp,
+              l340_sp_temp : lineas[index][3].temperature,
+              l340_sp_vel  : lineas[index][3].velocity,
+              l340_oncrimp : lineas[index][3].onCrimp,
+            }
+          });
           this.dialogSpinner = false;
           if (this.cod_pt != null) {
             this.$refs.cod_pt.focus();
