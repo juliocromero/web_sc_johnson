@@ -72,8 +72,10 @@
                       <template v-slot:[`item.linea`]="{ item }">
                           <b>{{item.linea}}</b>               
                       </template>
+
                       <template v-slot:[`item.temperatura`]="{ item }">
                         <v-text-field
+                        :ref="item.linea"
                         v-model="item.temperatura"
                         type="number"
                         solo
@@ -81,8 +83,18 @@
                         hide-details
                         background-color="#F3F3F3"
                         flat
+                        @input="validarTemperatura(item)"
                         />
+                        <small 
+                        class="error--text" 
+                        v-if ="item.temperatura !='' 
+                        && tempValidation.status 
+                        && tempValidation.linea == item.linea"
+                        >
+                        {{tempValidation.msg}}
+                        </small>
                       </template>
+
                       <template v-slot:[`item.velocidad`]="{ item }">
                         <v-text-field
                         v-model="item.velocidad"
@@ -92,7 +104,16 @@
                         hide-details
                         background-color="#F3F3F3"
                         flat
+                        @input="validarVelocidad(item)"
                         />
+                        <small 
+                        class="error--text" 
+                        v-if ="item.velocidad !='' 
+                        && velValidation.status 
+                        && velValidation.linea == item.linea"
+                        >
+                        {{velValidation.msg}}
+                        </small>
                       </template>
                       <template v-slot:[`item.crimper`]="{ item }">
                         <div style="display: flex;align-items: center;justify-content: center;">
@@ -163,7 +184,7 @@
                 </v-col>
               </v-row>
             </v-container>
-            <div :class="showMsg ? 'my-0':'my-5'"><p v-if="showMsg" class="error--text ml-4 my-0">Al menos una línea debe contener datos</p></div>
+            <div :class="showMsg ? 'my-0':'my-5'"><p v-if="showMsg" class="error--text ml-4 my-0">Al menos una línea debe contener datos correctos</p></div>
           </v-form>
         </v-card-text>
 
@@ -194,6 +215,8 @@ export default {
     setAllItems:{ lineas:"Todas", temperatura:"", velocidad:"", crimper:false }, 
     valid: true,
     dialog: false,
+    tempValidation:{},
+    velValidation:{},
     nameRules: [(value) => !!value || "Este campo es requerido"],
     new_product: {
       cod_pt: "",
@@ -231,6 +254,32 @@ export default {
         }
       });
       return res
+    },
+    validarTemperatura(item){
+      let res = {};
+          if(item.temperatura < 40 ){
+            res.status = true
+            res.msg = 'Valor mínimo 40'
+            res.linea = item.linea
+          }else if(item.temperatura > 70){
+            res.status = true
+            res.msg = 'Valor máximo 100'
+            res.linea = item.linea
+          }
+      this.tempValidation = res;
+    },
+    validarVelocidad(item){
+      let res = {};
+          if(item.velocidad < 0 ){
+            res.status = true
+            res.msg = 'Valor mínimo 0'
+            res.linea = item.linea
+          }else if(item.velocidad > 100){
+            res.status = true
+            res.msg = 'Valor máximo 100'
+            res.linea = item.linea
+          }
+      this.velValidation = res;
     },
     setAllTempeture(){
       this.lineas[0].temperatura = this.setAllItems.temperatura;
@@ -280,28 +329,38 @@ export default {
 
             await axios.post("products", new_product , {
               headers: { Authorization: `Bearer ${token}` },
-            });
-            this.$emit("reload");
-            this.toggleInfoModal({
-              dialog: true,
-              msj: `Producto agregado correctamente`,
-              titulo: "Agregar Producto",
-              alertType: "success",
-            });
-            this.dialog = false;
-            this.$refs.form.reset();
+            }).then(()=>{
+              this.$emit("reload");
+              this.toggleInfoModal({
+                dialog: true,
+                msj: `Producto agregado correctamente`,
+                titulo: "Agregar Producto",
+                alertType: "success",
+              });
+              this.dialog = false;
+              this.$refs.form.reset();
+            }).catch((error)=>{
+                this.toggleInfoModal({
+                dialog: true,
+                msj: `Ha ocurrido un error al crear el producto`,
+                titulo: "Agregar Producto",
+                alertType: "error",
+                });
+                console.error('POST adding error:', error)
+            })
          }
          else{
            this.showMsg = true
          }
        } 
       } catch (error) {
-          this.toggleInfoModal({
+/*           this.toggleInfoModal({
           dialog: true,
           msj: `Ha ocurrido un error al crear el producto`,
           titulo: "Agregar Producto",
           alertType: "error",
-          });
+          }); */
+          console.error('General dding error:', error)
       }
     },
   },

@@ -163,14 +163,16 @@
                 >
                   <template v-slot:[`item.onCrimp`]="{ item }" class="pa-0">
                     <div style="display: flex;align-items: center;justify-content: center;">
-                      <v-switch
+                      <!--<v-switch
                         v-model="item.onCrimp"
                         color="success"
                         hide-details
                         readonly
                         dense
                         class="ma-0 ml-4"
-                      ></v-switch>                          
+                      ></v-switch>  -->
+                      <v-chip small color="success" v-if="item.onCrimp">ON</v-chip>
+                      <v-chip small color="error" v-if="!item.onCrimp">OFF</v-chip>                         
                     </div>
                   </template>
                 </v-data-table>
@@ -275,20 +277,8 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
     filtrarTabla() {
-      try {
-        if (this.cod_pt) {
-          this.dialogSpinner = true;
-          let pg = this.$emit("pagination");
-          if (pg.page > 1) {
-            this.pag = pg.page;
-          }
-          this.indexPage(pg);
-          pg.page = 1;
-          this.expanded.push({ "cod_pt": this.cod_pt})
-        }
-      } catch (error) {
-        console.log(erro);
-      }
+      this.getProducts();
+      this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
     async getProducts() {
       this.dialogSpinner = true;
@@ -361,29 +351,46 @@ export default {
       link.setAttribute("download", "plantilla.csv");
       link.click();
     },
-    async callAllProducts() {
+    async getAllProducts() {
+      this.dialogSpinner = true;
       let token = Cookies.get("token");
-      let allProducts = await axios
+      let all = [];
+
+     await axios
         .get("products", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            perPage: "*",
+            options: this.options,
             cod_pt: this.cod_pt,
           },
         })
         .then((res) => {
-          return res.data.data.data;
+          all = res.data.data.products;
+          this.products = res.data.data.products;
+          this.lineas = res.data.data.lines
+          this.total = res.data.data.total;
+          this.cod_pt ? this.expanded : this.expanded = []; //para expandir la tabla de linea solo al filtrar
+          this.dialogSpinner = false;
+          if (this.cod_pt != null) {
+            this.$refs.cod_pt.focus();
+          }
         })
         .catch((error) => {
           console.log(error);
+          this.toggleInfoModal({
+            dialog: true,
+            msj: `Ha ocurrido un error`,
+            titulo: "Filtrar Datos",
+            alertType: "error",
+          });
         });
-      return allProducts;
+        return all;
     },
     async descargaCSV() {
       this.dialogSpinner = true;
-      let productos = await this.callAllProducts();
+      let productos = await this.getAllProducts();
       await this.csvExport(productos);
       this.dialogSpinner = false;
     },
@@ -450,9 +457,7 @@ export default {
   watch: {
     cod_pt: function () {
       if (this.cod_pt === "") {
-        this.page = this.pag;
-        this.cod_pt = null;
-        this.indexPage(this.$emit("pagination"));
+        this.getProducts();
       }
     },
     options: {

@@ -16,7 +16,6 @@
         <v-card-title class="headline v-card-titulo white--text">
           Editar producto
         </v-card-title>
-
         <v-card-text class="pb-0">
           <v-form ref="form" v-model="valid" lazy-validation>
             <v-container class="py-0">
