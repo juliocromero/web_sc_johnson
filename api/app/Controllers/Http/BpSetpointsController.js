@@ -7,7 +7,7 @@ const { validate } = use('Validator');
 var moment = require('moment');
 
 class BpSetpointsController {
-
+//test
   async index({ request, response, auth }) {
     try {
       const user = await auth.getUser();
