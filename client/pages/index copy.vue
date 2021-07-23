@@ -112,9 +112,12 @@
             :headers="headers"
             :items="products"
             class="m-2"
-            :options.sync="options"
+            :page="page"
+            :itemsPerPage="10"
             :server-items-length="parseInt(total)"
-            no-data-text="Sin datos"
+            @pagination="indexPage($event)"
+            no-data-text="No se encontraron resultados"
+            :footer-props="footerProps"
             :single-expand="singleExpand"
             :expanded.sync="expanded"
             item-key="cod_pt"
@@ -136,6 +139,29 @@
                 disabled
               />
             </template>
+            <template slot="footer">
+              <v-btn
+                @click="indexPagePrev($event)"
+                style="position: absolute; right: 7%; bottom: 10px"
+                icon
+              >
+                <img
+                  src="@/static/iconos/baseline_keyboard_arrow_left_black_24.png"
+                  alt="upload"
+                />
+              </v-btn>
+              <v-btn
+                @click="indexPageNext($event)"
+                style="position: absolute; right: 1%; bottom: 10px"
+                icon
+              >
+                <img
+                  src="@/static/iconos/baseline_keyboard_arrow_right_black_24.png"
+                  alt="upload"
+                />
+              </v-btn>
+            </template>
+
             <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
               <span :key="i+1">{{h.text}}</span>  
                   <v-btn
@@ -236,7 +262,6 @@ export default {
     pageCount: 1,
     cod_pt: null,
     products: [],
-    options: {},
     files: null,
     headers: [
       { text: "Codigo", value: "cod_pt", align: "center", sortable: false},
@@ -290,6 +315,24 @@ export default {
         console.log(erro);
       }
     },
+    async indexPage(e) {
+      this.page = e.page;
+      this.perPage = e.itemsPerPage;
+      this.pageCount = e.pageCount;
+      this.getProducts();
+    },
+    async indexPageNext(e) {
+      if (this.page < this.pageCount) {
+        this.page++;
+        this.getProducts();
+      }
+    },
+    async indexPagePrev(e) {
+      if (this.page > 1) {
+        this.page--;
+        this.getProducts();
+      }
+    },
     async getProducts() {
       this.dialogSpinner = true;
       let token = Cookies.get("token");
@@ -300,7 +343,8 @@ export default {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            options: this.options,
+            page: this.page,
+            perPage: this.perPage,
             cod_pt: this.cod_pt,
           },
         })
@@ -455,13 +499,6 @@ export default {
         this.indexPage(this.$emit("pagination"));
       }
     },
-    options: {
-      handler() {
-        //this.fillItems()
-        this.getProducts()
-      },
-      deep: true,
-    }
   },
 };
 </script>

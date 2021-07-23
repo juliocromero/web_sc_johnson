@@ -63,10 +63,10 @@ export default {
       try {
         this.rellenarProducto()    
         let token = Cookies.get("token"); 
-        await axios.delete(`product/${this.delet.id}`, {
+        await axios.delete(`products/${this.delet.id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        console.log('Se elimino: ', this.delet.id)
+        console.log('Se eliminó: ', this.delet.id)
         this.toggleInfoModal({
           dialog: true,
           msj:`Producto: ${this.delet.cod_pt} Eliminado correctamente`,

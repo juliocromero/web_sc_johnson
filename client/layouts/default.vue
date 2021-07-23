@@ -95,9 +95,9 @@ export default {
   },
   mounted(){
     this.data()
-    this.setTimer();
-    document.body.addEventListener('click',this.resetTimer,false);
-    document.body.addEventListener('keypress',this.resetTimer,false);
+    // this.setTimer();
+    //document.body.addEventListener('click',this.resetTimer,false);
+    //document.body.addEventListener('keypress',this.resetTimer,false);
   },
   computed:{
     ...mapState(['dialogPassword']) 
