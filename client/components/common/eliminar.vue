@@ -1,9 +1,9 @@
 <template>
   <v-row justify="center">
     <v-btn icon @click.stop="dialog = true">
-      <img src="@/static/iconos/baseline_delete_black_18dp.png" alt="create">
+      <img src="@/static/iconos/baseline_delete_black_18dp.png" alt="delete">
     </v-btn>
-    <v-dialog v-model="dialog" max-width="290">
+    <v-dialog v-model="dialog" max-width="350">
       <v-card>
         <v-card-title class="headline dark v-card-titulo white--text"
           >Eliminar Producto</v-card-title
@@ -26,7 +26,7 @@
             CANCELAR
           </v-btn>
 
-          <v-btn color="green darken-1" text @click="Eliminar_Products_table">
+          <v-btn color="green darken-1" :loading="loading" text @click="Eliminar_Products_table">
              ELIMINAR
           </v-btn>
         </v-card-actions>
@@ -49,6 +49,7 @@ export default {
   },
   data: () => ({
     dialog: false,
+    loading:false,
     producto: {
       codigo: null,
       sp_temperatura: "",
@@ -58,23 +59,34 @@ export default {
     }
   }),
   methods:{
-        ...mapMutations(["toggleInfoModal","ocultarInfoModal"]),
+        ...mapMutations(["toggleInfoModal","ocultarInfoModal","toggleInfoModalCRUD","ocultarInfoModalCRUD"]),
     async Eliminar_Products_table() {
       try {
         this.rellenarProducto()    
         let token = Cookies.get("token"); 
+        this.loading = true;
         await axios.delete(`products/${this.delet.id}`, {
           headers: { Authorization: `Bearer ${token}` }
-        });
-        console.log('Se eliminó: ', this.delet.id)
-        this.toggleInfoModal({
-          dialog: true,
-          msj:`Producto: ${this.delet.cod_pt} Eliminado correctamente`,
-          titulo:"Eliminar Producto",
-          alertType: "success"
         })
-        this.$emit('reload')
-        this.dialog = false
+        .then((res)=>{
+          this.toggleInfoModalCRUD({
+            dialog: true,
+            msj: `¡¡Producto ${this.delet.cod_pt} eliminado!!`,
+            s1:{ 
+              status:res.data.server1.status, 
+              msj:res.data.server1.message 
+              },
+            s2:{ 
+              status:res.data.server2.status, 
+              msj:res.data.server2.message 
+              },
+            titulo: "Eliminar Producto",
+            alertType: "success",
+          });
+          this.$emit('reload')
+          this.dialog = false
+          this.loading = false;
+        })
       } catch (error) {
         console.log(error)
         this.toggleInfoModal({
@@ -83,6 +95,7 @@ export default {
           titulo:"Eliminar Producto",
           alertType: "error"
         })
+        this.loading = false;
       }
     },
     async rellenarProducto(){

@@ -10,6 +10,14 @@ export const state = () => ({
     titulo:"",
     alertType: ""
   },
+  infoModalCRUD:{
+    dialog: false,
+    msj:"",
+    s1:{status:null, msj:''},
+    s2:{status:null, msj:''},
+    titulo:"",
+    alertType: ""
+  },
   dialogPassword: false,
   auth: false,
   dataUser:null,
@@ -49,6 +57,17 @@ export const mutations = {
   },
   async ocultarInfoModal(state, payload){
     state.infoModal.dialog = payload
+  },
+  async toggleInfoModalCRUD(state, payload){
+    state.infoModalCRUD.dialog = true
+    state.infoModalCRUD.msj = payload.msj
+    state.infoModalCRUD.s1 = payload.s1
+    state.infoModalCRUD.s2 = payload.s2
+    state.infoModalCRUD.titulo = payload.titulo
+    state.infoModalCRUD.alertType = payload.alertType
+  },
+  async ocultarInfoModalCRUD(state, payload){
+    state.infoModalCRUD.dialog = payload
   },
   async setUser(state, payload){
     state.user = payload

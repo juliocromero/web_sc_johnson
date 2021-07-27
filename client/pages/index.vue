@@ -152,6 +152,16 @@
                 </v-btn>           
             </template>
 
+            <template v-slot:[`item.data-table-expand`]="{ expand, isExpanded }">
+              <v-btn
+              icon
+              @click="expand(!isExpanded)"
+              :class="isExpanded ? 'anim1':''"
+              >
+                <img src="@/static/iconos/expand_more.svg" alt="expand">
+              </v-btn>
+            </template>
+
             <template v-slot:expanded-item="{ headers, item }">
               <td :colspan="headers.length" class="px-0">
                 <v-data-table
@@ -193,6 +203,7 @@
       </v-col>
     </v-row>
     <infoModal />
+    <info-modal-crud/>
   </v-container>
 </template>
 
@@ -203,6 +214,7 @@ import axios from "../plugins/axios";
 import delet from "@/components/common/eliminar";
 import create from "@/components/common/crear";
 import infoModal from "@/components/common/infoModal";
+import infoModalCRUD from "@/components/common/infoModalCRUD.vue";
 import Cookies from "js-cookie";
 let CSVtoJSON = require("csvtojson");
 import { mapState, mapMutations } from "vuex";
@@ -215,6 +227,7 @@ export default {
     delet,
     create,
     infoModal,
+    infoModalCRUD
   },
   data: () => ({
     expanded: [],
@@ -245,7 +258,7 @@ export default {
       { text: "Descripción", value: "description", align: "center" , sortable: false},
       { text: "Editar", value: "editar", align: "center", sortable: false},
       { text: "Eliminar", value: "eliminar", align: "center", sortable: false},
-      { text: 'Líneas', value: 'data-table-expand' },
+      { text: "Líneas", value: "data-table-expand"},
     ],
     headersLineas:[
       { text: 'Líneas', value: 'line', sortable: false, class:'my_table_style', align:'center' },
@@ -342,17 +355,17 @@ export default {
         {
           cod_pt: 9999,
           description: "Lorem ipsum dolor sit amet",
-          l310_sp_temp : 45,
-          l310_sp_vel  : 45,
+          l310_sp_temp : 65,
+          l310_sp_vel  : 65,
           l310_oncrimp : true,
-          l320_sp_temp : 45,
-          l320_sp_vel  : 45,
+          l320_sp_temp : 65,
+          l320_sp_vel  : 65,
           l320_oncrimp : true,
-          l330_sp_temp : 45,
-          l330_sp_vel  : 45,
+          l330_sp_temp : 65,
+          l330_sp_vel  : 65,
           l330_oncrimp : false,
-          l340_sp_temp : 45,
-          l340_sp_vel  : 45,
+          l340_sp_temp : 65,
+          l340_sp_vel  : 65,
           l340_oncrimp : false,
         },
       ];

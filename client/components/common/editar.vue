@@ -28,6 +28,7 @@
                     label="Código"
                     required
                     dense
+                    disabled
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" class="py-0">
@@ -75,7 +76,16 @@
                         hide-details
                         background-color="#F3F3F3"
                         flat
+                        @input="validarTemperatura(item)"
                         />
+                        <small 
+                        class="error--text" 
+                        v-if ="item.temperature !='' 
+                        && tempValidation.status 
+                        && tempValidation.line == item.line"
+                        >
+                        {{tempValidation.msg}}
+                        </small>
                       </template>
                       <template v-slot:[`item.velocity`]="{ item }">
                         <v-text-field
@@ -86,7 +96,16 @@
                         hide-details
                         background-color="#F3F3F3"
                         flat
+                        @input="validarVelocidad(item)"
                         />
+                        <small 
+                        class="error--text" 
+                        v-if ="item.velocity !='' 
+                        && velValidation.status 
+                        && velValidation.line == item.line"
+                        >
+                        {{velValidation.msg}}
+                        </small>
                       </template>
                       <template v-slot:[`item.onCrimp`]="{ item }">
                         <div style="display: flex;align-items: center;justify-content: center;">
@@ -166,7 +185,7 @@
 
           <v-btn color="red" text @click="toggleDialog">Cancelar</v-btn>
 
-          <v-btn color="green darken-1" text @click="edit_products()"
+          <v-btn color="green darken-1" :loading="loading" text @click="edit_products()"
             >Aceptar</v-btn
           >
         </v-card-actions>
@@ -193,8 +212,11 @@ export default {
     }
   },
   data: () => ({
+    loading:false,
     showMsg:false,
     setAll:false,
+    tempValidation:{},
+    velValidation:{},
     setAllItems:{ lines:"Todas", temperature:"", velocity:"", onCrimp:false }, 
     valid: true,
     dialog: false,
@@ -224,7 +246,7 @@ export default {
     },
   }),
   methods: {
-    ...mapMutations(["toggleInfoModal"]),
+    ...mapMutations(["toggleInfoModal","toggleInfoModalCRUD"]),
     show(){
       this.new_product = {...this.product}
       this.lineas = [
@@ -245,6 +267,32 @@ export default {
         }
       });
       return res
+    },
+    validarTemperatura(item){
+      let res = {};
+          if(item.temperature < 40 ){
+            res.status = true
+            res.msg = 'Valor mínimo 40'
+            res.line = item.line
+          }else if(item.temperature > 70){
+            res.status = true
+            res.msg = 'Valor máximo 100'
+            res.line = item.line
+          }
+      this.tempValidation = res;
+    },
+    validarVelocidad(item){
+      let res = {};
+          if(item.velocity < 0 ){
+            res.status = true
+            res.msg = 'Valor mínimo 0'
+            res.line = item.line
+          }else if(item.velocity > 100){
+            res.status = true
+            res.msg = 'Valor máximo 100'
+            res.line = item.line
+          }
+      this.velValidation = res;
     },
     setAllTempeture(){
       this.lineas[0].temperature = this.setAllItems.temperature;
@@ -274,48 +322,74 @@ export default {
          if(this.validarLineas()){
             this.showMsg = false;         
             let token = Cookies.get("token");
+            this.loading = true;
 
             let new_product = {
               cod_pt: this.new_product.cod_pt,
               description:this.new_product.description,
               l310_sp_temp: this.lineas[0].temperature,
               l310_sp_vel: this.lineas[0].velocity,
-              l310_oncrimp: this.lineas[0].onCrimp,
+              l310_oncrimp: this.lineas[0].onCrimp ? 1 : 0,
               l320_sp_temp: this.lineas[1].temperature,
               l320_sp_vel: this.lineas[1].velocity,
-              l320_oncrimp: this.lineas[1].onCrimp,
+              l320_oncrimp: this.lineas[1].onCrimp ? 1 : 0,
               l330_sp_temp: this.lineas[2].temperature,
               l330_sp_vel: this.lineas[2].velocity,
-              l330_oncrimp: this.lineas[2].onCrimp,
+              l330_oncrimp: this.lineas[2].onCrimp ? 1 : 0,
               l340_sp_temp: this.lineas[3].temperature,
               l340_sp_vel: this.lineas[3].velocity,
-              l340_oncrimp: this.lineas[3].onCrimp,
+              l340_oncrimp: this.lineas[3].onCrimp ? 1 : 0,
             }
             console.log('Data:', new_product )
             await axios.put(`products/${this.product.id}`, new_product , {
               headers: { Authorization: `Bearer ${token}` },
-            });
-            this.$emit("reload");
-            this.toggleInfoModal({
-              dialog: true,
-              msj: `Producto actualizado correctamente`,
-              titulo: "Editar Producto",
-              alertType: "success",
-            });
-            this.dialog = false;
-            this.$refs.form.reset();
+            })
+            .then((res)=>{
+              console.log('res aditar', res)
+              this.$emit("reload");
+              this.toggleInfoModalCRUD({
+                dialog: true,
+                msj: `Producto ${new_product.cod_pt} actualizado`,
+                s1:{ 
+                  status:res.data.server1.status, 
+                  msj:res.data.server1.message 
+                  },
+                s2:{ 
+                  status:res.data.server2.status, 
+                  msj:res.data.server2.message 
+                  },
+                titulo: "Editar Producto",
+                alertType: "success",
+              });
+              this.dialog = false;
+              this.$refs.form.reset();
+              this.loading = false;
+            })
          }
          else{
            this.showMsg = true
          }
        } 
       } catch (error) {
+        console.log(error.response)
+        if(error.response){
+          console.log('error response', error.response)
+          this.toggleInfoModal({
+          dialog: true,
+          msj: `${error.response.data.message}`,
+          titulo: "Editar Producto",
+          alertType: "error",
+          });
+          this.loading = false;          
+        }else{
           this.toggleInfoModal({
           dialog: true,
           msj: `Ha ocurrido un error al actualizar el producto`,
           titulo: "Editar Producto",
           alertType: "error",
-          });
+          });        
+          this.loading = false;  
+        }
       }
     },
   },

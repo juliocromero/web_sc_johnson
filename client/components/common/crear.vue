@@ -8,7 +8,7 @@
           v-bind="attrs"
           v-on="on"
           class="px-0"
-          @click.stop="dialog = true"
+          @click="show"
         >
           <img src="@/static/iconos/baseline_add_white_24dp.png" alt="plus" />
         </v-btn>
@@ -34,6 +34,7 @@
                     label="Código"
                     required
                     dense
+                    ref="cod_pt"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" class="py-0">
@@ -193,7 +194,7 @@
 
           <v-btn color="red" text @click="toggleDialog">Cancelar</v-btn>
 
-          <v-btn color="green darken-1" text @click="add_products()"
+          <v-btn color="green darken-1" :loading="loading" text @click="add_products()"
             >Aceptar</v-btn
           >
         </v-card-actions>
@@ -211,6 +212,7 @@ import { mapMutations } from "vuex";
 export default {
   data: () => ({
     showMsg:false,
+    loading:false,
     setAll:true,
     setAllItems:{ lineas:"Todas", temperatura:"", velocidad:"", crimper:false }, 
     valid: true,
@@ -243,7 +245,11 @@ export default {
     },
   }),
   methods: {
-    ...mapMutations(["toggleInfoModal"]),
+    ...mapMutations(["toggleInfoModalCRUD","toggleInfoModal"]),
+    show(){
+      this.setAll = true;
+      this.dialog = true;
+    },
     validarLineas(){
       let res = false;
       this.lineas.forEach(item => {
@@ -266,7 +272,7 @@ export default {
             res.msg = 'Valor máximo 100'
             res.linea = item.linea
           }
-      this.tempValidation = res;
+      // this.tempValidation = res;
     },
     validarVelocidad(item){
       let res = {};
@@ -279,7 +285,7 @@ export default {
             res.msg = 'Valor máximo 100'
             res.linea = item.linea
           }
-      this.velValidation = res;
+      // this.velValidation = res;
     },
     setAllTempeture(){
       this.lineas[0].temperatura = this.setAllItems.temperatura;
@@ -301,6 +307,12 @@ export default {
     },
     toggleDialog() {
       this.dialog = false;
+      this.lineas = [
+        { linea:"L310", temperatura:"", velocidad:"", crimper:false },
+        { linea:"L320", temperatura:"", velocidad:"", crimper:false },
+        { linea:"L330", temperatura:"", velocidad:"", crimper:false },
+        { linea:"L340", temperatura:"", velocidad:"", crimper:false },
+      ];
       this.$refs.form.reset();
     },
     async add_products() {
@@ -315,55 +327,72 @@ export default {
               description:this.new_product.description,
               l310_sp_temp: this.lineas[0].temperatura,
               l310_sp_vel: this.lineas[0].velocidad,
-              l310_oncrimp: this.lineas[0].crimper,
+              l310_oncrimp: this.lineas[0].crimper ? 1 : 0,
               l320_sp_temp: this.lineas[1].temperatura,
               l320_sp_vel: this.lineas[1].velocidad,
-              l320_oncrimp: this.lineas[1].crimper,
+              l320_oncrimp: this.lineas[1].crimper ? 1 : 0,
               l330_sp_temp: this.lineas[2].temperatura,
               l330_sp_vel: this.lineas[2].velocidad,
-              l330_oncrimp: this.lineas[2].crimper,
+              l330_oncrimp: this.lineas[2].crimper ? 1 : 0,
               l340_sp_temp: this.lineas[3].temperatura,
               l340_sp_vel: this.lineas[3].velocidad,
-              l340_oncrimp: this.lineas[3].crimper,
+              l340_oncrimp: this.lineas[3].crimper ? 1 : 0,
             }
-
+            this.loading = true;
             await axios.post("products", new_product , {
               headers: { Authorization: `Bearer ${token}` },
-            }).then(()=>{
+            }).then((res)=>{
               this.$emit("reload");
-              this.toggleInfoModal({
+              this.toggleInfoModalCRUD({
                 dialog: true,
-                msj: `Producto agregado correctamente`,
+                msj: `Producto ${this.new_product.cod_pt} agregado correctamente`,
+                s1:{ 
+                  status:res.data.server1.status, 
+                  msj:res.data.server1.message 
+                  },
+                s2:{ 
+                  status:res.data.server2.status, 
+                  msj:res.data.server2.message 
+                  },
                 titulo: "Agregar Producto",
                 alertType: "success",
               });
               this.dialog = false;
-              this.$refs.form.reset();
-            }).catch((error)=>{
-                this.toggleInfoModal({
-                dialog: true,
-                msj: `Ha ocurrido un error al crear el producto`,
-                titulo: "Agregar Producto",
-                alertType: "error",
-                });
-                console.error('POST adding error:', error)
+              this.toggleDialog()
+              this.loading = false;
             })
          }
          else{
            this.showMsg = true
+           this.loading = false;
          }
        } 
       } catch (error) {
-/*           this.toggleInfoModal({
-          dialog: true,
-          msj: `Ha ocurrido un error al crear el producto`,
-          titulo: "Agregar Producto",
-          alertType: "error",
-          }); */
-          console.error('General dding error:', error)
+          if(error.response){
+              this.toggleInfoModal({
+              dialog: true,
+              msj: `${error.response.data.message}`,
+              titulo: "Agregar Producto",
+              alertType: "error",
+              });
+              console.error('POST adding error:', error.response.data.message)
+              this.loading = false;
+          }
+          else{
+              this.toggleInfoModal({
+              dialog: true,
+              msj: `Ha ocurrido un error al crear el producto`,
+              titulo: "Agregar Producto",
+              alertType: "error",
+              });
+              this.loading = false;
+        } 
       }
     },
   },
+  mounted(){
+    this.setAll = true;
+  }
 };
 </script>
 

@@ -84,7 +84,7 @@ cron.schedule("*/10 * * * * *", async function (){
             fechaMaxPg = fechaMaxCreatedPg;
         }
 
-        //Verifico y actualizo server1
+        //Verifico y actualizó server1
         try {
             //Determino fecha max SV1
             var fechaMaxUpdatedSV1 = await Database.connection('Server1').from('bp_setpoints').max('updated_at');
@@ -112,6 +112,34 @@ cron.schedule("*/10 * * * * *", async function (){
         } catch (error) {
             console.log('ERROR SYNC SV1: ' + error)
         }
+
+        //Verifico y actualizó server2
+        try {
+            //Determino fecha max SV2
+            var fechaMaxUpdatedSV2 = await Database.connection('Server2').from('bp_setpoints').max('updated_at');
+            var fechaMaxCreatedSV2 = await Database.connection('Server2').from('bp_setpoints').max('created_at');
+            var fechaMaxSV2;
+            
+            if (fechaMaxUpdatedSV2 > fechaMaxCreatedSV2) {
+            fechaMaxSV2 = fechaMaxUpdatedSV2;
+            }
+            else
+            {
+            fechaMaxSV2 = fechaMaxCreatedSV2;
+            }
+            console.log(fechaMaxSV2 , fechaMaxPg)
+            if (fechaMaxPg > fechaMaxSV2) {
+            var datosAux = await Database
+            .from('bp_setpoints')
+            .where('created_at', '>=', fechaMaxSV2)
+            .orWhere('updated_at', '>=', fechaMaxSV2);
+            
+            var result = await Database.connection('Server2').from('bp_setpoints').updateOrCreateMany(datosAux);
+            }
+            
+            } catch (error) {
+            console.log('ERROR SYNC SV2: ' + error)
+            }
         
     }catch(error){
         console.log(error)

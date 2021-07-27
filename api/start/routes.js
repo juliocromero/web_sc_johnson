@@ -31,12 +31,6 @@ Route.put("api/v1/restore_pass", "UserController.restore");
 Route.put("api/v1/user/:id", "UserController.edit");
 Route.delete("api/v1/user/:id", "UserController.destroy");
 
-//PRODUCTO
-Route.get("api/v1/product", "ProductController.index");
-Route.post("api/v1/product", "ProductController.store");
-Route.put("api/v1/product/:id", "ProductController.update");
-Route.delete("api/v1/product/:id", "ProductController.destroy");
-
 //SETPOINTS
 Route.get("api/v1/products", "BpSetpointsController.index");
 Route.post("api/v1/products", "BpSetpointsController.store");
