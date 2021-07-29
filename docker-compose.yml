@@ -3,48 +3,45 @@ services:
  
   api:
     image: node
-    container_name: "sc-johnson_api"
+    container_name: "sc-johnson_api_qa"
     restart: always
-    depends_on:
-      - redis
     volumes:
-      - ./api:/opt/sc-johnson
-    working_dir: "/opt/sc-johnson"
+      - ./api:/opt/sc-johnson-qa
+    working_dir: "/opt/sc-johnson-qa"
     command: ["bash", "run.sh"]
     networks:
-      - net
+      - net_qa
   client:
     image: node
-    container_name: "sc-johnson_client"
+    container_name: "sc-johnson_client_qa"
     restart: always
     depends_on:
       - api
     volumes:
-      - ./client:/opt/sc-johnson
-    working_dir: "/opt/sc-johnson"
+      - ./client:/opt/sc-johnson-qa
+    working_dir: "/opt/sc-johnson-qa"
     environment:
       MODE: dev
       HOST: 0.0.0.0
-      PORT: 3000
+      PORT: 3001
     command: ["bash", "run.sh"]
     networks:
-      - net
-       proxy:
+      - net_qa
+  proxy:
     image: nginx
-    container_name: "sc-johnson_proxy_dev"
+    container_name: "sc-johnson_proxy_dev_qa"
     volumes:
-      - ./proxy:/opt/sc-johnson
-    working_dir: "/opt/sc-johnson"
-    restart: always
+      - ./proxy:/opt/sc-johnson-qa
+    working_dir: "/opt/sc-johnson-qa"
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./proxy:/etc/nginx/conf.d
     depends_on:
       - api
       - client
     networks:
-      - net
+      - net_qa
 networks:
-  net:
+  net_qa:
     driver: bridge

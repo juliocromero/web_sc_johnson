@@ -221,7 +221,7 @@ class BpSetpointsController {
           
           return response.status(200).json(
             { 
-              message: 'Producto creado con exito', 
+              message: 'Producto creado con éxito', 
               data: product, 
               server1: messageS1, 
               server2: messageS2 
@@ -441,19 +441,15 @@ class BpSetpointsController {
 //METHODS
  isLinesDataOk(temp, vel, onCrimp){
     if(temp >= 40 && temp <= 100 && vel > 0 && vel <= 100 && onCrimp != null){
-      // console.log('isLines:', temp, vel, onCrimp, false)
       return true
     }else{
-      // console.log('isLines:', temp, vel, onCrimp, true)
       return false
     }
   };
   isLinesDataNotNull(temp, vel){
     if(!temp && !vel){
-      // console.log('isLines:', temp, vel, onCrimp, false)
       return true
     }else{
-      // console.log('isLines:', temp, vel, onCrimp, true)
       return false
     }
   };
