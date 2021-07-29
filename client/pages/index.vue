@@ -99,7 +99,6 @@
                   hide-details
                   class="mr-1"
                   ref="cod_pt"
-                  counter
                   maxlength="8"
                   @keyup.enter="filtrarTabla"
                 >
@@ -117,7 +116,7 @@
             no-data-text="Sin datos"
             :single-expand="singleExpand"
             :expanded.sync="expanded"
-            :item-key="cod_pt"
+            item-key="cod_pt"
             show-expand
           >
             <template v-slot:[`item.editar`]="{ item }">
@@ -170,6 +169,7 @@
                   hide-default-footer
                   height="100%"
                   style="background:rgb(241, 241, 241,0.3);box-shadow: inset 0 0 20px 0 #E7E7E7;"
+                  item-key="cod_pt"
                 >
                   <template v-slot:[`item.onCrimp`]="{ item }" class="pa-0">
                     <div style="display: flex;align-items: center;justify-content: center;">
@@ -249,7 +249,7 @@ export default {
     perPage: 10,
     page: 1,
     pageCount: 1,
-    cod_pt: null,
+    cod_pt: "",
     products: [],
     options: {},
     files: null,
@@ -289,16 +289,13 @@ export default {
       return ordenado;
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
-    filtrarTabla() {
-      this.expanded = [];
-      this.getProducts();
-      this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
-      this.expanded[0] = { cod_pt:this.cod_pt };
+   async filtrarTabla() {
+        await this.getProducts();
+        this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
     async getProducts() {
       this.dialogSpinner = true;
       let token = Cookies.get("token");
-
       await axios
         .get("products", {
           headers: {
@@ -314,6 +311,12 @@ export default {
           this.lineas = res.data.data.lines
           this.total = res.data.data.total;
           this.dialogSpinner = false;
+          if(this.cod_pt != ""){
+            this.expanded = [ { "cod_pt": this.cod_pt }];
+          }
+          else{
+            this.expanded = [{ "cod_pt": -1 }];
+          }
           if (this.cod_pt != null) {
             this.$refs.cod_pt.focus();
           }
@@ -506,13 +509,11 @@ export default {
   watch: {
     cod_pt: function () {
       if (this.cod_pt == "") {
-        this.getProducts();
-        this.expanded = [];
+        this.filtrarTabla();
       }
     },
     options: {
       handler() {
-        //this.fillItems()
         this.getProducts()
       },
       deep: true,
