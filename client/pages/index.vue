@@ -117,7 +117,7 @@
             no-data-text="Sin datos"
             :single-expand="singleExpand"
             :expanded.sync="expanded"
-            item-key="cod_pt"
+            :item-key="cod_pt"
             show-expand
           >
             <template v-slot:[`item.editar`]="{ item }">
@@ -290,8 +290,10 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
     filtrarTabla() {
+      this.expanded = [];
       this.getProducts();
       this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
+      this.expanded[0] = { cod_pt:this.cod_pt };
     },
     async getProducts() {
       this.dialogSpinner = true;
@@ -311,7 +313,6 @@ export default {
           this.products = res.data.data.products;
           this.lineas = res.data.data.lines
           this.total = res.data.data.total;
-          this.cod_pt ? this.expanded : this.expanded = []; //para expandir la tabla de linea solo al filtrar
           this.dialogSpinner = false;
           if (this.cod_pt != null) {
             this.$refs.cod_pt.focus();
@@ -386,7 +387,6 @@ export default {
       this.dialogSpinner = true;
       let token = Cookies.get("token");
       let all = [];
-
 
       try {
      await axios
@@ -505,8 +505,9 @@ export default {
   },
   watch: {
     cod_pt: function () {
-      if (this.cod_pt === "") {
+      if (this.cod_pt == "") {
         this.getProducts();
+        this.expanded = [];
       }
     },
     options: {
