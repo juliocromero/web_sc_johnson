@@ -145,7 +145,7 @@
                   :class="ctrl[i]"
                 >
                   <img
-                    src="@/static/iconos/filter_list-white-24dp.svg"
+                    src="static\iconos\filter_list-white-24dp.svg"
                     alt="sort"
                   />
                 </v-btn>           

@@ -19,9 +19,9 @@
                 <v-card-text class="d-flex justify-center pb-0">
                   <v-icon size="80"> {{item.icon}} </v-icon>
                 </v-card-text>
-                <v-card-title class="pt-0 d-flex justify-center"
-                  >{{item.titulo}}</v-card-title
-                >
+                <v-card-title class="pt-0 px-3 d-flex justify-center" style="text-align:center;font-size:16px;line-height:normal;">
+                  {{item.titulo}}
+                </v-card-title>
               </v-card>
       </v-hover>
         </v-col>
@@ -37,7 +37,7 @@ export default {
   data(){
     return{
       opciones:[
-        {titulo:'B. de Prueba', icon:'fact_check', url:'/washing_tests'},
+        {titulo:'Setpoints Baños de Pruebas', icon:'fact_check', url:'/washing_set_points'},
         {titulo:'SUNs', icon:'widgets', url:'/suns'}
       ],
     }
