@@ -49,3 +49,18 @@ create table fecha(
     fecha_server2 timestamp not null,
     PRIMARY KEY(id)
 )
+
+create table producto_lote(
+    id smallserial not null,
+    sun_number varchar(50) not null UNIQUE,
+    lote varchar(50) not null,
+    batch_id varchar(30) not null,
+    fecha_hora timestamp not null UNIQUE,
+    PRIMARY KEY(id)
+)
+
+create table suns_last_query (
+    id smallserial not null,
+    until_date timestamp not null,
+    PRIMARY KEY(id)
+)

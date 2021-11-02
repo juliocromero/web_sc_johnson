@@ -80,20 +80,21 @@
             <v-row>
               <v-col>
                 <v-data-table
-                  :search="search"
                   :headers="headers"
                   :items="suns"
+                  :search="search"
                   class="m-2"
                   :options.sync="options"
                   :server-items-length="parseInt(total)"
                   no-data-text="Sin datos"
                   :single-expand="singleExpand"
                   :expanded.sync="expanded"
+                  item-key="lote"
                 >
                   <template v-slot:[`item.suns`]="{ item }">
                     <div>
                       <v-chip
-                        v-for="(sun, i) of item.suns[0].suns"
+                        v-for="(sun, i) of item.suns"
                         :key="i"
                         class="ma-2"
                         color="grey"
@@ -103,7 +104,7 @@
                         <v-icon left>
                           mdi-label
                         </v-icon>
-                        {{ sun }}
+                        {{ sun.sun_number}}
                       </v-chip>
                     </div>
                   </template>
@@ -124,7 +125,7 @@
                     </v-btn>           
                 </template>-->
 
-                  <template
+                  <!-- <template
                     v-slot:[`item.data-table-expand`]="{ expand, isExpanded }"
                   >
                     <v-btn
@@ -134,21 +135,7 @@
                     >
                       <img src="@/static/iconos/expand_more.svg" alt="expand" />
                     </v-btn>
-                  </template>
-
-                  <!--             <template v-slot:expanded-item="{ headers, item }">
-                  <td :colspan="headers.length" class="px-0">
-                    <v-data-table
-                      :headers="headersLineas"
-                      :items="filtrarLineas(item.cod_pt)"
-                      hide-default-footer
-                      height="100%"
-                      style="background:rgb(241, 241, 241,0.3);box-shadow: inset 0 0 20px 0 #E7E7E7;"
-                      item-key="cod_pt"
-                    >
-                    </v-data-table>
-                  </td>
-                </template> -->
+                  </template> -->
                 </v-data-table>
               </v-col>
             </v-row>
@@ -172,10 +159,7 @@
 
 <script>
 import "material-design-icons-iconfont/dist/material-design-icons.css";
-import edit from "@/components/common/editar";
 import axios from "@/plugins/axios";
-import delet from "@/components/common/eliminar";
-import create from "@/components/common/crear";
 import infoModal from "@/components/common/infoModal";
 import infoModalCRUD from "@/components/common/infoModalCRUD.vue";
 import Cookies from "js-cookie";
@@ -185,9 +169,6 @@ import { mapState, mapMutations } from "vuex";
 export default {
   middleware: "NOAUTH",
   components: {
-    edit,
-    delet,
-    create,
     infoModal,
     infoModalCRUD
   },
@@ -214,7 +195,7 @@ export default {
     pageCount: 1,
     cod_pt: "",
     suns: [
-      {
+/*       {
         id: 1,
         lote: 1234,
         suns: [
@@ -225,48 +206,18 @@ export default {
         id: 2,
         lote: 5678,
         suns: [{ lote: "5678", suns: ["3435345", "3435343"] }]
-      }
+      } */
     ],
-    options: {},
+    options: {
+      page:1,
+      perPage:10
+    },
     files: null,
     headers: [
-      { text:"Lote", value:"lote", align:"center", sortable:false },
-      { text:"SUNs", value:"suns", sortable: false }
+      { text:"Lote", value:'lote', align:"center", sortable:false },
+      { text:"SUNs", value:'suns', sortable: false }
       //{ text: "Líneas", value: "data-table-expand"},
-    ],
-    headersLineas: [
-      {
-        text: "Líneas",
-        value: "line",
-        sortable: false,
-        class: "my_table_style",
-        align: "center"
-      },
-      {
-        text: "Temperatura",
-        value: "temperature",
-        sortable: false,
-        class: "my_table_style",
-        align: "center",
-        width: "150px"
-      },
-      {
-        text: "Velocidad",
-        value: "velocity",
-        sortable: false,
-        class: "my_table_style",
-        align: "center",
-        width: "150px"
-      },
-      {
-        text: "V.Crimper",
-        value: "onCrimp",
-        sortable: false,
-        class: "my_table_style",
-        align: "center"
-      }
-    ],
-    lineas: []
+    ]
   }),
   computed: {
     ...mapState(["infoModal"])
@@ -294,14 +245,14 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
     async filtrarTabla() {
-      await this.getProducts();
+      await this.getSuns();
       this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
-    async getProducts() {
-      /*       this.dialogSpinner = true;
+    async getSuns() {
+            this.dialogSpinner = true;
       let token = Cookies.get("token");
       await axios
-        .get("products", {
+        .get("producto_lote", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -311,144 +262,29 @@ export default {
           },
         })
         .then((res) => {
-          this.products = res.data.data.products;
-          this.lineas = res.data.data.lines
-          this.total = res.data.data.total;
+          console.log('suns',res);
+          this.suns = res.data.suns.data;
+          this.total = res.data.suns.total;
           this.dialogSpinner = false;
-          if(this.cod_pt != ""){
-            this.expanded = [ { "cod_pt": this.cod_pt }];
-          }
-          else{
-            this.expanded = [{ "cod_pt": -1 }];
-          }
-          if (this.cod_pt != null) {
-            this.$refs.cod_pt.focus();
-          }
         })
         .catch((error) => {
           this.dialogSpinner = false;
           console.log(error);
-        }); */
-    },
-    filtrarLineas(codigo) {
-      if (codigo) {
-        let resultado = this.lineas.filter(item => item.cod_pt == codigo);
-        return resultado[0].setPoints;
-      }
-    },
-    csvModelo() {
-      let csvContent = "data:text/csv;charset=utf-8,";
-      let arr = [
-        {
-          cod_pt: 1111,
-          description: "Lorem ipsum dolor sit amet",
-          l310_sp_temp: 45,
-          l310_sp_vel: 45,
-          l310_oncrimp: true,
-          l320_sp_temp: 45,
-          l320_sp_vel: 45,
-          l320_oncrimp: true,
-          l330_sp_temp: 45,
-          l330_sp_vel: 45,
-          l330_oncrimp: false,
-          l340_sp_temp: 45,
-          l340_sp_vel: 45,
-          l340_oncrimp: false
-        },
-        {
-          cod_pt: 9999,
-          description: "Lorem ipsum dolor sit amet",
-          l310_sp_temp: 65,
-          l310_sp_vel: 65,
-          l310_oncrimp: true,
-          l320_sp_temp: 65,
-          l320_sp_vel: 65,
-          l320_oncrimp: true,
-          l330_sp_temp: 65,
-          l330_sp_vel: 65,
-          l330_oncrimp: false,
-          l340_sp_temp: 65,
-          l340_sp_vel: 65,
-          l340_oncrimp: false
-        }
-      ];
-      csvContent += [
-        Object.keys(arr[0]).join(";"),
-        ...arr.map(item => Object.values(item).join(";"))
-      ]
-        .join("\n")
-        .replace(/(^\[)|(\]$)/gm, "");
-
-      const data = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", data);
-      link.setAttribute("download", "plantilla.csv");
-      link.click();
-    },
-    async getAllProducts() {
-      this.dialogSpinner = true;
-      let token = Cookies.get("token");
-      let all = [];
-
-      try {
-        await axios
-          .get("products", {
-            headers: {
-              Authorization: `Bearer ${token}`
-            },
-            params: {
-              options: this.options,
-              cod_pt: this.cod_pt
-            }
-          })
-          .then(res => {
-            let products = res.data.data.products;
-            let lineas = res.data.data.lines;
-
-            lineas = lineas.map(item => item.setPoints);
-            all = products.map((item, index) => {
-              return {
-                ...item,
-                l310_sp_temp: lineas[index][0].temperature,
-                l310_sp_vel: lineas[index][0].velocity,
-                l310_oncrimp: lineas[index][0].onCrimp,
-                l320_sp_temp: lineas[index][1].temperature,
-                l320_sp_vel: lineas[index][1].velocity,
-                l320_oncrimp: lineas[index][1].onCrimp,
-                l330_sp_temp: lineas[index][2].temperature,
-                l330_sp_vel: lineas[index][2].velocity,
-                l330_oncrimp: lineas[index][2].onCrimp,
-                l340_sp_temp: lineas[index][3].temperature,
-                l340_sp_vel: lineas[index][3].velocity,
-                l340_oncrimp: lineas[index][3].onCrimp
-              };
-            });
-            this.dialogSpinner = false;
-            if (this.cod_pt != null) {
-              this.$refs.cod_pt.focus();
-            }
-          });
-        return all;
-      } catch (error) {
-        console.log(error);
-        this.toggleInfoModal({
-          dialog: true,
-          msj: `Ha ocurrido al consultar los datos`,
-          titulo: "Descargar .CSV",
-          alertType: "error"
         });
-      }
     },
-    async descargaCSV() {
+    descargaCSV() {
       this.dialogSpinner = true;
-      let productos = await this.getAllProducts();
-      await this.csvExport(productos);
-      this.dialogSpinner = false;
-    },
-    csvExport(arrData) {
-      for (let i = 0; i < arrData.length; i++) {
-        delete arrData[i].fecha;
-      }
+
+      const arrData = this.suns.map( (item)=> {
+        let suns = '';
+        item.suns.map( item => suns += (' ' + item.sun_number.toString()) );
+        console.log('sunsss', suns);
+        return {
+          lote: item.lote,
+          suns: suns
+        }
+      });
+
       let csvContent = "data:text/csv;charset=utf-8,";
 
       csvContent += [
@@ -462,48 +298,8 @@ export default {
       link.setAttribute("href", data);
       link.setAttribute("download", "export.csv");
       link.click();
+      this.dialogSpinner = false;
     },
-    async cargarProduct(obj) {
-      let token = Cookies.get("token");
-      await axios.post("products", obj, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-    },
-    csvImport(files) {
-      try {
-        var file = files;
-        var reader = new FileReader();
-        file = new Blob([file], { type: "text/plain" });
-        reader.readAsBinaryString(file);
-        reader.onload = event => {
-          var lines = event.target.result.split("\n");
-
-          const result = [];
-          const headers = lines[0].split(";");
-
-          for (let i = 0; i < lines.length; i++) {
-            if (!lines[i]) continue;
-            const obj = {};
-            let currentline = lines[i].split(";");
-
-            for (let j = 0; j < headers.length; j++) {
-              obj[headers[j]] = currentline[j];
-            }
-            this.cargarProduct(obj);
-          }
-          this.datosCsv = null;
-          this.getProducts();
-          this.toggleInfoModal({
-            dialog: true,
-            msj: `Producto(s) agregado(s) correctamente`,
-            titulo: "Importar CSV",
-            alertType: "success"
-          });
-        };
-      } catch (error) {
-        console.log(error);
-      }
-    }
   },
   watch: {
     /*     cod_pt: function () {
@@ -513,7 +309,7 @@ export default {
     }, */
     options: {
       handler() {
-        this.getProducts();
+        this.getSuns();
       },
       deep: true
     }

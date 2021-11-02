@@ -36,3 +36,6 @@ Route.get("api/v1/products", "BpSetpointsController.index");
 Route.post("api/v1/products", "BpSetpointsController.store");
 Route.put("api/v1/products/:id", "BpSetpointsController.update");
 Route.delete("api/v1/products/:id", "BpSetpointsController.destroy");
+
+//SUNS
+Route.get("api/v1/producto_lote", "ProductoLoteController.index");
