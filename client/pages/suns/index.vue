@@ -68,12 +68,13 @@
               <v-spacer />
               <v-col cols="8" sm="8" class="mt-0 pt-0">
                 <v-text-field
-                  v-model="search"
+                  v-model="lote"
                   append-icon="mdi-magnify"
-                  label="buscar"
+                  label="Indique un lote y presione enter"
                   single-line
                   hide-details
                   class="mr-1"
+                  @keyup.enter="filtrarTabla"
                 />
               </v-col>
             </v-row>
@@ -82,7 +83,7 @@
                 <v-data-table
                   :headers="headers"
                   :items="suns"
-                  :search="search"
+                  :search="lote"
                   class="m-2"
                   :options.sync="options"
                   :server-items-length="parseInt(total)"
@@ -173,7 +174,7 @@ export default {
     infoModalCRUD
   },
   data: () => ({
-    search: "",
+    lote: "",
     expanded: [],
     singleExpand: false,
     ctrl: [],
@@ -193,24 +194,11 @@ export default {
     perPage: 10,
     page: 1,
     pageCount: 1,
-    cod_pt: "",
-    suns: [
-/*       {
-        id: 1,
-        lote: 1234,
-        suns: [
-          { lote: "1234", suns: ["2435345", "2435343", "2435367", "2435334"] }
-        ]
-      },
-      {
-        id: 2,
-        lote: 5678,
-        suns: [{ lote: "5678", suns: ["3435345", "3435343"] }]
-      } */
-    ],
+    suns: [],
     options: {
       page:1,
-      perPage:10
+      itemsPerPage:10,
+      lote:null
     },
     files: null,
     headers: [
@@ -245,20 +233,30 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
     async filtrarTabla() {
-      await this.getSuns();
+      if (this.lote && this.lote != "") {
+        this.options.lote = this.lote;
+        await this.getSuns();
+      }else {
+        this.options = {
+          page:1,
+          itemsPerPage:10,
+          lote:null
+        }
+        this.getSuns();
+      }
       this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
     async getSuns() {
-            this.dialogSpinner = true;
+      this.dialogSpinner = true;
       let token = Cookies.get("token");
+      console.log('options', this.options);
       await axios
         .get("producto_lote", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            options: this.options,
-            cod_pt: this.cod_pt,
+            options: this.options
           },
         })
         .then((res) => {
@@ -302,11 +300,6 @@ export default {
     },
   },
   watch: {
-    /*     cod_pt: function () {
-      if (this.cod_pt == "") {
-        this.filtrarTabla();
-      }
-    }, */
     options: {
       handler() {
         this.getSuns();

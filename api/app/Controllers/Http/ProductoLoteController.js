@@ -28,12 +28,21 @@ class ProductoLoteController {
       const user = await auth.getUser();
       let query = ProductoLote.query();
 
-       let options = request.all()
-       //options = JSON.parse(options);
+      let {
+        options
+      } = request.all()
+      options = JSON.parse(options);
+
+      //Si recibe un codigo de lote
+      let lote =  options.lote;
+      if (lote) {
+        query.where('lote', lote)
+      }
 
       //seteo valores por defectos
-      let page = options.page || 1;
-      let perPage = options.itemsPerPage || 10;
+      let page = options.page;
+      let perPage = options.itemsPerPage;
+
 
       let res = await query.paginate(page, perPage);
       res = res.toJSON();

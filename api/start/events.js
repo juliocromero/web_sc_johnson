@@ -147,45 +147,83 @@ const Product = use("App/Models/Product");
 //         console.log(error)
 //     }
 // })
+const dropOldData = async (connection, lastQuery)=> {
+    try {
+        console.log('Deleting old data...');
+        return await connection
+        .table('producto_lote')
+        .whereBetween( 'date', [ moment(lastQuery).add(-10, 'days').format('YYYY-MM-DD HH:mm:ss'), moment(lastQuery).format('YYYY-MM-DD HH:mm:ss') ])
+        .delete();        
+    } catch (error) {
+        console.log('DELETING OLD DATA ERROR ==>', error)
+    }
+};
 
-// cron.schedule("*/10 * * * * *", async function (){
-//     let now = moment().format('YYYY-MM-DD HH:mm:ss');
-//     let lastQuery = await Until.findOrCreate( { id: 1 }, { until_date: now });
-//     let lastQueryDate = lastQuery.toJSON().until_date;
-//     await Until.query().where('id', 1 ).update({ until_date: now });
+const parseData = async (arr)=> {
+    try {
+        const result = arr.map((item)=>{
+            try {
+                return {
+                    sun_number : item.sun_number,
+                    lote: item.lote,
+                    batch_id: item.batch_id,
+                    fecha_hora:moment(item.date).utc().format()
+                }           
+            } catch (error) {
+            //continue;
+            }
+        });
+        const data = await Promise.all(result);
+        return data;        
+    } catch (error) {
+        console.log('PARSEDATA ERROR ==>', error);
+    }
+};
 
-//     // updating producto_lote table.
-//     try {
-//       console.log('lastQueryDate:', lastQueryDate);
-//       console.log('now:', now);
-//       const res = await Database.connection('Server1')
-//       .table('producto_lote')
-//       .select('*')
-//       //.whereBetween( 'date', [moment(lastQueryDate).utc().format(), moment(now).utc().format()]);
-//       console.log('res:', res);
+cron.schedule("*/10 * * * * *", async function () {
+    try {
+      let now = moment().format('YYYY-MM-DD HH:mm:ss');
+      let lastQuery = await Until.findOrCreate( { id: 1 }, { until_date: now });
+      let lastQueryDate = moment(lastQuery.toJSON().until_date).format('YYYY-MM-DD HH:mm:ss');
+      await Until.query().where('id', 1 ).update({ until_date: now });
+      const server1 = Database.connection('Server1');
+      const server2 = Database.connection('Server2');
 
-//       if(res.length > 0){
-//         const result = res.map((item)=>{
-//           try {
-//             return {
-//               sun_number : item.sun_number,
-//               lote: item.lote,
-//               batch_id: item.batch_id,
-//               fecha_hora:moment(item.date).utc().format()
-//             }           
-//           } catch (error) {
-//             //continue;
-//           }
-//         });
-//         const data = await Promise.all(result);
-//         const queryStatus = await ProductoLote.query().insert(data);
-//         console.log('data:', data);
-//         console.log('queryStatus:', queryStatus);
-//         //return response.status(200).json(data);            
-//       }
+      console.log('LAST QUERY:', lastQueryDate);
+      console.log('NOW:', now);
 
-//     } catch (error) {
-//         console.log('ERROR CONSULTANDO SUNS: ' + error);
-//     }
+      const res_server_1 = await server1
+      .table('producto_lote')
+      .select('*')
+      .whereBetween( 'date', [ moment(lastQueryDate).format('YYYY-MM-DD HH:mm:ss'), moment(now).format('YYYY-MM-DD HH:mm:ss') ]);
+      //console.log('res_1:', res_server_1);
+    
+      const res_server_2 = await server2
+      .table('producto_lote')
+      .select('*')
+      .whereBetween( 'date', [ moment(lastQueryDate).format('YYYY-MM-DD HH:mm:ss'), moment(now).format('YYYY-MM-DD HH:mm:ss') ]);
+      //console.log('res_2:', res_server_2);
 
-// });
+      if(res_server_1.length > 0) {
+        parseData(res_server_1).then( async (dataS1)=>{
+            //console.log('dataS1:', dataS1);
+            const queryS1 = await ProductoLote.query().insert( dataS1 );
+            //console.log('queryStatusS1:', queryS1);
+            dropOldData(server1, lastQueryDate)              
+        }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});
+      };
+
+      if(res_server_2.length > 0) {
+        parseData(res_server_2).then( async (dataS2)=> {
+            //console.log('dataS2:', dataS2);
+            const queryS2 = await ProductoLote.query().insert( dataS2 );
+            //console.log('queryStatusS2:', queryS2);
+            dropOldData(server2, lastQueryDate)              
+        }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});
+      };
+
+    } catch (error) {
+        console.log('ERROR CONSULTANDO SUNS: ', error);
+    }
+
+});
