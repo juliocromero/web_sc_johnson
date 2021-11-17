@@ -209,7 +209,7 @@ cron.schedule("*/10 * * * * *", async function () {
             //console.log('dataS1:', dataS1);
             const queryS1 = await ProductoLote.query().insert( dataS1 );
             //console.log('queryStatusS1:', queryS1);
-            dropOldData(server1, lastQueryDate)              
+            //dropOldData(server1, lastQueryDate)              
         }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});
       };
 
@@ -218,7 +218,7 @@ cron.schedule("*/10 * * * * *", async function () {
             //console.log('dataS2:', dataS2);
             const queryS2 = await ProductoLote.query().insert( dataS2 );
             //console.log('queryStatusS2:', queryS2);
-            dropOldData(server2, lastQueryDate)              
+            //dropOldData(server2, lastQueryDate)              
         }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});
       };
 
