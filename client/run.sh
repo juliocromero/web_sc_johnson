@@ -1,1 +1,1 @@
-command nodemon server/index.js
+command npm run dev
