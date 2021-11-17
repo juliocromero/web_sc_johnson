@@ -3,23 +3,23 @@ services:
  
   api:
     image: node
-    container_name: "sc-johnson_api_qa"
+    container_name: "sc-johnson_api_dev"
     restart: always
     volumes:
-      - ./api:/opt/sc-johnson-qa
-    working_dir: "/opt/sc-johnson-qa"
+      - ./api:/opt/sc-johnson-dev
+    working_dir: "/opt/sc-johnson-dev"
     command: ["bash", "run.sh"]
     networks:
       - net_qa
   client:
     image: node
-    container_name: "sc-johnson_client_qa"
+    container_name: "sc-johnson_client_dev"
     restart: always
     depends_on:
       - api
     volumes:
-      - ./client:/opt/sc-johnson-qa
-    working_dir: "/opt/sc-johnson-qa"
+      - ./client:/opt/sc-johnson-dev
+    working_dir: "/opt/sc-johnson-dev"
     environment:
       MODE: dev
       HOST: 0.0.0.0
@@ -29,12 +29,12 @@ services:
       - net_qa
   proxy:
     image: nginx
-    container_name: "sc-johnson_proxy_dev_qa"
+    container_name: "sc-johnson_proxy_dev"
     volumes:
-      - ./proxy:/opt/sc-johnson-qa
-    working_dir: "/opt/sc-johnson-qa"
+      - ./proxy:/opt/sc-johnson-dev
+    working_dir: "/opt/sc-johnson-dev"
     ports:
-      - "8080:80"
+      - "8085:85"
     volumes:
       - ./proxy:/etc/nginx/conf.d
     depends_on:
