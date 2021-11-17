@@ -139,10 +139,6 @@ export default {
                     this.AlertCambioPassword= true
                 }})
             .catch(error => console.error('Error: ',error));
-
-
-      /*  this.mensajeCambioPassword = "error.menssage"
-                this.errorCambioPassword= true */
     },
   },
   watch: {

@@ -90,6 +90,7 @@
                   no-data-text="Sin datos"
                   :single-expand="singleExpand"
                   :expanded.sync="expanded"
+                  :footer-props="footerProps"
                   item-key="lote"
                 >
                   <template v-slot:[`item.suns`]="{ item }">
@@ -181,11 +182,11 @@ export default {
     flag: true,
     sortClass: "",
     footerProps: {
-      disablePagination: true,
+ /*   disablePagination: false,
       prevIcon: null,
-      nextIcon: null,
+      nextIcon: null, */
       itemsPerPageText: "items por página",
-      itemsPerPageOptions: [5, 10, 25]
+      itemsPerPageOptions: [ 5, 10, 25]
     },
     datosCsv: null,
     pag: null,
