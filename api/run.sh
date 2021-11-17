@@ -1,2 +1,2 @@
 
-command nodemon server.js
+command adonis serve --dev
