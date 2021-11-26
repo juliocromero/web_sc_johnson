@@ -39,7 +39,7 @@ export default {
       opciones:[
         {titulo:'Setpoints Baños de  Pruebas', icon:'fact_check', url:'/washing_set_points'},
         {titulo:'SUNs', icon:'widgets', url:'/suns'},
-        //{titulo:'Reglas de Lavado', icon:'waves', url:'/reglas_lavado'}
+        /* {titulo:'Reglas de Lavado', icon:'waves', url:'/washing_rules'} */
       ],
     }
   }

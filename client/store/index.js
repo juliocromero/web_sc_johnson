@@ -61,8 +61,8 @@ export const mutations = {
   async toggleInfoModalCRUD(state, payload){
     state.infoModalCRUD.dialog = true
     state.infoModalCRUD.msj = payload.msj
-    state.infoModalCRUD.s1 = payload.s1
-    state.infoModalCRUD.s2 = payload.s2
+    //state.infoModalCRUD.s1 = payload.s1
+    //state.infoModalCRUD.s2 = payload.s2
     state.infoModalCRUD.titulo = payload.titulo
     state.infoModalCRUD.alertType = payload.alertType
   },
