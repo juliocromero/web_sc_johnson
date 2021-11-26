@@ -1,5 +1,4 @@
 'use strict'
-
 /*
 |--------------------------------------------------------------------------
 | Routes
@@ -20,7 +19,6 @@ Route.get('/api/v1', () => {
   return { greeting: 'Welcome API- SC Johnson - Systelec S.A' }
 })
 
-
 // USERS
 Route.post("api/v1/register", "UserController.store");
 Route.post("api/v1/login", "UserController.login");
@@ -36,6 +34,18 @@ Route.get("api/v1/products", "BpSetpointsController.index");
 Route.post("api/v1/products", "BpSetpointsController.store");
 Route.put("api/v1/products/:id", "BpSetpointsController.update");
 Route.delete("api/v1/products/:id", "BpSetpointsController.destroy");
+
+//WASHING_RULES
+Route.group(() => {
+  //CODES
+  Route.get("codes", "CodesWashingRulesController.index");
+  Route.post("codes", "CodesWashingRulesController.store");
+  Route.put("multiple_codes", "CodesWashingRulesController.multipleUpdate");
+  //GROUPS
+  Route.get("groups", "GroupWashingRulesController.index");
+  Route.post("groups", "GroupWashingRulesController.store");
+  Route.put("groups", "GroupWashingRulesController.update");
+}).prefix('api/v1/washing_rules/');
 
 //SUNS
 Route.get("api/v1/producto_lote", "ProductoLoteController.index");
