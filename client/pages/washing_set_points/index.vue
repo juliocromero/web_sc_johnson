@@ -118,6 +118,7 @@
             :expanded.sync="expanded"
             item-key="cod_pt"
             show-expand
+            :footer-props="footerProps"
           >
             <template v-slot:[`item.editar`]="{ item }">
               <edit :product="item" :lines="filtrarLineas(item.cod_pt)" @reload="getProducts" />
@@ -135,6 +136,7 @@
                 disabled
               />
             </template>
+
             <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
               <span :key="i+1">{{h.text}}</span>  
                   <v-btn
@@ -145,10 +147,14 @@
                   :class="ctrl[i]"
                 >
                   <img
-                    src="static\iconos\filter_list-white-24dp.svg"
+                    src="@/static/iconos/filter_list_gray_24dp.svg"
                     alt="sort"
                   />
                 </v-btn>           
+            </template>
+
+            <template v-slot:[`footer`]="{ nextIcon }">
+
             </template>
 
             <template v-slot:[`item.data-table-expand`]="{ expand, isExpanded }">
@@ -173,14 +179,6 @@
                 >
                   <template v-slot:[`item.onCrimp`]="{ item }" class="pa-0">
                     <div style="display: flex;align-items: center;justify-content: center;">
-                      <!--<v-switch
-                        v-model="item.onCrimp"
-                        color="success"
-                        hide-details
-                        readonly
-                        dense
-                        class="ma-0 ml-4"
-                      ></v-switch>  -->
                       <v-chip small color="success" v-if="item.onCrimp">ON</v-chip>
                       <v-chip small color="error" v-if="!item.onCrimp">OFF</v-chip>                         
                     </div>
@@ -188,8 +186,8 @@
                 </v-data-table>
               </td>
             </template>
-
           </v-data-table>
+
           <v-dialog v-model="dialogSpinner" hide-overlay>
             <v-progress-circular
               :size="70"
@@ -199,6 +197,7 @@
               class="spinner"
             ></v-progress-circular>
           </v-dialog>
+
         </v-card>
       </v-col>
     </v-row>
@@ -236,9 +235,9 @@ export default {
     flag:true,
     sortClass: '',
     footerProps: {
-      disablePagination: true,
-      prevIcon: null,
-      nextIcon: null,
+      disablePagination: false,
+      prevIcon: 'mdi-arrow-left',
+      nextIcon: 'mdi-arrow-right',
       itemsPerPageText: "items por página",
       itemsPerPageOptions: [5, 10, 25],
     },
