@@ -22,7 +22,8 @@ export const state = () => ({
   auth: false,
   dataUser:null,
   user:{}, 
-  time : null
+  time : null,
+  dispatch:false
 });
 
 export const mutations = {
@@ -33,6 +34,9 @@ export const mutations = {
     Cookies.set('lastname', state.user.lastname)
     Cookies.set('rol', state.user.rol_id)   
     $nuxt.$router.push('/modules')
+  },
+  async SET_DISPATCH(state) {
+    state.dispatch = !state.dispatch;
   },
   async SET_AUTH_AUTOMATIC(state, res) {
     state.auth = true;

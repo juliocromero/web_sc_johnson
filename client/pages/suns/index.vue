@@ -68,9 +68,9 @@
               <v-spacer />
               <v-col cols="8" sm="8" class="mt-0 pt-0">
                 <v-text-field
-                  v-model="lote"
+                  v-model="searched_value"
                   append-icon="mdi-magnify"
-                  label="Indique un lote y presione enter"
+                  label="Indique un lote ó sun y presione enter"
                   single-line
                   hide-details
                   class="mr-1"
@@ -83,17 +83,18 @@
                 <v-data-table
                   :headers="headers"
                   :items="suns"
-                  :search="lote"
+                  :search="searched_value"
                   class="m-2"
                   :options.sync="options"
                   :server-items-length="parseInt(total)"
                   no-data-text="Sin datos"
                   :single-expand="singleExpand"
                   :expanded.sync="expanded"
-                  :footer-props="footerProps"
+                  show-expand
                   item-key="lote"
+                  :footer-props="footerProps"
                 >
-                  <template v-slot:[`item.suns`]="{ item }">
+<!--                   <template v-slot:[`item.suns`]="{ item }">
                     <div>
                       <v-chip
                         v-for="(sun, i) of item.suns"
@@ -109,25 +110,25 @@
                         {{ sun.sun_number}}
                       </v-chip>
                     </div>
+                  </template> -->
+
+                  <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
+                    <span :key="i+1">{{h.text}}</span>  
+                        <v-btn
+                        v-if="i < 1"
+                        @click="flag ? sortAc(suns, h.value, i) : sortDc(suns, h.value, i)"
+                        icon
+                        :key="i"
+                        :class="ctrl[i]"
+                      >
+                        <img
+                          src="@/static/iconos/filter_list-white-24dp.svg"
+                          alt="sort"
+                        />
+                      </v-btn>           
                   </template>
 
-                  <!--             <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
-                  <span :key="i+1">{{h.text}}</span>  
-                      <v-btn
-                      v-if="i < 1"
-                      @click="flag ? sortAc(products, h.value, i) : sortDc(products, h.value, i)"
-                      icon
-                      :key="i"
-                      :class="ctrl[i]"
-                    >
-                      <img
-                        src="@/static/iconos/filter_list-white-24dp.svg"
-                        alt="sort"
-                      />
-                    </v-btn>           
-                </template>-->
-
-                  <!-- <template
+                  <template
                     v-slot:[`item.data-table-expand`]="{ expand, isExpanded }"
                   >
                     <v-btn
@@ -137,7 +138,22 @@
                     >
                       <img src="@/static/iconos/expand_more.svg" alt="expand" />
                     </v-btn>
-                  </template> -->
+                  </template>
+                  <!-- TABLA SUNS -->
+                  <template v-slot:expanded-item="{ headers, item }">
+                    <td :colspan="headers.length" class="px-0">
+                      <div class="wrapper__suns__table">
+                        <v-data-table
+                          :headers="headersSuns"
+                          :items="item.suns"
+                          hide-default-footer                     
+                          height="100%"
+                          style="background:rgb(241, 241, 241,0.3);box-shadow: inset 0 0 20px 0 #E7E7E7;"
+                        >
+                        </v-data-table>                      
+                      </div>
+                    </td>
+                  </template>
                 </v-data-table>
               </v-col>
             </v-row>
@@ -175,16 +191,13 @@ export default {
     infoModalCRUD
   },
   data: () => ({
-    lote: "",
+    searched_value: null,
     expanded: [],
-    singleExpand: false,
+    singleExpand: true,
     ctrl: [],
     flag: true,
     sortClass: "",
     footerProps: {
- /*   disablePagination: false,
-      prevIcon: null,
-      nextIcon: null, */
       itemsPerPageText: "items por página",
       itemsPerPageOptions: [ 5, 10, 25]
     },
@@ -199,14 +212,18 @@ export default {
     options: {
       page:1,
       itemsPerPage:10,
-      lote:null
+      searched_value:null
     },
+    page: 1,
     files: null,
     headers: [
       { text:"Lote", value:'lote', align:"center", sortable:false },
-      { text:"SUNs", value:'suns', sortable: false }
-      //{ text: "Líneas", value: "data-table-expand"},
-    ]
+      //{ text:"SUNs", value:'suns', sortable: false },
+      { text: "Ver Suns", value: "data-table-expand", width:100, align:"center", sortable:false},
+    ],
+    headersSuns:[
+      { text: 'Suns', value: 'sun_number', sortable: false, class:'my_table_style', align:'center' },
+    ],
   }),
   computed: {
     ...mapState(["infoModal"])
@@ -234,23 +251,18 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
     async filtrarTabla() {
-      if (this.lote && this.lote != "") {
-        this.options.lote = this.lote;
-        await this.getSuns();
-      }else {
-        this.options = {
-          page:1,
-          itemsPerPage:10,
-          lote:null
-        }
+      console.log('filtrando tabla');
+      if ( this.searched_value != "") {
+        this.options.searched_value = this.searched_value;
         this.getSuns();
+        this.expanded = this.suns;
       }
       this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
     async getSuns() {
       this.dialogSpinner = true;
       let token = Cookies.get("token");
-      console.log('options', this.options);
+      console.log('OPCIONES:', this.options);
       await axios
         .get("producto_lote", {
           headers: {
@@ -301,12 +313,32 @@ export default {
     },
   },
   watch: {
+    searched_value: {
+      handler() {
+        if(this.searched_value == ''){
+          this.options = {
+            page:1,
+            itemsPerPage:10,
+            searched_value:null
+          },
+          this.getSuns();
+          this.expanded = [];
+        }       
+      },
+      deep: true
+    },
     options: {
+      handler() {
+        this.page = this.options.itemsPerPage;
+      },
+      deep: true
+    },
+    page:{
       handler() {
         this.getSuns();
       },
       deep: true
-    }
+    },
   }
 };
 </script>
@@ -365,6 +397,11 @@ export default {
   -ms-transform: rotate(360deg);
   transform: rotate(360deg);
   background-color: rgb(219, 214, 214);
+}
+.wrapper__suns__table{
+  height: auto;
+  max-height: 250px;
+  overflow: scroll;
 }
 </style>
 

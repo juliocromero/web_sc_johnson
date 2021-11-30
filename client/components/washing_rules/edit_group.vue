@@ -93,11 +93,11 @@
 
                 <v-col cols="2" class="d-flex align-center justify-center">
                   <div>
-                    <v-btn class="mb-2" @click="include">
+                    <v-btn class="mb-2" @click="include" :disabled="selectedNotIncluded.length > 0 ? false : true">
                       <v-icon>arrow_forward</v-icon>
                     </v-btn>
                     <br>
-                    <v-btn @click="exclude">
+                    <v-btn @click="exclude" :disabled="selectedIncluded.length > 0 ? false : true">
                       <v-icon>arrow_back</v-icon>
                     </v-btn>
                   </div>
@@ -116,7 +116,7 @@
                       <v-list-item-group
                         multiple
                       >
-                        <v-list-item v-for="(item, i) of included" :key="i">
+                        <v-list-item v-for="(item, i) of included" :key="i" :selectable="false">
                           <template>
                             <v-list-item-action>
                               <v-checkbox v-model="selectedIncluded" :value="item"></v-checkbox>
@@ -190,7 +190,7 @@ export default {
     selectedNotIncluded:[]
   }),
   methods: {
-    ...mapMutations(["toggleInfoModalCRUD","toggleInfoModal"]),
+    ...mapMutations(["toggleInfoModalCRUD","toggleInfoModal","SET_DISPATCH"]),
     show(){
       this.included = [];
       this.notIncluded = [];
@@ -287,12 +287,12 @@ export default {
         } 
       }
     },
-    async getCurrentGroup(id_group){
+    async getCurrentGroup(){
       try {
         let token = Cookies.get("token");
           await axios.get("washing_rules/groups", {
             headers: { Authorization: `Bearer ${token}` },
-            params:{id:id_group}
+            params:{id:this.id_group}
           }).then((res)=>{
             this.currentGroup = res.data.data.data[0];
             this.getCodes();

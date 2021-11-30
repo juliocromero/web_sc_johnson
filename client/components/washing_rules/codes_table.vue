@@ -45,6 +45,7 @@
                 class="ma-2"
                 color="#ffe4d5"
                 text-color="white"
+                v-if="item.grupo"
               >
                 <v-avatar
                   color="#f44336"
@@ -53,6 +54,7 @@
                   {{item.grupo}}
                 </v-avatar>
               </v-chip>
+              <span v-if="!item.grupo"><i style="color:#A0A0A0">&lt;No asignado&gt;</i></span>
             </template>
 
             <template v-slot:[`item.editar`]="{ item }">
@@ -172,7 +174,7 @@ export default {
     codes:[],
   }),
   computed: {
-    ...mapState(["infoModal"]),
+    ...mapState(["infoModal", "dispatch" ]),
   },
   methods: {
     sortAc(arr, parametro, i){
@@ -291,7 +293,14 @@ export default {
       }
     },
   },
+  mounted(){
+    this.getCodes();
+  },
   watch: {
+    dispatch:function () {
+      console.log('Se disparo la fn');
+      this.getCodes(); 
+    },
     code: function () {
       if (this.code == "") {
         this.filtrarTabla();

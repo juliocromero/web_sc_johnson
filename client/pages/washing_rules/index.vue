@@ -51,8 +51,9 @@
             <v-tab
               href="#mobile-tabs-5-1"
               style="max-width:100%;"
+              @click="SET_DISPATCH"
             >
-            <span><v-icon>view_week</v-icon> Codigos</span>                  
+              <span><v-icon>view_week</v-icon> Codigos</span>                  
             </v-tab>
 
             <v-tab
@@ -167,7 +168,7 @@ export default {
       this.ctrl[i]='anim2';
       return ordenado;
     },
-    ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
+    ...mapMutations(["toggleInfoModal", "SET_DESLOGIN", "SET_DISPATCH"]),
    async filtrarTabla() {
         await this.getProducts();
         this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados

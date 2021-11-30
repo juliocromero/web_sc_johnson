@@ -28,24 +28,26 @@ class ProductoLoteController {
       const user = await auth.getUser();
       let query = ProductoLote.query();
 
-      let {
-        options
-      } = request.all()
-      options = JSON.parse(options);
+      let { options } = request.only(['options']);
+      options = JSON.parse( String(options));
+      console.log('optionssss:', options );
 
-      //Si recibe un codigo de lote
-      let lote =  options.lote;
-      if (lote) {
-        query.where('lote', lote)
+      //Si recibe un codigo de lote o sun
+      let searched_value =  options.searched_value;
+      if (searched_value) {
+        query
+        .where('sun_number', searched_value)
+        .orWhere('lote', searched_value);
       }
 
       //seteo valores por defectos
-      let page = options.page;
-      let perPage = options.itemsPerPage;
+      let page = options.page || 1;
+      let perPage = options.itemsPerPage || 10;
 
 
       let res = await query.paginate(page, perPage);
       res = res.toJSON();
+
       res.data = _.groupBy(res.data, 'lote');
       res.data = Object.keys(res.data).map((key) => {return {lote:key, suns:res.data[key]}});
       response.status(200).json({ message: 'Listado de SUNs', suns: res });

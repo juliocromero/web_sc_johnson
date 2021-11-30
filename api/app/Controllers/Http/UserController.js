@@ -19,7 +19,7 @@ class UserController {
       perPage = perPage || 10
 
       let users = await User.query().with('rol').paginate(page, perPage);
-      users = users.toJSON()
+      users = users.toJSON();
       var arrUsers = users.data.map(item => {
         return {
           "id": item.id,
