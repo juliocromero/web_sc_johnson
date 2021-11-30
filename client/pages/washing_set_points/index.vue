@@ -110,6 +110,7 @@
           <v-data-table
             :headers="headers"
             :items="products"
+            :page.sync="page"
             class="m-2"
             :options.sync="options"
             :server-items-length="parseInt(total)"
@@ -153,9 +154,39 @@
                 </v-btn>           
             </template>
 
-            <template v-slot:[`footer`]="{ nextIcon }">
+              <template v-slot:[`footer.page-text`]="{ itemsLength }" >
 
-            </template>
+                <v-btn
+                  color="primary"
+                  dark
+                  class="ma-2"
+                  icon
+                  :disabled="page == 1"
+                  @click="page--"
+                >
+                  <img
+                    src="@/static/iconos/before.svg"
+                    alt="before"
+                  />
+                </v-btn>
+
+                {{ page }}
+
+                <v-btn
+                  color="primary"
+                  dark
+                  class="ma-2"
+                  icon
+                  :disabled="page == Math.ceil(itemsLength/options.itemsPerPage)"
+                  @click="page++"
+                >
+                  <img
+                    src="@/static/iconos/next.svg"
+                    alt="next"
+                  />
+                </v-btn>
+
+              </template>
 
             <template v-slot:[`item.data-table-expand`]="{ expand, isExpanded }">
               <v-btn
@@ -235,9 +266,9 @@ export default {
     flag:true,
     sortClass: '',
     footerProps: {
-      disablePagination: false,
-      prevIcon: 'mdi-arrow-left',
-      nextIcon: 'mdi-arrow-right',
+      disablePagination: true,
+      prevIcon: null,
+      nextIcon: null,
       itemsPerPageText: "items por página",
       itemsPerPageOptions: [5, 10, 25],
     },
@@ -247,11 +278,11 @@ export default {
     total: null,
     perPage: 10,
     page: 1,
-    pageCount: 1,
     cod_pt: "",
     products: [],
     options: {},
     files: null,
+    lineas:[],
     headers: [
       { text: "Codigo", value: "cod_pt", align: "center", sortable: false},
       { text: "Descripción", value: "description", align: "center" , sortable: false},
@@ -265,10 +296,15 @@ export default {
       { text: 'Velocidad', value: 'velocity', sortable: false, class:'my_table_style', align:'center', width:'150px' },
       { text: 'V.Crimper', value: 'onCrimp', sortable: false, class:'my_table_style', align:'center' },
     ],
-    lineas:[],
   }),
   computed: {
     ...mapState(["infoModal"]),
+      totalRecords() {
+          return this.total
+      },
+      pageCount() {
+          return this.totalRecords / this.options.itemsPerPage
+      },
   },
   methods: {
     sortAc(arr, parametro, i){
@@ -578,10 +614,19 @@ background-color: rgb(219, 214, 214);
 transform: rotate(360deg);
 background-color: rgb(219, 214, 214);
 }
+
 </style>
 
 <style >
 #table .v-data-footer .v-icon {
   color: blue !important;
+}
+.v-data-footer__pagination{
+  position: absolute;
+  margin-left: 0px!important;
+  margin-right: 0px!important;
+}
+.v-data-footer__select{
+  margin-right: 45px!important;
 }
 </style>
