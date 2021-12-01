@@ -29,7 +29,7 @@ class ProductoLoteController {
       let query = ProductoLote.query();
 
       let { options } = request.only(['options']);
-      options = JSON.parse( String(options));
+      options = JSON.parse( options);
       console.log('optionssss:', options );
 
       //Si recibe un codigo de lote o sun

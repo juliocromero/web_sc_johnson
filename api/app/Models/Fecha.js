@@ -11,6 +11,9 @@ class Fecha extends Model {
     static get updatedAtColumn() {
         return null;
     }
+    static get table () { //esta funcion cambia el nombre de la tabla
+        return 'suns.fecha'
+    }
 }
 
 module.exports = Fecha

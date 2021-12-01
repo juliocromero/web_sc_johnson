@@ -12,7 +12,7 @@ class ProductoLote extends Model {
         return null;
     }
     static get table () { //esta funcion cambia el nombre de la tabla
-        return 'producto_lote'
+        return 'suns.producto_lote'
     }
 }
 
