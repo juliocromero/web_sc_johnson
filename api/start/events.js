@@ -170,13 +170,13 @@ const parseData = async (arr)=> {
                     fecha_hora:moment(item.date).utc().format()
                 }           
             } catch (error) {
-            //continue;
+                console.log('PARSE_DATA_1:', error);
             }
         });
         const data = await Promise.all(result);
         return data;        
     } catch (error) {
-        console.log('PARSEDATA ERROR ==>', error);
+        console.log('PARSEDATA_ERROR_2 ==>', error);
     }
 };
 
@@ -203,21 +203,27 @@ cron.schedule("*/60 * * * * *", async function () {
       .whereBetween( 'date', [ moment(lastQueryDate).format('YYYY-MM-DD HH:mm:ss'), moment(now).format('YYYY-MM-DD HH:mm:ss') ]);
 
       if(res_server_1.length > 0) {
-        parseData(res_server_1).then( async (dataS1)=>{
-            const queryS1 = await ProductoLote.query().insert( dataS1 );
-            //dropOldData(server1, lastQueryDate)              
-        }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});
+          try {
+            parseData(res_server_1).then( async (dataS1)=>{
+                const queryS1 = await ProductoLote.query().insert( dataS1 );
+                //dropOldData(server1, lastQueryDate)              
+            }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});    
+          } catch (error) {
+            console.log('ERROR_INSERT_S1:', error);
+          }
       };
 
       if(res_server_2.length > 0) {
-        parseData(res_server_2).then( async (dataS2)=> {
-            const queryS2 = await ProductoLote.query().insert( dataS2 );
-            //dropOldData(server2, lastQueryDate)              
-        }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});
+          try {
+            parseData(res_server_2).then( async (dataS2)=> {
+                const queryS2 = await ProductoLote.query().insert( dataS2 );
+                //dropOldData(server2, lastQueryDate)              
+            }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});  
+          } catch (error) {
+            console.log('ERROR_INSERT_S2:', error);
+          }
       };
-
     } catch (error) {
         console.log('ERROR CONSULTANDO SUNS: ', error);
     }
-
 });

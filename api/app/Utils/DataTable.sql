@@ -52,7 +52,7 @@ create table fecha(
 
 create table producto_lote(
     id smallserial not null,
-    sun_number varchar(50) not null,
+    sun_number varchar(50) not null UNIQUE,
     lote varchar(50) not null,
     batch_id varchar(30) not null,
     fecha_hora timestamp not null,
