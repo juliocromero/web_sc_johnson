@@ -170,7 +170,7 @@
                   />
                 </v-btn>
 
-                {{ page }}
+                {{ `${page}/${Math.ceil(itemsLength/options.itemsPerPage)} `}}
 
                 <v-btn
                   color="primary"

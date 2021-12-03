@@ -111,7 +111,39 @@
                       </v-chip>
                     </div>
                   </template> -->
+                  <template v-slot:[`footer.page-text`] >
 
+                    <v-btn
+                      color="primary"
+                      dark
+                      class="ma-2"
+                      icon
+                      :disabled="options.page == 1"
+                      @click="options.page--"
+                    >
+                      <img
+                        src="@/static/iconos/before.svg"
+                        alt="before"
+                      />
+                    </v-btn>
+
+                    {{ `${options.page}/${Math.ceil((totalItems)/options.itemsPerPage)} `}}
+
+                    <v-btn
+                      color="primary"
+                      dark
+                      class="ma-2"
+                      icon
+                      :disabled="options.page == Math.ceil(Math.ceil((totalItems)/options.itemsPerPage))"
+                      @click="options.page++"
+                    >
+                      <img
+                        src="@/static/iconos/next.svg"
+                        alt="next"
+                      />
+                    </v-btn>
+
+                  </template>
                   <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
                     <span :key="i+1">{{h.text}}</span>  
                         <v-btn
@@ -198,23 +230,18 @@ export default {
     flag: true,
     sortClass: "",
     footerProps: {
+      disablePagination: true,
+      prevIcon: null,
+      nextIcon: null,
       itemsPerPageText: "items por página",
-      itemsPerPageOptions: [ 5, 10, 25]
+      itemsPerPageOptions: [5, 10, 25],
     },
     datosCsv: null,
-    pag: null,
     dialogSpinner: false,
     total: null,
-    perPage: 10,
-    page: 1,
-    pageCount: 1,
+    totalItems:null,
     suns: [],
-    options: {
-      page:1,
-      itemsPerPage:10,
-      searched_value:null
-    },
-    page: 1,
+    options: {},
     files: null,
     headers: [
       { text:"Lote", value:'lote', align:"center", sortable:false },
@@ -226,7 +253,13 @@ export default {
     ],
   }),
   computed: {
-    ...mapState(["infoModal"])
+    ...mapState(["infoModal"]),
+      totalRecords() {
+          return this.total
+      },
+      pageCount() {
+          return this.totalRecords / this.options.itemsPerPage
+      },
   },
   methods: {
     sortAc(arr, parametro, i) {
@@ -256,8 +289,20 @@ export default {
         this.options.searched_value = this.searched_value;
         this.getSuns();
         this.expanded = this.suns;
+      } else {
+        this.options = {
+            "page": 1,
+            "itemsPerPage": 10,
+            "sortBy": [],
+            "sortDesc": [],
+            "groupBy": [],
+            "groupDesc": [],
+            "mustSort": false,
+            "multiSort": false
+        };
+        this.getSuns();
       }
-      this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
+      //this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
     async getSuns() {
       this.dialogSpinner = true;
@@ -276,6 +321,7 @@ export default {
           console.log('suns',res);
           this.suns = res.data.suns.data;
           this.total = res.data.suns.data.length;
+          this.totalItems = res.data.suns.total;
           this.dialogSpinner = false;
         })
         .catch((error) => {
@@ -316,12 +362,7 @@ export default {
     searched_value: {
       handler() {
         if(this.searched_value == ''){
-          this.options = {
-            page:1,
-            itemsPerPage:10,
-            searched_value:null
-          },
-          this.getSuns();
+          this.filtrarTabla();
           this.expanded = [];
         }       
       },
@@ -329,16 +370,10 @@ export default {
     },
     options: {
       handler() {
-        this.page = this.options.itemsPerPage;
-      },
-      deep: true
-    },
-    page:{
-      handler() {
         this.getSuns();
       },
       deep: true
-    },
+    }
   }
 };
 </script>
@@ -408,5 +443,18 @@ export default {
 <style>
 #table .v-data-footer .v-icon {
   color: blue !important;
+}
+</style>
+<style >
+#table .v-data-footer .v-icon {
+  color: blue !important;
+}
+.v-data-footer__pagination{
+  position: absolute;
+  margin-left: 0px!important;
+  margin-right: 0px!important;
+}
+.v-data-footer__select{
+  margin-right: 45px!important;
 }
 </style>
