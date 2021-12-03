@@ -275,7 +275,7 @@ export default {
         .then((res) => {
           console.log('suns',res);
           this.suns = res.data.suns.data;
-          this.total = res.data.suns.total;
+          this.total = res.data.suns.data.length;
           this.dialogSpinner = false;
         })
         .catch((error) => {
