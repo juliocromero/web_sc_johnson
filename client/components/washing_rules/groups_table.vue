@@ -6,7 +6,7 @@
           <v-container>
             <v-row>
               <v-col cols="2" sm="2" class="ml-3">
-                <add-group @reload="getCodes" />
+                <add-group @reload="getGroups" />
               </v-col>
               <v-spacer />
               <v-col cols="8" sm="8" class="mt-0 pt-0">
@@ -52,7 +52,7 @@
             </template>
 
             <template v-slot:[`item.editar`]="{ item }">
-              <edit-group @reload="getCodes" :id_group="item.id"/>
+              <edit-group @click="getGroups" :id_group="item.id"/>
             </template>
 
             <template v-slot:[`item.eliminar`]>
@@ -134,7 +134,7 @@ export default {
     flag:true,
     sortClass: '',
     footerProps: {
-      disablePagination: true,
+      disablePagination: false,
       prevIcon: null,
       nextIcon: null,
       itemsPerPageText: "items por página",
@@ -190,10 +190,10 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
    async filtrarTabla() {
-        await this.getCodes();
+        await this.getGroups();
         this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
-    async getCodes() {
+    async getGroups() {
       this.dialogSpinner = true;
       let token = Cookies.get("token");
       await axios
@@ -207,9 +207,9 @@ export default {
           },
         })
         .then((res) => {
-          console.log('CODES:', res);
+          console.log('GROUPS:', res);
           this.groups = res.data.data.data;
-          this.total = res.data.total;
+          this.total = res.data.data.total;
           this.dialogSpinner = false;
         })
         .catch((error) => {
@@ -224,7 +224,7 @@ export default {
     },
     async descargaCSV() {
       this.dialogSpinner = true;
-      let productos = await this.getCodes();
+      let productos = await this.getGroups();
       await this.csvExport(productos);
       this.dialogSpinner = false;
     },
@@ -275,7 +275,7 @@ export default {
             this.cargarProduct(obj);
           }
           this.datosCsv = null;
-          this.getCodes();
+          this.getGroups();
           this.toggleInfoModal({
             dialog: true,
             msj: `Producto(s) agregado(s) correctamente`,
@@ -296,7 +296,7 @@ export default {
     },
     options: {
       handler() {
-        this.getCodes();
+        this.getGroups();
       },
       deep: true,
     }

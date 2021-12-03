@@ -1,25 +1,26 @@
 <template>
-  <v-row justify="start">
+  <v-row justify="center">
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           color="#F44336"
           dark
+          icon
           v-bind="attrs"
           v-on="on"
           class="px-0"
           @click="show"
         >
-          <img src="@/static/iconos/baseline_add_white_24dp.png" alt="plus" />
+          <v-icon>mdi-pencil</v-icon>
         </v-btn>
       </template>
-      <span>Crear nuevo código</span>
+      <span>Editar código</span>
     </v-tooltip>
 
     <v-dialog v-model="dialog" width="600">
       <v-card>
         <v-card-title class="headline v-card-titulo white--text"
-          >Crear código</v-card-title
+          >Editar código</v-card-title
         >
 
         <v-card-text class="pb-0">
@@ -28,7 +29,7 @@
               <v-row>
                 <v-col cols="12" class="pb-1">
                   <v-text-field
-                    v-model="new_code.id"
+                    v-model="current_code.id"
                     type="number"
                     :rules="[rules.required]"
                     label="Código"
@@ -41,7 +42,7 @@
               <v-row>
                 <v-col cols="12" class="py-1">
                   <v-text-field
-                    v-model="new_code.nombre"
+                    v-model="current_code.nombre"
                     label="Nombre"
                     :rules="[rules.required]"
                     required
@@ -53,7 +54,7 @@
               <v-row>
                 <v-col class="py-1">
                   <v-select
-                    v-model="new_code.grupo"
+                    v-model="current_code.grupo"
                     :items="groups"
                     item-text="nombre"
                     item-value="id"
@@ -72,7 +73,7 @@
 
           <v-btn color="red" text @click="toggleDialog">Cancelar</v-btn>
 
-          <v-btn color="green darken-1" :loading="loading" text @click="add_code"
+          <v-btn color="green darken-1" :loading="loading" text @click="edit_code"
             >Aceptar</v-btn
           >
         </v-card-actions>
@@ -88,6 +89,12 @@ import Cookies from "js-cookie";
 import { mapMutations } from "vuex";
 
 export default {
+  props: {
+    code: {
+      type: Object,
+      required: true,
+    },
+  },
   data: () => ({
     showMsg:false,
     loading:false,
@@ -99,7 +106,7 @@ export default {
     velValidation:{},
     nameRules: [(value) => !!value || "Este campo es requerido"],
     groups:[],
-    new_code: {
+    current_code: {
       id: null,
       nombre: "",
       grupo:null
@@ -130,6 +137,7 @@ export default {
       this.setAll = true;
       this.dialog = true;
       this.getGroups();
+      this.getCurrentCode();
     },
     toggleDialog() {
       this.dialog = false;
@@ -141,19 +149,19 @@ export default {
       ];
       this.$refs.form.reset();
     },
-    async add_code() {
+    async edit_code() {
       try {
        if(this.$refs.form.validate()){
           this.showMsg = false;         
           let token = Cookies.get("token");
           this.loading = true;
-          await axios.post("washing_rules/codes", this.new_code , {
+          await axios.post("washing_rules/codes", this.current_code , {
             headers: { Authorization: `Bearer ${token}` },
           }).then((res)=>{
             this.$emit("reload");
             this.toggleInfoModalCRUD({
               dialog: true,
-              msj: `Código ${this.new_code.id} agregado correctamente`,
+              msj: `Código ${this.current_code.nombre} actualizado`,
               // s1:{ 
               //   status:res.data.server1.status, 
               //   msj:res.data.server1.message 
@@ -162,7 +170,7 @@ export default {
               //   status:res.data.server2.status, 
               //   msj:res.data.server2.message 
               //   },
-              titulo: "Agregar Código",
+              titulo: "Ediatr Código",
               alertType: "success",
             });
             this.dialog = false;
@@ -175,7 +183,7 @@ export default {
               this.toggleInfoModal({
               dialog: true,
               msj: `${error.response.data.message}`,
-              titulo: "Agregar Código",
+              titulo: "Editar código",
               alertType: "error",
               });
               console.error('POST adding error:', error.response.data.message)
@@ -184,8 +192,8 @@ export default {
           else{
               this.toggleInfoModal({
               dialog: true,
-              msj: `Ha ocurrido un error al crear el producto`,
-              titulo: "Agregar Producto",
+              msj: `Ha ocurrido un error al actualizar el código`,
+              titulo: "Editar código",
               alertType: "error",
               });
               this.loading = false;
@@ -213,6 +221,34 @@ export default {
           }).then((res)=>{
             console.log('GET_GROUPS:', res.data);
             this.groups = res.data.data.data;
+          });
+      } catch (error) {
+        console.log('ERROR_GET_GROUPS:', error);
+      }
+    },
+    async getCurrentCode(){
+      try {
+        let token = Cookies.get("token");
+        console.log('GET_CURRENT_CODE_IDDD:', this.code.id);
+          await axios.get("washing_rules/codes", {
+            headers: { Authorization: `Bearer ${token}` },
+            params: {
+              options: {
+                page: 1,
+                itemsPerPage: 10,
+                sortBy: [],
+                sortDesc: [],
+                groupBy: [],
+                groupDesc: [],
+                mustSort: false,
+                multiSort: false,
+                all:false
+              }, 
+              code: this.code.id
+            }
+          }).then((res)=>{
+            console.log('GET_CURRENT_CODE:', res);
+            this.current_code = res.data.data.data[0]
           });
       } catch (error) {
         console.log('ERROR_GET_GROUPS:', error);

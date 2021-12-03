@@ -1,5 +1,6 @@
 <template>
   <v-row justify="center">
+    {{id_group}}
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
@@ -169,7 +170,16 @@ export default {
     valid: true,
     dialog: false,
     code:null,
-    options:{},
+    options:{
+      page: 1,
+      itemsPerPage: 10,
+      sortBy: [],
+      sortDesc: [],
+      groupBy: [],
+      groupDesc: [],
+      mustSort: false,
+      multiSort: false
+    },
     currentGroup: {
       id:null,
       nombre: "",
@@ -196,6 +206,7 @@ export default {
       this.notIncluded = [];
       this.selectedIncluded = [];
       this.selectedNotIncluded = [];
+      this.getCodes();
       this.getCurrentGroup();
       this.dialog = true;
     },
@@ -210,7 +221,7 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res)=>{
-            this.$emit("reload");
+            this.$emit("click");
             this.toggleInfoModalCRUD({
               dialog: true,
               msj: `Grupo ${this.currentGroup.nombre} actualizado`,
@@ -291,11 +302,15 @@ export default {
       try {
         let token = Cookies.get("token");
           await axios.get("washing_rules/groups", {
-            headers: { Authorization: `Bearer ${token}` },
-            params:{id:this.id_group}
+            headers: { 
+              Authorization: `Bearer ${token}` 
+            },
+            params:{
+              id:this.id_group,
+              options:this.options
+            }
           }).then((res)=>{
             this.currentGroup = res.data.data.data[0];
-            this.getCodes();
           });
       } catch (error) {
         console.log('ERROR_GET_GROUPS:', error);
@@ -313,7 +328,16 @@ export default {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            options: this.options,
+            options: {
+              page: 1,
+              itemsPerPage: 10,
+              sortBy: [],
+              sortDesc: [],
+              groupBy: [],
+              groupDesc: [],
+              mustSort: false,
+              multiSort: false
+            },
             code: this.code
           },
         })
@@ -349,9 +373,6 @@ export default {
         this.selectedIncluded = [];
       })
     }
-  },
-  mounted(){
-    this.getCodes();
   }
 };
 </script>

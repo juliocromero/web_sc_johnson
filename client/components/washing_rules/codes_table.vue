@@ -58,11 +58,11 @@
             </template>
 
             <template v-slot:[`item.editar`]="{ item }">
-              <v-icon>mdi-pencil</v-icon>
+              <edit-code :code="item" @reload="getCodes"/>
             </template>
 
             <template v-slot:[`item.eliminar`]="{ item }">
-              <v-icon>delete</v-icon>
+              <delete-code :code="item" @reload="getCodes" />
             </template>
 
             <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
@@ -113,9 +113,10 @@
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import edit from "@/components/common/editar";
 import axios from "@/plugins/axios";
-import delet from "@/components/common/eliminar";
 import add_code from "@/components/washing_rules/add_code.vue";
 import massive_codes_edit from "@/components/washing_rules/massive_codes_edit.vue";
+import delete_code from "@/components/washing_rules/delete_code.vue";
+import edit_code from "@/components/washing_rules/edit_code.vue";
 import infoModal from "@/components/common/infoModal";
 import infoModalCRUD from "@/components/common/infoModalCRUD.vue";
 import Cookies from "js-cookie";
@@ -127,7 +128,8 @@ export default {
   middleware: "NOAUTH",
   components: {
     edit,
-    delet,
+    delete_code,
+    edit_code,
     add_code,
     massive_codes_edit,
     infoModal,
@@ -214,7 +216,7 @@ export default {
         .then((res) => {
           console.log('CODES:', res);
           this.codes = res.data.data.data;
-          this.total = res.data.total;
+          this.total = res.data.data.total;
           this.dialogSpinner = false;
         })
         .catch((error) => {
@@ -308,6 +310,7 @@ export default {
     },
     options: {
       handler() {
+        console.log('Se disparo by options');
         this.getCodes();
       },
       deep: true,

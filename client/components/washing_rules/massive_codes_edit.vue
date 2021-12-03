@@ -253,7 +253,7 @@ export default {
           },
         })
         .then((res) => {
-          console.log('CODES_FROM_EDIT_GROUP:', res.data.data.data);
+          console.log('CODES_FROM_MASSIVE_EDIT:', res.data.data.data);
           this.allCodes = res.data.data.data;
           this.allCodes.forEach((item)=>{
             if(item.grupo == this.id_group){
