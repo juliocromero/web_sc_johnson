@@ -27,12 +27,18 @@ class GroupWashingRulesController {
       let {
         options,
         id
-      } = request.all();
-      options ? JSON.parse(options) : options = {};
+      } = request.only(['options','id']);
 
       //seteo valores por defectos
-      let page = options.page || 1;
-      let perPage = options.itemsPerPage || 10;
+      let page = JSON.parse(options).page || 1;
+      let perPage = JSON.parse(options).itemsPerPage || 10;
+
+      //Si piden todo
+      if ( JSON.parse(options).all ) {
+        let res = {};
+        res.data = await GroupWashingRules.all();
+        return response.status(200).json({ message: 'Listado de Grupos', data: res });
+      }
 
       //Si recibe un codigo
       if (id) {

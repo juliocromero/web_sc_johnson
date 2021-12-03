@@ -41,6 +41,7 @@ Route.group(() => {
   Route.get("codes", "CodesWashingRulesController.index");
   Route.post("codes", "CodesWashingRulesController.store");
   Route.put("multiple_codes", "CodesWashingRulesController.multipleUpdate");
+  Route.delete("codes/:id", "CodesWashingRulesController.destroy");
   //GROUPS
   Route.get("groups", "GroupWashingRulesController.index");
   Route.post("groups", "GroupWashingRulesController.store");

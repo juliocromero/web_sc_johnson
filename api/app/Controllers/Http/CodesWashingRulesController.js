@@ -31,11 +31,18 @@ class CodesWashingRulesController {
         code,
         group
       } = request.all();
-      options ? JSON.parse(options) : options = {};
 
       //seteo valores por defectos
-      let page = options.page || 1;
-      let perPage = options.itemsPerPage || 10;
+      let page = JSON.parse(options).page || 1;
+      let perPage = JSON.parse(options).itemsPerPage || 10;
+      
+
+      //Si piden todo
+      if (JSON.parse(options).all) {
+        let res = {};
+        res = CodesWashingRules.all();
+        return response.status(200).json({ message: 'Listado de Códigos de Lavado', data: res });
+      }
 
       //Si recibe un codigo
       if (code) {
@@ -271,7 +278,26 @@ class CodesWashingRulesController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params, request, response, auth }) {
+    const id = params.id
+    console.log('id delete:', id)
+    const user = await auth.getUser();
+
+    if (true /* user.rol_id == 1 */) {
+      try {
+        const code = await CodesWashingRules.findOrFail(id);
+        await code.delete();
+        return response.status(200).json({ menssage: 'Código borrado con exito!' });
+      } catch (error) {
+        return response.status(404).json({
+          message: "Código no existe",
+          id
+        });
+      }
+    } else {
+      response.status(403).json({ message: "Usuario sin permisos suficientes" });
+      return;
+    }
   }
 }
 

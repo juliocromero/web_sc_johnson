@@ -163,12 +163,7 @@ const parseData = async (arr)=> {
     try {
         const result = arr.map((item)=>{
             try {
-                return {
-                    sun_number : item.sun_number,
-                    lote: item.lote,
-                    batch_id: item.batch_id,
-                    fecha_hora:moment(item.date).utc().format()
-                }           
+                return item ? { sun_number : item.sun_number,lote: item.lote, batch_id: item.batch_id, fecha_hora:moment(item.date).utc().format() } : null  ;                   
             } catch (error) {
                 console.log('PARSE_DATA_1:', error);
             }
@@ -205,7 +200,12 @@ cron.schedule("*/60 * * * * *", async function () {
       if(res_server_1.length > 0) {
           try {
             parseData(res_server_1).then( async (dataS1)=>{
-                const queryS1 = await ProductoLote.query().insert( dataS1 );
+
+                dataS1.forEach( async (item)=>{
+                    if(item){
+                       await ProductoLote.query().insert( item ); 
+                    }                   
+                });
                 //dropOldData(server1, lastQueryDate)              
             }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});    
           } catch (error) {
@@ -216,7 +216,12 @@ cron.schedule("*/60 * * * * *", async function () {
       if(res_server_2.length > 0) {
           try {
             parseData(res_server_2).then( async (dataS2)=> {
-                const queryS2 = await ProductoLote.query().insert( dataS2 );
+
+                dataS2.forEach( async (item)=>{
+                    if(item){
+                       await ProductoLote.query().insert( item ); 
+                    }                   
+                });     
                 //dropOldData(server2, lastQueryDate)              
             }).catch((error)=>{String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : 'somthing was wrong'});  
           } catch (error) {
