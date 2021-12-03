@@ -86,7 +86,7 @@
                   :search="searched_value"
                   class="m-2"
                   :options.sync="options"
-                  :server-items-length="parseInt(total)"
+                  :server-items-length="totalItems"
                   no-data-text="Sin datos"
                   :single-expand="singleExpand"
                   :expanded.sync="expanded"
