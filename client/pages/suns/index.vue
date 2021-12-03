@@ -80,13 +80,14 @@
             </v-row>
             <v-row>
               <v-col>
+
                 <v-data-table
                   :headers="headers"
                   :items="suns"
                   :search="searched_value"
                   class="m-2"
                   :options.sync="options"
-                  :server-items-length="totalItems"
+                  :server-items-length="total"
                   no-data-text="Sin datos"
                   :single-expand="singleExpand"
                   :expanded.sync="expanded"
@@ -111,7 +112,7 @@
                       </v-chip>
                     </div>
                   </template> -->
-                  <template v-slot:[`footer.page-text`] >
+                  <template v-slot:[`footer.page-text`]="{ itemsLength }"  >
 
                     <v-btn
                       color="primary"
@@ -127,7 +128,7 @@
                       />
                     </v-btn>
 
-                    {{ `${options.page}/${Math.ceil((totalItems)/options.itemsPerPage)} `}}
+                    {{ `${options.page}/${Math.ceil(itemsLength/options.itemsPerPage)} `}}
 
                     <v-btn
                       color="primary"
