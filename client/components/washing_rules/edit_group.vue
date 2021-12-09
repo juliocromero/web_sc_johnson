@@ -1,6 +1,5 @@
 <template>
   <v-row justify="center">
-    {{id_group}}
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <v-btn

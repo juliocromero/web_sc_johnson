@@ -39,6 +39,7 @@
             :options.sync="options"
             :server-items-length="parseInt(total)"
             no-data-text="Sin datos"
+            :footer-props="footerProps"
           >
             <template v-slot:[`item.grupo`]="{ item }">
               <v-chip
@@ -81,7 +82,41 @@
                 </v-btn>           
             </template>
 
-            <template v-slot:[`item.data-table-expand`]="{ expand, isExpanded }">
+            <template v-slot:[`footer.page-text`] >
+
+              <v-btn
+                color="primary"
+                dark
+                class="ma-2"
+                icon
+                :disabled="options.page == 1"
+                @click="options.page--"
+              >
+                <img
+                  src="@/static/iconos/before.svg"
+                  alt="before"
+                />
+              </v-btn>
+
+              {{ `${options.page}/${Math.ceil(total/options.itemsPerPage)} `}}
+
+              <v-btn
+                color="primary"
+                dark
+                class="ma-2"
+                icon
+                :disabled="options.page == Math.ceil(total/options.itemsPerPage)"
+                @click="options.page++"
+              >
+                <img
+                  src="@/static/iconos/next.svg"
+                  alt="next"
+                />
+              </v-btn>
+
+            </template>
+
+            <!-- <template v-slot:[`item.data-table-expand`]="{ expand, isExpanded }">
               <v-btn
               icon
               @click="expand(!isExpanded)"
@@ -89,7 +124,7 @@
               >
                 <img src="@/static/iconos/expand_more.svg" alt="expand">
               </v-btn>
-            </template>
+            </template> -->
 
           </v-data-table>
           <v-dialog v-model="dialogSpinner" hide-overlay>
@@ -167,12 +202,6 @@ export default {
       { text: "Eliminar", value: "eliminar", align: "center", sortable: false},
       //{ text: "Líneas", value: "data-table-expand"},
     ],
-/*     headersLineas:[
-      { text: 'Líneas', value: 'line', sortable: false, class:'my_table_style', align:'center' },
-      { text: 'Temperatura', value: 'temperature', sortable: false, class:'my_table_style', align:'center', width:'150px' },
-      { text: 'Velocidad', value: 'velocity', sortable: false, class:'my_table_style', align:'center', width:'150px' },
-      { text: 'V.Crimper', value: 'onCrimp', sortable: false, class:'my_table_style', align:'center' },
-    ], */
     codes:[],
   }),
   computed: {
@@ -214,7 +243,6 @@ export default {
           },
         })
         .then((res) => {
-          console.log('CODES:', res);
           this.codes = res.data.data.data;
           this.total = res.data.data.total;
           this.dialogSpinner = false;
@@ -300,7 +328,6 @@ export default {
   },
   watch: {
     dispatch:function () {
-      console.log('Se disparo la fn');
       this.getCodes(); 
     },
     code: function () {
@@ -310,7 +337,6 @@ export default {
     },
     options: {
       handler() {
-        console.log('Se disparo by options');
         this.getCodes();
       },
       deep: true,
@@ -386,5 +412,23 @@ background-color: rgb(219, 214, 214);
   display: flex;
   flex-direction: row !important;
   max-width: 40px;
+}
+</style>
+<style>
+#table .v-data-footer .v-icon {
+  color: blue !important;
+}
+</style>
+<style >
+#table .v-data-footer .v-icon {
+  color: blue !important;
+}
+.v-data-footer__pagination{
+  position: absolute;
+  margin-left: 0px!important;
+  margin-right: 0px!important;
+}
+.v-data-footer__select{
+  margin-right: 45px!important;
 }
 </style>

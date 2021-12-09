@@ -41,11 +41,13 @@ Route.group(() => {
   Route.get("codes", "CodesWashingRulesController.index");
   Route.post("codes", "CodesWashingRulesController.store");
   Route.put("multiple_codes", "CodesWashingRulesController.multipleUpdate");
+  Route.put("codes/:id", "CodesWashingRulesController.update");
   Route.delete("codes/:id", "CodesWashingRulesController.destroy");
   //GROUPS
   Route.get("groups", "GroupWashingRulesController.index");
   Route.post("groups", "GroupWashingRulesController.store");
   Route.put("groups", "GroupWashingRulesController.update");
+  Route.delete("groups/:id", "GroupWashingRulesController.destroy");
 }).prefix('api/v1/washing_rules/');
 
 //SUNS

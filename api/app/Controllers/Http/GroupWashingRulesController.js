@@ -26,23 +26,24 @@ class GroupWashingRulesController {
 
       let {
         options,
-        id
-      } = request.only(['options','id']);
+        group_name
+      } = request.only(['options','group_name']);
 
       //seteo valores por defectos
       let page = JSON.parse(options).page || 1;
       let perPage = JSON.parse(options).itemsPerPage || 10;
 
-      //Si piden todo
+      //Si piden todo para los desplegables en codigo
       if ( JSON.parse(options).all ) {
+        console.log('Consultado todo');
         let res = {};
         res.data = await GroupWashingRules.all();
         return response.status(200).json({ message: 'Listado de Grupos', data: res });
       }
 
-      //Si recibe un codigo
-      if (id) {
-        query.where('id', id)
+      //Si recibe un nombre
+      if (group_name) {
+        query.where('nombre', group_name)
       }
 
       let res = await query.paginate(page, perPage);
@@ -145,7 +146,6 @@ class GroupWashingRulesController {
           //   console.log('Sync error on server 2:', error)
           //   messageS2 = { status:400, message:'Server 2 no actualizado' };
           // }
-          console.log('status new group:', created_group);
           return response.status(200).json(
             { 
               message: 'Grupo creado con éxito', 
@@ -208,7 +208,6 @@ class GroupWashingRulesController {
       if (true/* user.rol_id == 1 */) {
           groupToUpdated = await GroupWashingRules.findBy('id', current_group.id)
           if(groupToUpdated){
-            console.log("Group:", groupToUpdated);
             groupToUpdated.merge({...current_group});
             await groupToUpdated.save();
             updatedGroup = groupToUpdated;
@@ -248,7 +247,24 @@ class GroupWashingRulesController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params: { id }, request, response, auth }) {
+    const user = await auth.getUser();
+
+    if (true /* user.rol_id == 1 */) {
+      try {
+        const group = await GroupWashingRules.find(id);
+        await group.delete();
+        return response.status(200).json({ menssage: 'Grupo borrado con exito!' });
+      } catch (error) {
+        return response.status(404).json({
+          message: "Grupo no existe",
+          id
+        });
+      }
+    } else {
+      response.status(403).json({ message: "Usuario sin permisos suficientes" });
+      return;
+    }    
   }
 }
 

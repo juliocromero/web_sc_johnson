@@ -80,14 +80,12 @@
             </v-row>
             <v-row>
               <v-col>
-
                 <v-data-table
                   :headers="headers"
                   :items="suns"
                   :search="searched_value"
                   class="m-2"
                   :options.sync="options"
-                  :server-items-length="total"
                   no-data-text="Sin datos"
                   :single-expand="singleExpand"
                   :expanded.sync="expanded"
@@ -95,24 +93,7 @@
                   item-key="lote"
                   :footer-props="footerProps"
                 >
-<!--                   <template v-slot:[`item.suns`]="{ item }">
-                    <div>
-                      <v-chip
-                        v-for="(sun, i) of item.suns"
-                        :key="i"
-                        class="ma-2"
-                        color="grey"
-                        pill
-                        text-color="white"
-                      >
-                        <v-icon left>
-                          mdi-label
-                        </v-icon>
-                        {{ sun.sun_number}}
-                      </v-chip>
-                    </div>
-                  </template> -->
-                  <template v-slot:[`footer.page-text`]="{ itemsLength }"  >
+                  <template v-slot:[`footer.page-text`] >
 
                     <v-btn
                       color="primary"
@@ -128,14 +109,14 @@
                       />
                     </v-btn>
 
-                    {{ `${options.page}/${Math.ceil(itemsLength/options.itemsPerPage)} `}}
+                    {{ `${options.page}/${Math.ceil(total/options.itemsPerPage)} `}}
 
                     <v-btn
                       color="primary"
                       dark
                       class="ma-2"
                       icon
-                      :disabled="options.page == Math.ceil(Math.ceil((totalItems)/options.itemsPerPage))"
+                      :disabled="options.page == Math.ceil(total/options.itemsPerPage)"
                       @click="options.page++"
                     >
                       <img
@@ -240,7 +221,6 @@ export default {
     datosCsv: null,
     dialogSpinner: false,
     total: null,
-    totalItems:null,
     suns: [],
     options: {},
     files: null,
@@ -320,9 +300,8 @@ export default {
         })
         .then((res) => {
           console.log('suns',res);
-          this.suns = res.data.suns.data;
-          this.total = res.data.suns.data.length;
-          this.totalItems = res.data.suns.total;
+          this.suns = res.data.suns;
+          this.total = res.data.total;
           this.dialogSpinner = false;
         })
         .catch((error) => {

@@ -21,13 +21,12 @@
         <v-card-title class="headline v-card-titulo white--text"
           >Reasignar códigos</v-card-title
         >
-
         <v-card-text class="pb-0">
           <v-form ref="form" v-model="valid" lazy-validation>
             <v-container class="py-0">
               <v-row>
                 <v-col class="pb-0 mt-2">
-                  <v-select
+                  <v-autocomplete
                     v-model="id_group"
                     :items="groups"
                     item-text="nombre"
@@ -36,7 +35,8 @@
                     class="py-0"
                     outlined
                     @change="getCodesByGroup"
-                  ></v-select>
+                    :menu-props="{maxHeight: 350}"
+                  ></v-autocomplete>
                 </v-col>
               </v-row>
 
@@ -50,21 +50,19 @@
                       class="list__class"
                     >
                       <v-subheader style="text-align:center;"><b>NO INCLUIDOS</b></v-subheader>
-                      <v-divider></v-divider>
+                      <v-divider class="mb-2"/>
                       <v-list-item-group
-                        v-model="selectedNotIncluded"
                         multiple
-                        active-class=""
                       >
-                        <v-list-item v-for="(item, i) of notIncluded" :key="i">
-                          <template v-slot:default="{ active }">
-                            <v-list-item-action>
-                              <v-checkbox :input-value="active"></v-checkbox>
+                        <v-list-item v-for="(item, i) of notIncluded" :key="i" class="mb-3">
+                          <template>
+                            <v-list-item-action class="mt-1 pt-0">
+                              <v-checkbox v-model="selectedNotIncluded" :value="item"></v-checkbox>
                             </v-list-item-action>
 
                             <v-list-item-content class="py-0">
                               <v-list-item-title>{{item.id}}</v-list-item-title>
-                              <!-- <v-list-item-subtitle>Notify me about</v-list-item-subtitle> -->
+                              <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
                             </v-list-item-content>
                           </template>
                         </v-list-item>
@@ -74,25 +72,43 @@
                 </v-col>
 
                 <v-col cols="2" class="d-flex align-center justify-center px-0">
-                  <div>
-                    <v-chip class="ml-1 mb-2" color="error">
+                  <div style="text-align:center;">
+                    <!-- ERROR INDICATOR -->
+                    <v-chip class="mb-2" color="error" small v-if="errorAlert">
                       <v-progress-circular
                       v-if="loadingPUT"
                         indeterminate
                         color="primary"
                       ></v-progress-circular>
-                      <v-icon dark>
-                        close
-                      </v-icon>
+                        Error
+                    </v-chip>
+                    <v-chip class="mb-2" color="success" small v-if="successAlert">
+                      <v-progress-circular
+                      v-if="loadingPUT"
+                        indeterminate
+                        color="primary"
+                      ></v-progress-circular>
+                        OK
                     </v-chip>
                     <br>
-                    <v-btn class="mb-2">
+                    <!-- ************************** -->
+                    <v-btn class="mb-2" @click="include" :disabled="selectedNotIncluded.length > 0 ? false : true">
                       <v-icon>arrow_forward</v-icon>
                     </v-btn>
                     <br>
-                    <v-btn>
+                    <v-btn @click="exclude" :disabled="selectedIncluded.length > 0 ? false : true">
                       <v-icon>arrow_back</v-icon>
                     </v-btn>
+                    <div style="height:30px;">
+                      <span class="red--text" v-if="changesAlert">
+                        <i>
+                          Cambios
+                        </i>
+                        <i>
+                          pendientes
+                        </i>               
+                      </span>                      
+                    </div>
                   </div>
                 </v-col>
 
@@ -105,21 +121,19 @@
                       class="list__class"
                     >
                       <v-subheader style="text-align:center;"><b>INCLUIDOS</b></v-subheader>
-                      <v-divider></v-divider>
-                      <v-list-item-group
-                        v-model="selectedIncluded"
+                      <v-divider class="mb-2"/>
+                      <v-list-item-group   
                         multiple
-                        active-class=""
                       >
-                        <v-list-item v-for="(item, i) of included" :key="i">
-                          <template v-slot:default="{ active }">
-                            <v-list-item-action>
-                              <v-checkbox :input-value="active"></v-checkbox>
+                        <v-list-item v-for="(item, i) of included" :key="i" class="mb-3">
+                          <template>
+                            <v-list-item-action class="mt-1 pt-0">
+                              <v-checkbox v-model="selectedIncluded" :value="item"></v-checkbox>
                             </v-list-item-action>
 
                             <v-list-item-content class="py-0">
                               <v-list-item-title>{{item.id}}</v-list-item-title>
-                              <v-list-item-subtitle>Notify me about</v-list-item-subtitle>
+                              <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
                             </v-list-item-content>
                           </template>
                         </v-list-item>
@@ -136,12 +150,54 @@
         <v-card-actions class="d-flex justify-center">
           <v-btn color="red" text @click="hide">Cancelar</v-btn>
           <br>
-          <!-- <v-btn color="green darken-1" :loading="loading" text @click="edit_group">
+          <v-btn color="green darken-1" :loading="loading" text @click="multiple_codes_update">
             Aceptar
-          </v-btn> -->
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- ALERTA DE CAMBIOS PENDIENTES -->
+    <div class="text-center">
+      <v-dialog
+        v-model="dialogChangesAlert"
+        width="375"
+      >
+        <v-card>
+
+            <v-alert
+              dense
+              outlined
+              type="error"
+              class="my-0 py-5"
+              style="border:none!important;"
+            >
+              ¿ Desea aplicar los cambios realizados ?
+            </v-alert> 
+
+
+          <v-divider></v-divider>
+
+          <v-card-actions>
+            <v-spacer/>
+            <v-btn
+              color="success"
+              text
+              @click="applyChanges"
+            >
+              Aceptar
+            </v-btn>
+            <v-btn
+              color="error"
+              text
+              @click="discardChanges"
+            >
+              Descartar
+            </v-btn>
+            <v-spacer/>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
   </div>
 </template>
 
@@ -162,6 +218,11 @@ export default {
     groups:[],
     id_group:null,
     loadingPUT:false,
+    group_name:null,
+    errorAlert:false,
+    successAlert:false,
+    dialogChangesAlert:false,
+    changesAlert:false,
     rules: {
       required: (value) => !!value || "Requerido.",
       minTemp: (value) => value >= 40 || "Valor mínimo 40",
@@ -171,6 +232,7 @@ export default {
     },
     allCodes:[],
     included:[],
+    initial:[],
     notIncluded:[],
     selectedNotIncluded:[],
     selectedIncluded:[]
@@ -179,110 +241,149 @@ export default {
     ...mapMutations(["toggleInfoModalCRUD","toggleInfoModal"]),
     show(){
       this.setAll = true;
+      this.included = [];
+      this.notIncluded = [];
+      this.selectedIncluded = [];
+      this.selectedNotIncluded = [];
+      this.id_group = null;
+      this.errorAlert = false;
+      this.successAlert = false;
+      this.getGroups();
       this.dialog = true;
     },
-    async edit_group() {
+    async multiple_codes_update(){
       try {
-       if(this.$refs.form.validate()){
-          this.showMsg = false;         
-          let token = Cookies.get("token");
-          this.loading = true;
-          await axios.post("washing_rules/groups", this.new_group , {
-            headers: { Authorization: `Bearer ${token}` },
-          }).then((res)=>{
+        let token = Cookies.get("token");
+        await axios.put("washing_rules/multiple_codes", {
+          included_arr:this.included,
+          removed_arr:null,
+          id_group:this.id_group
+        },{
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res)=>{
             this.$emit("reload");
-            this.toggleInfoModalCRUD({
-              dialog: true,
-              msj: `Grupo ${this.new_group.nombre} agregado correctamente`,
-              // s1:{ 
-              //   status:res.data.server1.status, 
-              //   msj:res.data.server1.message 
-              //   },
-              // s2:{ 
-              //   status:res.data.server2.status, 
-              //   msj:res.data.server2.message 
-              //   },
-              titulo: "Agregar Grupo",
-              alertType: "success",
-            });
-            this.dialog = false;
-            this.loading = false;
-          });
-       } 
+            this.errorAlert = false;
+            this.successAlert = true;
+            this.changesAlert = false;
+            setTimeout(()=>{
+              this.successAlert = false;
+            },3000);
+        });
       } catch (error) {
-          if(error.response){
-              this.toggleInfoModal({
-              dialog: true,
-              msj: `${error.response.data.message}`,
-              titulo: "Agregar Grupo",
-              alertType: "error",
-              });
-              console.error('POST creating group error:', error.response.data.message)
-              this.loading = false;
-          }
-          else{
-              this.toggleInfoModal({
-              dialog: true,
-              msj: `Ha ocurrido un error al crear el grupo`,
-              titulo: "Agregar Grupo",
-              alertType: "error",
-              });
-              this.loading = false;
-        } 
+        console.log("UPDATING_MASSIVE_CODES_ERROR", error);
+        this.successAlert = false;
+        this.errorAlert = true;
       }
-    },
-    classifyCodes(group){
-
     },
     hide(){
       this.dialog = false;
+      this.changesAlert = false;
     },
     async getCodesByGroup() {
-      this.dialogSpinner = true;
-      let token = Cookies.get("token");
-      this.included=[];
-      this.notIncluded=[];
-      await axios
-        .get("washing_rules/codes", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            options: this.options,
-            code: this.code
-          },
+      if(!this.changesAlert){
+        this.dialogSpinner = true;
+        let token = Cookies.get("token");
+        this.included=[];
+        this.notIncluded=[];
+        await axios
+          .get("washing_rules/codes", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: {
+              options: this.options,
+              code: this.code
+            },
         })
         .then((res) => {
-          console.log('CODES_FROM_MASSIVE_EDIT:', res.data.data.data);
           this.allCodes = res.data.data.data;
           this.allCodes.forEach((item)=>{
             if(item.grupo == this.id_group){
-              this.included.push(item)
-            }else{
+              this.included.push(item);
+            } else {
               this.notIncluded.push(item)
-            }
-          })
+            };
+          });
+          this.initial = [...this.included];
           this.dialogSpinner = false;
         })
         .catch((error) => {
           console.log(error);
         });
+      } else {
+        this.dialogChangesAlert = true;
+      }
     },
     async getGroups(){
       try {
         let token = Cookies.get("token");
-          await axios.get("washing_rules/groups", {
-            headers: { Authorization: `Bearer ${token}` },
-          }).then((res)=>{
+      await axios
+        .get("washing_rules/groups", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            options: this.options,
+            group_name:this.group_name
+          },
+        })
+        .then((res)=>{
             this.groups = res.data.data.data;
           });
       } catch (error) {
         console.log('ERROR_GET_GROUPS:', error);
       }
+    },
+    applyChanges(){
+      this.changesAlert = true;
+      this.multiple_codes_update();
+      this.changesAlert = false;
+      this.dialogChangesAlert = false;
+    },
+    discardChanges(){
+      this.changesAlert = false;
+      this.dialogChangesAlert = false;
+      this.getCodesByGroup();
+    },
+    include(){
+      this.selectedNotIncluded.forEach( item => {
+        this.included.push(item);
+        let index = this.notIncluded.findIndex( el => el.id == item.id );
+        this.notIncluded.splice(index, 1);
+        this.selectedNotIncluded = [];
+        this.changesValidation();
+      });
+    },
+    exclude(){
+      this.selectedIncluded.forEach( item => {
+        this.notIncluded.push(item);
+        let index = this.included.findIndex( el => el.id == item.id );
+        this.included.splice(index, 1);
+        this.selectedIncluded = [];
+        this.changesValidation();
+      });
+    },
+    changesValidation(){
+      const compareId = (a, b) => {
+        return a.id_auto - b.id_auto;
+      }
+        if(this.initial.length == this.included.length) {
+          this.initial.sort(compareId);
+          this.included.sort(compareId);
+
+          this.initial.forEach((item, i)=> {
+            if(item != this.included[i]){
+              this.changesAlert = true;
+              return true;
+            };
+          });
+
+          this.changesAlert = false;
+        } else {
+          this.changesAlert = true;
+        }
     }
-  },
-  mounted(){
-    this.getGroups();
   }
 };
 </script>

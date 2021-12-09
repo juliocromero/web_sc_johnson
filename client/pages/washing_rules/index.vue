@@ -4,7 +4,7 @@
       <v-col class="pa-0 ma-0">
         <v-card color="#FFE4D5">
           <v-container class="py-0">
-            <v-row>
+<!--             <v-row>
               <v-col
                 cols="12"
                 sm="2"
@@ -34,7 +34,7 @@
               </v-col>
               <v-spacer />
               <v-col></v-col>
-            </v-row>
+            </v-row> -->
           </v-container>
         </v-card>
       </v-col>

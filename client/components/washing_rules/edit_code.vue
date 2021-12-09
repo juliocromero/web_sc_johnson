@@ -18,6 +18,7 @@
     </v-tooltip>
 
     <v-dialog v-model="dialog" width="600">
+      {{current_code}}
       <v-card>
         <v-card-title class="headline v-card-titulo white--text"
           >Editar código</v-card-title
@@ -155,9 +156,12 @@ export default {
           this.showMsg = false;         
           let token = Cookies.get("token");
           this.loading = true;
-          await axios.post("washing_rules/codes", this.current_code , {
+          this.current_code.id = parseInt(this.current_code.id);
+          console.log(' current_code',  this.current_code);
+          await axios.put(`washing_rules/codes/${this.current_code}`, this.current_code , {
             headers: { Authorization: `Bearer ${token}` },
           }).then((res)=>{
+            console.log('RESSS current_code',  res);
             this.$emit("reload");
             this.toggleInfoModalCRUD({
               dialog: true,

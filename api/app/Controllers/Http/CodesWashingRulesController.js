@@ -212,7 +212,45 @@ class CodesWashingRulesController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params: { id } , request, response, auth }) {
+    try {
+      const user = await auth.getUser();
+      let codeToUpdated = null;
+      let updatedCodigo = null;
+      const current_code = request.all();
+      let id = current_code.id_auto;
+      console.log("current_code:",id);
+      if (true/* user.rol_id == 1 */) {
+          codeToUpdated = await CodesWashingRules.findBy('id_auto', id);
+          console.log("codeToUpdated:", codeToUpdated);
+          if(codeToUpdated){
+            codeToUpdated.fill(current_code);
+            updatedCodigo = await codeToUpdated.save().then().catch((error)=>console.log('UDATE', error));
+          }else{
+            return response.status(400).json({ message: 'Código inválido' });
+          }
+      } else {
+        return response.status(403).json({ message: 'Usuario sin permisos para realizar la operación' });
+      }
+      //const updated = await Promise.all(updated_codes);
+
+      return response.status(200).json(
+        { 
+          message: 'Código actualizado con exito', 
+          updated_code: updatedCodigo,
+        }
+      );
+
+    } catch (error) {
+      console.log('Updating error:', error);
+      if (error.name == 'InvalidJwtToken') {
+        return response.status(403).json({ message: 'Usuario no válido' });
+      }
+      response.status(400).json({
+        message: "Hubo un error al intentar actualizar el grupo",
+        id
+      });
+    }
   }
 
   async multipleUpdate({ request, response, auth }) {
@@ -225,24 +263,29 @@ class CodesWashingRulesController {
         removed_arr,
         id_group
       } = request.all();
-
+      
       if (true/* user.rol_id == 1 */) {
         //Reasignamos los incluidos
-        updated_codes = included_arr.map(async item => {
-            return await CodesWashingRules.findBy('id', item.id).then( async code => {
-              code.grupo = id_group;
-              await code.save();
-              return code;
-            });
-        });     
+        if(included_arr) {
+          updated_codes = included_arr.map(async item => {
+              return await CodesWashingRules.find(item.id).then( async code => {
+                code.grupo = id_group;
+                await code.save();
+                return code;
+              });
+          });     
+        }
+
         //Asignamos Null a los removidos
+      if(removed_arr){
         removed_codes = removed_arr.map(async item => {
-          return await CodesWashingRules.findBy('id', item.id).then( async code => {
+          return await CodesWashingRules.find(item.id).then( async code => {
             code.grupo = null;
             await code.save();
             return code;
+          });
         });
-      });  
+      }
       } else {
         return response.status(403).json({ message: 'Usuario sin permisos para realizar la operación' });
       }
@@ -255,7 +298,7 @@ class CodesWashingRulesController {
         { 
           message: 'Códigos actualizados con exito', 
           updated: updated,
-          removed: removed
+          removed: null
         }
       );
 

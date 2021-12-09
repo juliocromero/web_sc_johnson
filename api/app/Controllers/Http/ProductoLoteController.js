@@ -30,7 +30,6 @@ class ProductoLoteController {
 
       let { options } = request.only(['options']);
       options = JSON.parse( options);
-      console.log('optionssss:', options );
 
       //Si recibe un codigo de lote o sun
       let searched_value =  options.searched_value;
@@ -44,13 +43,24 @@ class ProductoLoteController {
       let page = options.page || 1;
       let perPage = options.itemsPerPage || 10;
 
-
-      let res = await query.paginate(page, perPage);
+      let res = await query.fetch();
       res = res.toJSON();
 
-      res.data = _.groupBy(res.data, 'lote');
-      res.data = Object.keys(res.data).map((key) => {return {lote:key, suns:res.data[key]}});
-      response.status(200).json({ message: 'Listado de SUNs', suns: res });
+      const total = res.reduce((acc,item)=>{
+        if(!acc.includes(item.lote)){
+          acc.push(item.lote);
+        }
+        return acc;
+      },[]);
+
+      /*       let res = await query.paginate(page, perPage);
+      res = res.toJSON(); */
+      //cuando usamos paginate se usa res.data en lugar de res de aqui en adelante.
+      //sustituir todos los res por res.data de aqui en adelante.
+      res = _.groupBy(res, 'lote');
+      const data = Object.keys(res).map((key) => {return {lote:key, suns:res[key]}});
+
+      response.status(200).json({ message: 'Listado de SUNs', suns: data, total:total.length });
 
     }catch(error) {
       console.log(error)

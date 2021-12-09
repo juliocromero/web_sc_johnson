@@ -12,7 +12,7 @@ class GroupWashingRules extends Model {
         return null;
     }
     static get table () { //esta funcion cambia el nombre de la tabla
-        return 'groups_washing_rules'
+        return 'cip.groups_washing_rules'
     }
 }
 

@@ -11,30 +11,26 @@
               <v-spacer />
               <v-col cols="8" sm="8" class="mt-0 pt-0">
                 <v-text-field 
-                  type="number"
-                  v-model="code"
+                  v-model="group_name"
                   append-icon="mdi-magnify"
                   @click:append="filtrarTabla"
-                  label="Ingrese un id y presione Enter"
+                  label="Ingrese un nombre y presione Enter"
                   single-line
                   hide-details
                   class="mr-1"
-                  ref="cod_pt"
-                  maxlength="8"
                   @keyup.enter="filtrarTabla"
                 >
                 </v-text-field>                           
               </v-col>
             </v-row>
           </v-container>
-
           <v-data-table
             :headers="headers"
             :items="groups"
             class="m-2"
             :options.sync="options"
-            :server-items-length="parseInt(total)"
             no-data-text="Sin datos"
+            :footer-props="footerProps"
           >
             <template v-slot:[`item.grupo`]="{ item }">
               <v-chip
@@ -55,8 +51,8 @@
               <edit-group @click="getGroups" :id_group="item.id"/>
             </template>
 
-            <template v-slot:[`item.eliminar`]>
-              <v-icon>delete</v-icon>
+            <template v-slot:[`item.eliminar`]="{ item }">
+              <delete-group @reload="getGroups" :group="item"/>
             </template>
 
             <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
@@ -75,7 +71,7 @@
                 </v-btn>           
             </template>
 
-            <template v-slot:[`item.data-table-expand`]="{ expand, isExpanded }">
+<!--             <template v-slot:[`item.data-table-expand`]="{ expand, isExpanded }">
               <v-btn
               icon
               @click="expand(!isExpanded)"
@@ -83,6 +79,40 @@
               >
                 <img src="@/static/iconos/expand_more.svg" alt="expand">
               </v-btn>
+            </template> -->
+
+            <template v-slot:[`footer.page-text`] >
+
+              <v-btn
+                color="primary"
+                dark
+                class="ma-2"
+                icon
+                :disabled="options.page == 1"
+                @click="options.page--"
+              >
+                <img
+                  src="@/static/iconos/before.svg"
+                  alt="before"
+                />
+              </v-btn>
+
+              {{ `${options.page}/${Math.ceil(total/options.itemsPerPage)} `}}
+
+              <v-btn
+                color="primary"
+                dark
+                class="ma-2"
+                icon
+                :disabled="options.page == Math.ceil(total/options.itemsPerPage)"
+                @click="options.page++"
+              >
+                <img
+                  src="@/static/iconos/next.svg"
+                  alt="next"
+                />
+              </v-btn>
+
             </template>
 
           </v-data-table>
@@ -105,11 +135,10 @@
 
 <script>
 import "material-design-icons-iconfont/dist/material-design-icons.css";
-import edit from "@/components/common/editar";
 import axios from "@/plugins/axios";
-import delet from "@/components/common/eliminar";
 import add_group from "@/components/washing_rules/add_group.vue";
 import edit_group from "@/components/washing_rules/edit_group.vue";
+import delete_group from "@/components/washing_rules/delete_group.vue";
 import infoModal from "@/components/common/infoModal";
 import infoModalCRUD from "@/components/common/infoModalCRUD.vue";
 import Cookies from "js-cookie";
@@ -120,10 +149,9 @@ import { mapState, mapMutations } from "vuex";
 export default {
   middleware: "NOAUTH",
   components: {
-    edit,
-    delet,
     add_group,
     edit_group,
+    delete_group,
     infoModal,
     infoModalCRUD
   },
@@ -134,21 +162,16 @@ export default {
     flag:true,
     sortClass: '',
     footerProps: {
-      disablePagination: false,
+      disablePagination: true,
       prevIcon: null,
       nextIcon: null,
       itemsPerPageText: "items por página",
       itemsPerPageOptions: [5, 10, 25],
     },
     datosCsv: null,
-    pag: null,
     dialogSpinner: false,
     total: null,
-    perPage: 10,
-    page: 1,
-    pageCount: 1,
-    code: null,
-    group:null,
+    group_name:null,
     options: {},
     files: null,
     headers: [
@@ -160,12 +183,6 @@ export default {
       { text: "Eliminar", value: "eliminar", align: "center", sortable: false},
       //{ text: "Líneas", value: "data-table-expand"},
     ],
-/*     headersLineas:[
-      { text: 'Líneas', value: 'line', sortable: false, class:'my_table_style', align:'center' },
-      { text: 'Temperatura', value: 'temperature', sortable: false, class:'my_table_style', align:'center', width:'150px' },
-      { text: 'Velocidad', value: 'velocity', sortable: false, class:'my_table_style', align:'center', width:'150px' },
-      { text: 'V.Crimper', value: 'onCrimp', sortable: false, class:'my_table_style', align:'center' },
-    ], */
     groups:[],
   }),
   computed: {
@@ -190,8 +207,9 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
    async filtrarTabla() {
-        await this.getGroups();
-        this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
+     this.options.all = false;
+      await this.getGroups();
+      this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
     async getGroups() {
       this.dialogSpinner = true;
@@ -203,11 +221,10 @@ export default {
           },
           params: {
             options: this.options,
-            code: this.code
+            group_name:this.group_name
           },
         })
         .then((res) => {
-          console.log('GROUPS:', res);
           this.groups = res.data.data.data;
           this.total = res.data.data.total;
           this.dialogSpinner = false;
@@ -246,12 +263,6 @@ export default {
       link.setAttribute("download", "export.csv");
       link.click();
     },
-    async cargarProduct(obj) {
-      let token = Cookies.get("token");
-      await axios.post("products", obj, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    },
     csvImport(files) {
       try {
         var file = files;
@@ -289,13 +300,18 @@ export default {
     },
   },
   watch: {
-    code: function () {
-      if (this.code == "") {
-        this.filtrarTabla();
+    group_name: {
+      handler() {
+        if (this.group_name == "") {
+          this.options.all = false;
+          this.getGroups();
+          this.group_name = null;
+        }
       }
     },
     options: {
       handler() {
+        this.options.all = false;
         this.getGroups();
       },
       deep: true,
@@ -366,5 +382,24 @@ background-color: rgb(219, 214, 214);
 <style >
 #table .v-data-footer .v-icon {
   color: blue !important;
+}
+</style>
+
+<style>
+#table .v-data-footer .v-icon {
+  color: blue !important;
+}
+</style>
+<style >
+#table .v-data-footer .v-icon {
+  color: blue !important;
+}
+.v-data-footer__pagination{
+  position: absolute;
+  margin-left: 0px!important;
+  margin-right: 0px!important;
+}
+.v-data-footer__select{
+  margin-right: 45px!important;
 }
 </style>
