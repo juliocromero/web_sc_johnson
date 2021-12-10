@@ -48,12 +48,13 @@
                 text-color="white"
                 v-if="item.grupo"
               >
-                <v-avatar
+                <!-- <v-avatar
                   color="#f44336"
                   class="white--text"
                 >
-                  {{item.grupo}}
-                </v-avatar>
+                  {{item.grupo.id}}
+                </v-avatar> -->
+                  <span style="color:#f44336;">{{item.grupo.nombre}}</span>
               </v-chip>
               <span v-if="!item.grupo"><i style="color:#A0A0A0">&lt;No asignado&gt;</i></span>
             </template>
@@ -243,6 +244,7 @@ export default {
           },
         })
         .then((res) => {
+          console.log('SUNS', res);
           this.codes = res.data.data.data;
           this.total = res.data.data.total;
           this.dialogSpinner = false;

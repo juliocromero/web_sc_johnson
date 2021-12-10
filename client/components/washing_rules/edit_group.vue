@@ -11,7 +11,7 @@
           class="px-0"
           @click="show"
         >
-          <v-icon>mdi-pencil</v-icon>
+          <img src="@/static/iconos/baseline_create_black_18dp.png" alt="editar" />
         </v-btn>
       </template>
       <span>Crear nuevo grupo</span>
@@ -77,7 +77,8 @@
                         <v-list-item v-for="(item, i) of notIncluded" :key="i">
                           <template>
                             <v-list-item-action>
-                              <v-checkbox v-model="selectedNotIncluded" :value="item"></v-checkbox>
+                              <!-- <v-checkbox v-model="selectedNotIncluded" :value="item"></v-checkbox> -->
+                              <input class="mt-1 checkbox__list" type="checkbox" v-model="selectedNotIncluded" :value="item">
                             </v-list-item-action>
 
                             <v-list-item-content class="py-0">
@@ -119,7 +120,8 @@
                         <v-list-item v-for="(item, i) of included" :key="i" :selectable="false">
                           <template>
                             <v-list-item-action>
-                              <v-checkbox v-model="selectedIncluded" :value="item"></v-checkbox>
+                              <!-- <v-checkbox v-model="selectedIncluded" :value="item"></v-checkbox> -->
+                              <input class="mt-1 checkbox__list" type="checkbox" v-model="selectedIncluded" :value="item">
                             </v-list-item-action>
 
                             <v-list-item-content class="py-0">
@@ -341,15 +343,14 @@ export default {
           },
         })
         .then((res) => {
-          console.log('CODES_FROM_EDIT_GROUP:', res.data.data.data);
           this.allCodes = res.data.data.data;
           this.allCodes.forEach((item)=>{
-            if(item.grupo == this.id_group){
+            if(!item.grupo){
+              this.notIncluded.push(item);        
+            }else if(item.grupo.id == this.id_group){
               this.included.push(item)
-            }else if(!item.grupo){
-              this.notIncluded.push(item)
             }
-          })
+          });
           this.dialogSpinner = false;
         })
         .catch((error) => {
@@ -403,5 +404,11 @@ input[type="number"] {
 }
 .v-list--three-line .v-list-item, .v-list-item--three-line{
   min-height: 0px;
+}
+
+.checkbox__list{
+  width:30px;
+  height:30px;
+  cursor: pointer;
 }
 </style>

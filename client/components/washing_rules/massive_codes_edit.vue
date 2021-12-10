@@ -18,9 +18,7 @@
 
     <v-dialog v-model="dialog" width="900">
       <v-card>
-        <v-card-title class="headline v-card-titulo white--text"
-          >Reasignar códigos</v-card-title
-        >
+        <v-card-title class="headline v-card-titulo white--text">Reasignar códigos</v-card-title>
         <v-card-text class="pb-0">
           <v-form ref="form" v-model="valid" lazy-validation>
             <v-container class="py-0">
@@ -35,6 +33,7 @@
                     class="py-0"
                     outlined
                     @change="getCodesByGroup"
+                    @click="getCurrentId(id_group)"
                     :menu-props="{maxHeight: 350}"
                   ></v-autocomplete>
                 </v-col>
@@ -57,7 +56,8 @@
                         <v-list-item v-for="(item, i) of notIncluded" :key="i" class="mb-3">
                           <template>
                             <v-list-item-action class="mt-1 pt-0">
-                              <v-checkbox v-model="selectedNotIncluded" :value="item"></v-checkbox>
+                              <!-- <v-checkbox v-model="selectedNotIncluded" :value="item"></v-checkbox> -->
+                              <input class="mt-1 checkbox__list" type="checkbox" v-model="selectedNotIncluded" :value="item">
                             </v-list-item-action>
 
                             <v-list-item-content class="py-0">
@@ -125,10 +125,11 @@
                       <v-list-item-group   
                         multiple
                       >
-                        <v-list-item v-for="(item, i) of included" :key="i" class="mb-3">
+                        <v-list-item :selectable="false" v-for="(item, i) of included" :key="i" class="mb-3">
                           <template>
-                            <v-list-item-action class="mt-1 pt-0">
-                              <v-checkbox v-model="selectedIncluded" :value="item"></v-checkbox>
+                            <v-list-item-action class="mt-1 pt-0 d-flex align-center justify-center">
+                              <!-- <v-checkbox v-model="selectedIncluded" :value="item"></v-checkbox> -->
+                              <input class="mt-1 checkbox__list" type="checkbox" v-model="selectedIncluded" :value="item">
                             </v-list-item-action>
 
                             <v-list-item-content class="py-0">
@@ -137,6 +138,18 @@
                             </v-list-item-content>
                           </template>
                         </v-list-item>
+<!--                         <v-list-item v-for="(item, i) of included" :key="i" class="mb-3">
+                        <template v-slot:default="{ active }">
+                          <v-list-item-action>
+                           <v-checkbox v-model="selectedIncluded" :value="active"></v-checkbox>
+                          </v-list-item-action>
+
+                          <v-list-item-content>
+                            <v-list-item-title>{{item.id}}</v-list-item-title>
+                            <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
+                          </v-list-item-content>
+                        </template>
+                      </v-list-item> -->
                       </v-list-item-group>
                     </v-list>
                   </v-card>
@@ -150,7 +163,7 @@
         <v-card-actions class="d-flex justify-center">
           <v-btn color="red" text @click="hide">Cancelar</v-btn>
           <br>
-          <v-btn color="green darken-1" :loading="loading" text @click="multiple_codes_update">
+          <v-btn color="green darken-1" :loading="loading" text @click="multiple_codes_update(id_group)">
             Aceptar
           </v-btn>
         </v-card-actions>
@@ -222,6 +235,7 @@ export default {
     errorAlert:false,
     successAlert:false,
     dialogChangesAlert:false,
+    currentIdGroup:null,
     changesAlert:false,
     rules: {
       required: (value) => !!value || "Requerido.",
@@ -247,17 +261,17 @@ export default {
       this.selectedNotIncluded = [];
       this.id_group = null;
       this.errorAlert = false;
-      this.successAlert = false;
+      this.changesAlert = false;
       this.getGroups();
       this.dialog = true;
     },
-    async multiple_codes_update(){
+    async multiple_codes_update(group_id){
       try {
         let token = Cookies.get("token");
         await axios.put("washing_rules/multiple_codes", {
           included_arr:this.included,
-          removed_arr:null,
-          id_group:this.id_group
+          removed_arr:this.notIncluded,
+          id_group:group_id
         },{
           headers: { Authorization: `Bearer ${token}` },
         })
@@ -275,6 +289,9 @@ export default {
         this.successAlert = false;
         this.errorAlert = true;
       }
+    },
+    getCurrentId(id_group){
+      this.currentIdGroup = id_group;
     },
     hide(){
       this.dialog = false;
@@ -299,11 +316,11 @@ export default {
         .then((res) => {
           this.allCodes = res.data.data.data;
           this.allCodes.forEach((item)=>{
-            if(item.grupo == this.id_group){
-              this.included.push(item);
-            } else {
-              this.notIncluded.push(item)
-            };
+            if(!item.grupo){
+              this.notIncluded.push(item);        
+            }else if(item.grupo.id == this.id_group){
+              this.included.push(item)
+            }
           });
           this.initial = [...this.included];
           this.dialogSpinner = false;
@@ -337,9 +354,10 @@ export default {
     },
     applyChanges(){
       this.changesAlert = true;
-      this.multiple_codes_update();
+      this.multiple_codes_update(this.currentIdGroup);
       this.changesAlert = false;
       this.dialogChangesAlert = false;
+      this.getCodesByGroup();
     },
     discardChanges(){
       this.changesAlert = false;
@@ -419,5 +437,11 @@ input[type="number"] {
 .massive_editing_btn{
   width: 36px;
   height:36px;
+}
+
+.checkbox__list{
+  width:30px;
+  height:30px;
+  cursor: pointer;
 }
 </style>

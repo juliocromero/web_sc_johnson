@@ -40,7 +40,7 @@ class CodesWashingRulesController {
       //Si piden todo
       if (JSON.parse(options).all) {
         let res = {};
-        res = CodesWashingRules.all();
+        res = await CodesWashingRules.with('grupo.id').all();
         return response.status(200).json({ message: 'Listado de Códigos de Lavado', data: res });
       }
 
@@ -54,8 +54,15 @@ class CodesWashingRulesController {
         query.where('grupo', group)
       }
 
-      let res = await query.paginate(page, perPage);
+      let res = await query.with('group').paginate(page, perPage);
       res = res.toJSON();
+      res.data = res.data.map((item) => {
+        return{
+          id_auto: item.id_auto, 
+          id:item.id, 
+          nombre: item.nombre, 
+          grupo: item.group
+      }});
       response.status(200).json({ message: 'Listado de Códigos de Lavado', data: res });
 
     }catch(error) {
@@ -222,7 +229,6 @@ class CodesWashingRulesController {
       console.log("current_code:",id);
       if (true/* user.rol_id == 1 */) {
           codeToUpdated = await CodesWashingRules.findBy('id_auto', id);
-          console.log("codeToUpdated:", codeToUpdated);
           if(codeToUpdated){
             codeToUpdated.fill(current_code);
             updatedCodigo = await codeToUpdated.save().then().catch((error)=>console.log('UDATE', error));
@@ -265,8 +271,8 @@ class CodesWashingRulesController {
       } = request.all();
       
       if (true/* user.rol_id == 1 */) {
+
         //Reasignamos los incluidos
-        if(included_arr) {
           updated_codes = included_arr.map(async item => {
               return await CodesWashingRules.find(item.id).then( async code => {
                 code.grupo = id_group;
@@ -274,10 +280,8 @@ class CodesWashingRulesController {
                 return code;
               });
           });     
-        }
 
         //Asignamos Null a los removidos
-      if(removed_arr){
         removed_codes = removed_arr.map(async item => {
           return await CodesWashingRules.find(item.id).then( async code => {
             code.grupo = null;
@@ -285,7 +289,7 @@ class CodesWashingRulesController {
             return code;
           });
         });
-      }
+
       } else {
         return response.status(403).json({ message: 'Usuario sin permisos para realizar la operación' });
       }

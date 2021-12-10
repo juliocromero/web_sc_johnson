@@ -11,14 +11,13 @@
           class="px-0"
           @click="show"
         >
-          <v-icon>mdi-pencil</v-icon>
+          <img src="@/static/iconos/baseline_create_black_18dp.png" alt="editar" />
         </v-btn>
       </template>
       <span>Editar código</span>
     </v-tooltip>
 
     <v-dialog v-model="dialog" width="600">
-      {{current_code}}
       <v-card>
         <v-card-title class="headline v-card-titulo white--text"
           >Editar código</v-card-title
@@ -225,6 +224,7 @@ export default {
           }).then((res)=>{
             console.log('GET_GROUPS:', res.data);
             this.groups = res.data.data.data;
+            this.groups.push({ "id": null, "nombre": "No asignar"})
           });
       } catch (error) {
         console.log('ERROR_GET_GROUPS:', error);

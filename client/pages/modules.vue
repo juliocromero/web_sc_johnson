@@ -37,7 +37,7 @@ export default {
   data(){
     return{
       opciones:[
-        {titulo:'Setpoints Baños de  Pruebas', icon:'fact_check', url:'/washing_set_points'},
+        {titulo:'Setpoints Baños de Pruebas', icon:'fact_check', url:'/washing_set_points'},
         {titulo:'SUNs', icon:'widgets', url:'/suns'},
         {titulo:'Reglas de Lavado', icon:'waves', url:'/washing_rules'}
       ],
@@ -54,8 +54,7 @@ export default {
 }
 
 .tarjeta:hover{
-  border:1px solid #ffbfbf;
-  box-shadow: 0 0 10px #ffbfbf !important;
+  box-shadow: 0 0 15px #ffacac !important;
 }
 
 a{

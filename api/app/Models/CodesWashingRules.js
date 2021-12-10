@@ -15,8 +15,8 @@ class CodesWashingRules extends Model {
         return 'cip.codes_washing_rules'
     }
 
-    grupo () {
-        return this.hasOne('App/Models/GroupWashingRules', 'id', 'grupo');
+    group () {
+        return this.hasOne('App/Models/GroupWashingRules','grupo','id');
     }
 }
 

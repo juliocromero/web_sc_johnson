@@ -33,6 +33,7 @@ class ProductoLoteController {
 
       //Si recibe un codigo de lote o sun
       let searched_value =  options.searched_value;
+      console.log(searched_value);
       if (searched_value) {
         query
         .where('sun_number', searched_value)
@@ -53,8 +54,6 @@ class ProductoLoteController {
         return acc;
       },[]);
 
-      /*       let res = await query.paginate(page, perPage);
-      res = res.toJSON(); */
       //cuando usamos paginate se usa res.data en lugar de res de aqui en adelante.
       //sustituir todos los res por res.data de aqui en adelante.
       res = _.groupBy(res, 'lote');

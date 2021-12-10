@@ -83,7 +83,6 @@
                 <v-data-table
                   :headers="headers"
                   :items="suns"
-                  :search="searched_value"
                   class="m-2"
                   :options.sync="options"
                   no-data-text="Sin datos"
@@ -222,7 +221,9 @@ export default {
     dialogSpinner: false,
     total: null,
     suns: [],
-    options: {},
+    options: {
+      searched_value: null
+    },
     files: null,
     headers: [
       { text:"Lote", value:'lote', align:"center", sortable:false },
@@ -265,7 +266,6 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
     async filtrarTabla() {
-      console.log('filtrando tabla');
       if ( this.searched_value != "") {
         this.options.searched_value = this.searched_value;
         this.getSuns();
@@ -288,7 +288,6 @@ export default {
     async getSuns() {
       this.dialogSpinner = true;
       let token = Cookies.get("token");
-      console.log('OPCIONES:', this.options);
       await axios
         .get("producto_lote", {
           headers: {
@@ -299,7 +298,6 @@ export default {
           },
         })
         .then((res) => {
-          console.log('suns',res);
           this.suns = res.data.suns;
           this.total = res.data.total;
           this.dialogSpinner = false;
