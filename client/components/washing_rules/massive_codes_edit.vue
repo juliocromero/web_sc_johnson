@@ -357,7 +357,7 @@ export default {
       this.multiple_codes_update(this.currentIdGroup);
       this.changesAlert = false;
       this.dialogChangesAlert = false;
-      this.getCodesByGroup();
+      //this.getCodesByGroup();
     },
     discardChanges(){
       this.changesAlert = false;

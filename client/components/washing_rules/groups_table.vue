@@ -58,7 +58,7 @@
             <template v-for="(h, i) in headers" v-slot:[`header.${h.value}`]="{ headers }">
               <span :key="i+1">{{h.text}}</span>  
                   <v-btn
-                  v-if="i < 1"
+                  v-if="i == 2"
                   @click="flag ? sortAc(groups, h.value, i) : sortDc(groups, h.value, i)"
                   icon
                   :key="i"
@@ -68,7 +68,8 @@
                     src="@/static/iconos/filter_list_gray_24dp.svg"
                     alt="sort"
                   />
-                </v-btn>           
+                </v-btn>        
+   
             </template>
 
 <!--             <template v-slot:[`item.data-table-expand`]="{ expand, isExpanded }">

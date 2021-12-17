@@ -1,7 +1,7 @@
 'use strict'
 
 const GroupWashingRules = use("App/Models/GroupWashingRules.js");
-
+const Database = use('Database');
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -25,9 +25,10 @@ class GroupWashingRulesController {
       let query = GroupWashingRules.query();
 
       let {
+        id,
         options,
         group_name
-      } = request.only(['options','group_name']);
+      } = request.only(['options','group_name','id']);
 
       //seteo valores por defectos
       let page = JSON.parse(options).page || 1;
@@ -44,6 +45,14 @@ class GroupWashingRulesController {
       //Si recibe un nombre
       if (group_name) {
         query.where('nombre', group_name)
+      }
+
+      //Si recibe un id
+      if (id) {
+        console.log('Consultado solo 1');
+        let res = {};
+        res.data = await GroupWashingRules.find(id);
+        return response.status(200).json({ message: 'Grupo', data: res });
       }
 
       let res = await query.paginate(page, perPage);
@@ -89,63 +98,37 @@ class GroupWashingRulesController {
           const created_group = await GroupWashingRules.create(new_group);
 
           //Sincronizando con Server 1
-          // let messageS1 ={};
-          // try{
-          //   await Database.connection('Server1')
-          //   .table('bp_setpoints')
-          //   .insert({ 
-          //     cod_pt :product.cod_pt,
-          //     description  : product.description,
-          //     l310_sp_temp : product.l310_sp_temp,
-          //     l310_sp_vel  : product.l310_sp_vel,
-          //     l310_oncrimp : product.l310_oncrimp ? 1 : 0,
-          //     l320_sp_temp : product.l320_sp_temp,
-          //     l320_sp_vel  : product.l320_sp_vel,
-          //     l320_oncrimp : product.l320_oncrimp ? 1 : 0,
-          //     l330_sp_temp : product.l330_sp_temp,
-          //     l330_sp_vel  : product.l330_sp_vel,
-          //     l330_oncrimp : product.l330_oncrimp ? 1 : 0,
-          //     l340_sp_temp : product.l340_sp_temp,
-          //     l340_sp_vel  : product.l340_sp_vel,
-          //     l340_oncrimp : product.l340_oncrimp ? 1 : 0,
-          //     created_at: product.created_at, 
-          //     updated_at: product.updated_at,
-          //   });         
-          //   messageS1 = { status:200, message:'Server 1 actualizado correctamente' };
-          // }catch(error){
-          //   console.log('Sync error on server 1:', error)
-          //   messageS1 = { status:400, message:'Server 1 no actualizado' };
-          // };
-
+          let messageS1 = {};
+          try{
+            await Database.connection('Server1_CIP')
+            .table('grupo')
+            .insert({
+              id:created_group.id,
+              nombre:created_group.nombre,
+              familia:created_group.familia,
+              t_maxlmp:created_group.t_maxlmp
+            });         
+            messageS1 = { status:200, message:'Server 1 actualizado correctamente' };
+          }catch(error){
+            console.log('Sync error on server_cip 1:', error)
+            messageS1 = { status:400, message:'Server 1 no actualizado' };
+          };
           //Sincronizando con Server 2
-          // let messageS2 ={};
-          // try {
-          //   await Database.connection('Server2')
-          //   .table('bp_setpoints')
-          //   .insert({ 
-          //     cod_pt :product.cod_pt,
-          //     description  : product.description,
-          //     l310_sp_temp : product.l310_sp_temp,
-          //     l310_sp_vel  : product.l310_sp_vel,
-          //     l310_oncrimp : product.l310_oncrimp ? 1 : 0,
-          //     l320_sp_temp : product.l320_sp_temp,
-          //     l320_sp_vel  : product.l320_sp_vel,
-          //     l320_oncrimp : product.l320_oncrimp ? 1 : 0,
-          //     l330_sp_temp : product.l330_sp_temp,
-          //     l330_sp_vel  : product.l330_sp_vel,
-          //     l330_oncrimp : product.l330_oncrimp ? 1 : 0,
-          //     l340_sp_temp : product.l340_sp_temp,
-          //     l340_sp_vel  : product.l340_sp_vel,
-          //     l340_oncrimp : product.l340_oncrimp ? 1 : 0,
-          //     created_at: product.created_at, 
-          //     updated_at: product.updated_at,
-          //   });
-          //   messageS2 = { status:200, message:'Server 2 actualizado correctamente' };
-          // } 
-          // catch (error) {
-          //   console.log('Sync error on server 2:', error)
-          //   messageS2 = { status:400, message:'Server 2 no actualizado' };
-          // }
+          let messageS2 = {};
+          try{
+            await Database.connection('Server2_CIP')
+            .table('grupo')
+            .insert({
+              id:created_group.id,
+              nombre:created_group.nombre,
+              familia:created_group.familia,
+              t_maxlmp:created_group.t_maxlmp
+            });         
+            messageS2 = { status:200, message:'Server 2 actualizado correctamente' };
+          }catch(error){
+            console.log('Sync error on server_cip 2:', error)
+            messageS2 = { status:400, message:'Server 2 no actualizado' };
+          };
           return response.status(200).json(
             { 
               message: 'Grupo creado con éxito', 
@@ -211,6 +194,41 @@ class GroupWashingRulesController {
             groupToUpdated.merge({...current_group});
             await groupToUpdated.save();
             updatedGroup = groupToUpdated;
+
+          //Sincronizando con Server 1
+            let messageS1 ={};
+            try{
+              await Database.connection('Server1_CIP')
+              .table('grupo')
+              .where('id', current_group.id)
+              .update({
+                nombre:current_group.nombre,
+                familia:current_group.familia,
+                t_maxlmp:current_group.t_maxlmp
+              });         
+              messageS1 = { status:200, message:'Server 1 actualizado correctamente' };
+            }catch(error){
+              console.log('Sync error on server_cip 1:', error)
+              messageS1 = { status:400, message:'Server 1 no actualizado' };
+            };
+          
+          //Sincronizando con Server 2
+          let messageS2 ={};
+          try{
+            await Database.connection('Server2_CIP')
+            .table('grupo')
+            .where('id', current_group.id)
+            .update({
+              nombre:current_group.nombre,
+              familia:current_group.familia,
+              t_maxlmp:current_group.t_maxlmp
+            });         
+            messageS2 = { status:200, message:'Server 2 actualizado correctamente' };
+          }catch(error){
+            console.log('Sync error on server_cip 2:', error)
+            messageS2 = { status:400, message:'Server 2 no actualizado' };
+          };
+
           }else{
             return response.status(400).json({ message: 'El grupo no existe' });
           }
@@ -254,6 +272,30 @@ class GroupWashingRulesController {
       try {
         const group = await GroupWashingRules.find(id);
         await group.delete();
+          //Sincronizando con Server 1
+          let messageS1 ={};
+          try{
+            await Database.connection('Server1_CIP')
+            .table('grupo')
+            .where('id', id)
+            .delete();         
+            messageS1 = { status:200, message:'Server 1 actualizado correctamente' };
+          }catch(error){
+            console.log('Sync error on server_cip 1:', error)
+            messageS1 = { status:400, message:'Server 1 no actualizado' };
+          };
+          //Sincronizando con Server 1
+          let messageS2 ={};
+          try{
+            await Database.connection('Server2_CIP')
+            .table('grupo')
+            .where('id', id)
+            .delete();         
+            messageS2 = { status:200, message:'Server 2 actualizado correctamente' };
+          }catch(error){
+            console.log('Sync error on server_cip 2:', error)
+            messageS2 = { status:400, message:'Server 2 no actualizado' };
+          };
         return response.status(200).json({ menssage: 'Grupo borrado con exito!' });
       } catch (error) {
         return response.status(404).json({

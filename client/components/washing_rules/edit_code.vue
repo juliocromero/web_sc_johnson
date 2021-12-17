@@ -107,6 +107,7 @@ export default {
     nameRules: [(value) => !!value || "Este campo es requerido"],
     groups:[],
     current_code: {
+      current_id:null,
       id: null,
       nombre: "",
       grupo:null
@@ -157,7 +158,7 @@ export default {
           this.loading = true;
           this.current_code.id = parseInt(this.current_code.id);
           console.log(' current_code',  this.current_code);
-          await axios.put(`washing_rules/codes/${this.current_code}`, this.current_code , {
+          await axios.put(`washing_rules/codes`, this.current_code , {
             headers: { Authorization: `Bearer ${token}` },
           }).then((res)=>{
             console.log('RESSS current_code',  res);
@@ -253,6 +254,7 @@ export default {
           }).then((res)=>{
             console.log('GET_CURRENT_CODE:', res);
             this.current_code = res.data.data.data[0]
+            this.current_code.current_id = res.data.data.data[0].id;
           });
       } catch (error) {
         console.log('ERROR_GET_GROUPS:', error);

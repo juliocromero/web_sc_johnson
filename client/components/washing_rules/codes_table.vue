@@ -244,7 +244,6 @@ export default {
           },
         })
         .then((res) => {
-          console.log('SUNS', res);
           this.codes = res.data.data.data;
           this.total = res.data.data.total;
           this.dialogSpinner = false;

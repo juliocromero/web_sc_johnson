@@ -53,26 +53,65 @@
               style="max-width:100%;"
               @click="SET_DISPATCH"
             >
-              <span><v-icon>view_week</v-icon> Codigos</span>                  
+              <span class="d-flex align-center"> 
+                  <img
+                    src="@/static/iconos/codes.svg"
+                    alt="upload"
+                  /> 
+                  <span
+                  class="ml-2"
+                  >
+                    Códigos
+                  </span>
+              </span>                    
             </v-tab>
 
             <v-tab
               href="#mobile-tabs-5-2"
               style="max-width:100%;"
             >
-            <span><v-icon>group_work</v-icon> Grupos</span>                  
+              <span class="d-flex align-center"> 
+                  <img
+                    src="@/static/iconos/groups.svg"
+                    alt="upload"
+                  /> 
+                  <span
+                  class="ml-2"
+                  >
+                    Grupos
+                  </span>
+              </span>                 
             </v-tab>
+
+            <v-tab
+              href="#mobile-tabs-5-3"
+              style="max-width:100%;"
+              @click="rulesFn"
+            >
+            <span class="d-flex align-center"> 
+                <img
+                  src="@/static/iconos/rules.svg"
+                  alt="upload"
+                /> 
+                <span
+                class="ml-2"
+                >
+                  Reglas
+                </span>
+            </span>                  
+            </v-tab>            
 
           </v-tabs>
 
           <v-tabs-items v-model="tabs">
             <v-tab-item
-              v-for="i in 2"
+              v-for="i in 3"
               :key="i"
               :value="'mobile-tabs-5-' + i"
             >
               <codes-table v-if="i==1"/>
               <groups-table v-if="i==2"/>
+              <rules-table :bus="bus" v-if="i==3"/>
             </v-tab-item>
           </v-tabs-items>
         </v-card>
@@ -82,6 +121,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import "material-design-icons-iconfont/dist/material-design-icons.css";
 import edit from "@/components/common/editar";
 import axios from "@/plugins/axios";
@@ -91,6 +131,7 @@ import infoModal from "@/components/common/infoModal";
 import infoModalCRUD from "@/components/common/infoModalCRUD.vue";
 import codes_table from "@/components/washing_rules/codes_table.vue";
 import groups_table from "@/components/washing_rules/groups_table.vue";
+import rules_table from "@/components/washing_rules/rules_table.vue";
 import Cookies from "js-cookie";
 let CSVtoJSON = require("csvtojson");
 import { mapState, mapMutations } from "vuex";
@@ -105,7 +146,8 @@ export default {
     infoModal,
     infoModalCRUD,
     codes_table,
-    groups_table
+    groups_table,
+    rules_table
   },
   data: () => ({
     tabs: null,
@@ -123,6 +165,7 @@ export default {
       itemsPerPageOptions: [5, 10, 25],
     },
     datosCsv: null,
+    bus: new Vue(),
     pag: null,
     dialogSpinner: false,
     total: null,
@@ -385,6 +428,9 @@ export default {
         console.log(error);
       }
     },
+    rulesFn(){
+      this.bus.$emit('click');
+    }
   },
   watch: {
 /*     cod_pt: function () {

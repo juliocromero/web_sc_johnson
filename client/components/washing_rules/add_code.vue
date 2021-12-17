@@ -166,7 +166,6 @@ export default {
               alertType: "success",
             });
             this.dialog = false;
-            this.toggleDialog()
             this.loading = false;
           });
        } 

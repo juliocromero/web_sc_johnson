@@ -311,7 +311,8 @@ export default {
               options:this.options
             }
           }).then((res)=>{
-            this.currentGroup = res.data.data.data[0];
+            console.log('GetcurrentGroup',res)
+            this.currentGroup = res.data.data.data;
           });
       } catch (error) {
         console.log('ERROR_GET_GROUPS:', error);
