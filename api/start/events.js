@@ -165,7 +165,7 @@ const parseData = async (arr)=> {
     try {
         const result = arr.map((item)=>{
             try {
-                return item ? { sun_number : item.sun_number,lote: item.lote, batch_id: item.batch_id, fecha_hora:moment(item.date).utc().format() } : null  ;                   
+                return item ? { sun_number : item.sun_number,lote: item.lote, batch_id: item.batch_id, fecha_hora:moment(item.date).format('YYYY-MM-DD HH:mm:ss') } : null  ;                   
             } catch (error) {
                 console.log('PARSE_DATA_1:', error);
             }
@@ -177,11 +177,12 @@ const parseData = async (arr)=> {
     }
 };
 /******* ADQUISICIÖN SUNS *******/
-cron.schedule('*/60 * * * *', async function () {
+cron.schedule('*/10 * * * *', async function () {
+//cron.schedule("*/10 * * * * *", async function (){
     try { 
       synchronizedDataS1 = null;
       let initialDate = moment('2021-01-01 00:00:00').format();
-      let now = moment().format();
+      let now = moment().format("YYYY-MM-DD HH:mm:ss");
       let lastQueryS1 = await Database.table('suns.suns_last_query').select('until_date_s1');
       !lastQueryS1 ? Until.create({until_date_s1:initialDate, until_date_s2:initialDate}) : lastQueryS1;
       let lastQueryS2 = await Database.table('suns.suns_last_query').select('until_date_s2');
@@ -190,18 +191,20 @@ cron.schedule('*/60 * * * *', async function () {
 
       const server1 = Database.connection('Server1');
       const server2 = Database.connection('Server2');
+
       let pg_sun_numbers_1 = await Database.select('sun_number').from('suns.producto_lote');
       pg_sun_numbers_1 = pg_sun_numbers_1.map((sun)=>{
           return sun.sun_number;
       });
 
-      console.log('LAST QUERY lastQueryS1:', lastQueryS1);
-      console.log('LAST QUERY lastQueryS2:', lastQueryS2);
+      console.log('LAST QUERY lastQueryS1:', moment(lastQueryS1).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
+      console.log('LAST QUERY lastQueryS2:', moment(lastQueryS2).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
+    //   console.log('pg_sun_numbers_1', pg_sun_numbers_1);
 
       const res_server_1 = await server1
       .table('producto_lote')
       .select('*')
-      .where( 'date', '>=', moment(lastQueryS1).add(-20,'minutes').format())
+      .where( 'date', '>=', moment(lastQueryS1).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"))
       .whereNotIn('sun_number', pg_sun_numbers_1);
 
       console.log('res_server_1', res_server_1);
@@ -221,13 +224,6 @@ cron.schedule('*/60 * * * *', async function () {
                 };
             });
         };
-/*         console.log('synchronizedDataS1 =>',synchronizedDataS1);
-        if(synchronizedDataS1){
-          synchronizedDataS1 = JSON.parse(synchronizedDataS1);
-          console.log('synchronizedDataS1_PARSED',synchronizedDataS1);
-        }else{
-          synchronizedDataS1 = [];
-        } */
 
         /****** SYNC SERVER 2 *******/
         let pg_sun_numbers_2 = await Database.select('sun_number').from('suns.producto_lote');
@@ -237,7 +233,7 @@ cron.schedule('*/60 * * * *', async function () {
         const res_server_2 = await server2
         .table('producto_lote')
         .select('*')
-        .where( 'date', '>=', moment(lastQueryS2).add(-20,'minutes').format())
+        .where( 'date', '>=', moment(lastQueryS2).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"))
         .whereNotIn('sun_number', pg_sun_numbers_1);
 
         console.log('res_server_2', res_server_2);
@@ -315,7 +311,7 @@ cron.schedule('*/10 * * * *', async function (){
     .whereNotIn('id', server2_cip_codes);
   
     //Insertando codigos en S2
-    const synchronizedCodes = await server1_cip
+    const synchronizedCodes = await server2_cip
     .insert(cip_codes_pg)
     .into('codigo')
     .returning('id');
