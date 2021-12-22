@@ -275,6 +275,7 @@ export default {
             console.log('Grupo actualizado correctamente!!');
           }).then(()=>{
             this.multiple_codes_update();
+            this.$emit('reload-rules');
           });
        } 
       } catch (error) {

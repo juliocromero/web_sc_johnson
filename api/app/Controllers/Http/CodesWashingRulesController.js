@@ -295,13 +295,28 @@ class CodesWashingRulesController {
                     .select('grupo')
                     .where('id', item.id)
                     .update({
-                      grupo:item.grupo.id
+                      grupo:id_group
                     });         
                     messageS1 = { status:200, message:'Server 1 actualizado correctamente' };
                   }catch(error){
                     console.log('Sync error on server_cip 1:', error)
                     messageS1 = { status:400, message:'Server 1 no actualizado' };
-                  };                  
+                  };            
+                  //Sincronizando con Server 2
+                  let messageS2 ={};
+                  try{
+                    await Database.connection('Server2_CIP')
+                    .table('codigo')
+                    .select('grupo')
+                    .where('id', item.id)
+                    .update({
+                      grupo:id_group
+                    });         
+                    messageS2 = { status:200, message:'Server 2 actualizado correctamente' };
+                  }catch(error){
+                    console.log('Sync error on server_cip 2:', error)
+                    messageS2 = { status:400, message:'Server 2 no actualizado' };
+                  };            
                 });           
                 return code;
               });
@@ -323,6 +338,18 @@ class CodesWashingRulesController {
                   grupo:null
                 });         
                 messageS1 = { status:200, message:'Server 1 actualizado correctamente' };
+
+                //Sincronizando con Server 2
+                let messageS2 ={};
+                  await Database.connection('Server2_CIP')
+                  .table('codigo')
+                  .select('grupo')
+                  .where('id', item.id)
+                  .update({
+                    grupo:null
+                  });         
+                messageS2 = { status:200, message:'Server 2 actualizado correctamente' };
+
               }catch(error){
                 console.log('Sync error on server_cip 1:', error)
                 messageS1 = { status:400, message:'Server 1 no actualizado' };

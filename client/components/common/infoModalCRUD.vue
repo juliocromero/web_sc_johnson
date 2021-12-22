@@ -3,6 +3,7 @@
     <v-dialog
       v-model="infoModalCRUD.dialog"
       width="350"
+      :retain-focus="false"
     >
       <v-card>
         <v-card-title class="dark headline lighten-2 v-card-titulo white--text">

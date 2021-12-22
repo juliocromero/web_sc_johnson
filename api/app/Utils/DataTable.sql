@@ -64,3 +64,16 @@ create table suns_last_query (
     until_date timestamp not null,
     PRIMARY KEY(id)
 )
+
+/* CIP */
+CREATE TABLE washing_rules (
+   grupo_id_ant INT NOT NULL,
+   grupo_id_act INT NOT NULL,
+   limpiar BIT,
+   PRIMARY KEY(grupo_id_ant,grupo_id_act),
+   CONSTRAINT fk_grupo_ant
+      FOREIGN KEY(grupo_id_ant) 
+	  REFERENCES cip.groups_washing_rules(id),
+      FOREIGN KEY(grupo_id_act) 
+	  REFERENCES cip.groups_washing_rules(id)
+);

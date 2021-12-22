@@ -49,30 +49,50 @@ export default {
     dialog: false
   }),
   methods:{
-        ...mapMutations(["toggleInfoModal","ocultarInfoModal"]),
+        ...mapMutations(["toggleInfoModalCRUD","ocultarInfoModal","toggleInfoModal"]),
     async Delete_group() {
       try {
         let token = Cookies.get("token"); 
         await axios.delete(`washing_rules/groups/${this.group.id}`, {
           headers: { Authorization: `Bearer ${token}` }
         }).then((res)=>{
-          this.toggleInfoModal({
-            dialog: true,
-            msj:`Grupo: ${this.group.nombre} Eliminado correctamente`,
-            titulo:"Eliminar grupo",
-            alertType: "success"
-          })
+            this.toggleInfoModalCRUD({
+              dialog: true,
+              msj: `Grupo ${this.group.nombre} eliminado correctamente`,
+              // s1:{ 
+              //   status:res.data.server1.status, 
+              //   msj:res.data.server1.message 
+              //   },
+              // s2:{ 
+              //   status:res.data.server2.status, 
+              //   msj:res.data.server2.message 
+              //   },
+              titulo: "Eliminar Grupo",
+              alertType: "success",
+            });
           this.$emit('reload');
           this.dialog = false
         });
       } catch (error) {
-        console.log(error)
-        this.toggleInfoModal({
-          dialog: true,
-          msj:`Ha ocurrido un error al eliminar el grupo`,
-          titulo:"Grupo código",
-          alertType: "error"
-        })
+          if(error.response){
+              this.toggleInfoModal({
+              dialog: true,
+              msj: `${error.response.data.message}`,
+              titulo: "Eliminar Grupo",
+              alertType: "error",
+              });
+              console.error('DELETE group error:', error.response.data.message)
+              this.loading = false;
+          }
+          else{
+              this.toggleInfoModal({
+              dialog: true,
+              msj: `Ha ocurrido un error al eliminar el grupo`,
+              titulo: "Eliminar Grupo",
+              alertType: "error",
+              });
+              this.loading = false;
+        };
       }
     },
   },

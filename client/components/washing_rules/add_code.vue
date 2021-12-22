@@ -91,8 +91,6 @@ export default {
   data: () => ({
     showMsg:false,
     loading:false,
-    setAll:true,
-    setAllItems:{ lineas:"Todas", temperatura:"", velocidad:"", crimper:false }, 
     valid: true,
     dialog: false,
     tempValidation:{},
@@ -104,24 +102,8 @@ export default {
       nombre: "",
       grupo:null
     },
-    headers:[
-      { text: 'Líneas', value: 'linea', sortable: false, class:'my_table_style', align:'center' },
-      { text: 'Temperatura', value: 'temperatura', sortable: false, class:'my_table_style', align:'center', width:'150px' },
-      { text: 'Velocidad', value: 'velocidad', sortable: false, class:'my_table_style', align:'center', width:'150px' },
-      { text: 'V.Crimper', value: 'crimper', sortable: false, class:'my_table_style', align:'center' },
-    ],
-    lineas:[
-      { linea:"L310", temperatura:"", velocidad:"", crimper:false },
-      { linea:"L320", temperatura:"", velocidad:"", crimper:false },
-      { linea:"L330", temperatura:"", velocidad:"", crimper:false },
-      { linea:"L340", temperatura:"", velocidad:"", crimper:false },
-    ],
     rules: {
-      required: (value) => !!value || "Requerido.",
-      minTemp: (value) => value >= 40 || "Valor mínimo 40",
-      maxTemp: (value) => value <= 70 || "Valor máximo 70",
-      minVel: (value) => value >= 0 || "Valor mínimo 0",
-      maxVel: (value) => value <= 100 || "Valor máximo 100",
+      required: (value) => !!value || "Requerido."
     },
   }),
   methods: {
@@ -133,13 +115,8 @@ export default {
     },
     toggleDialog() {
       this.dialog = false;
-      this.lineas = [
-        { linea:"L310", temperatura:"", velocidad:"", crimper:false },
-        { linea:"L320", temperatura:"", velocidad:"", crimper:false },
-        { linea:"L330", temperatura:"", velocidad:"", crimper:false },
-        { linea:"L340", temperatura:"", velocidad:"", crimper:false },
-      ];
       this.$refs.form.reset();
+      this.$refs.form.resetValidation();
     },
     async add_code() {
       try {
@@ -167,6 +144,7 @@ export default {
             });
             this.dialog = false;
             this.loading = false;
+            this.reset();
           });
        } 
       } catch (error) {
@@ -216,6 +194,15 @@ export default {
       } catch (error) {
         console.log('ERROR_GET_GROUPS:', error);
       }
+    },
+    reset(){
+      this.new_code = {
+        id: null,
+        nombre: "",
+        grupo:null
+      };
+      this.$refs.form.reset();
+      this.$refs.form.resetValidation();     
     }
   },
 };

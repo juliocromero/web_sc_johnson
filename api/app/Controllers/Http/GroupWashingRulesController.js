@@ -267,10 +267,15 @@ class GroupWashingRulesController {
    */
   async destroy ({ params: { id }, request, response, auth }) {
     const user = await auth.getUser();
-
     if (true /* user.rol_id == 1 */) {
       try {
         const group = await GroupWashingRules.find(id);
+        if(!group){
+          return response.status(404).json({
+            message: "Grupo no existe",
+            id
+          });
+        }
         await group.delete();
           //Sincronizando con Server 1
           let messageS1 ={};
@@ -284,7 +289,7 @@ class GroupWashingRulesController {
             console.log('Sync error on server_cip 1:', error)
             messageS1 = { status:400, message:'Server 1 no actualizado' };
           };
-          //Sincronizando con Server 1
+          //Sincronizando con Server 2
           let messageS2 ={};
           try{
             await Database.connection('Server2_CIP')
@@ -298,8 +303,12 @@ class GroupWashingRulesController {
           };
         return response.status(200).json({ menssage: 'Grupo borrado con exito!' });
       } catch (error) {
+        console.log('DELETE GROUP ERROR:', error);
+        if (error.message.includes('"groups_washing_rules" violates foreign')) {
+          return response.status(403).json({ message: 'Por favor elimine primero las reglas asociadas a este grupo' });
+        }
         return response.status(404).json({
-          message: "Grupo no existe",
+          message: "Ha ocurrido un error al eliminar el grupo",
           id
         });
       }

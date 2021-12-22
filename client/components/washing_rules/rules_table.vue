@@ -367,14 +367,14 @@ export default {
     },
     reset(){
       if(this.$refs.form){
-      this.$refs.form.reset(),
-      this.$refs.form.resetValidation()        
+        this.$refs.form.reset();
+        this.$refs.form.resetValidation();     
       };
       this.new_rule = {
-      pre_group_id:null,
-      cur_group_id:null,
-      clean:false
-    }
+        pre_group_id:null,
+        cur_group_id:null,
+        clean:false
+      }
     },
     async add_rule(){
       try {
@@ -562,7 +562,8 @@ export default {
     },
   },
   created() {
-    this.bus.$on('click', this.show)
+    this.bus.$on('click', this.show);
+    this.bus.$on('reload', this.getRules);
   }, 
   mounted(){
     this.reset();

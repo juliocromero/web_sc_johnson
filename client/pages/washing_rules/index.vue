@@ -110,7 +110,7 @@
               :value="'mobile-tabs-5-' + i"
             >
               <codes-table v-if="i==1"/>
-              <groups-table v-if="i==2"/>
+              <groups-table v-if="i==2" @reloadFromRules="reloadRules"/>
               <rules-table :bus="bus" v-if="i==3"/>
             </v-tab-item>
           </v-tabs-items>
@@ -430,6 +430,9 @@ export default {
     },
     rulesFn(){
       this.bus.$emit('click');
+    },
+    reloadRules(){
+      this.bus.$emit('reload');
     }
   },
   watch: {

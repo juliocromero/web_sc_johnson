@@ -154,7 +154,7 @@ const dropOldData = async (connection, lastQuery)=> {
         console.log('Deleting old data...');
         return await connection
         .table('producto_lote')
-        .whereBetween( 'date', [ moment(lastQuery).add(-10, 'days').format('YYYY-MM-DD HH:mm:ss'), moment(lastQuery).format('YYYY-MM-DD HH:mm:ss') ])
+        .where( 'date','<', moment(lastQuery).add(-10, 'days').format('YYYY-MM-DD HH:mm:ss'))
         .delete();        
     } catch (error) {
         console.log('DELETING OLD DATA ERROR ==>', error)
@@ -162,25 +162,20 @@ const dropOldData = async (connection, lastQuery)=> {
 };
 
 const parseData = async (arr)=> {
+    let query = '';
     try {
-        const result = arr.map((item)=>{
-            try {
-                return item ? { sun_number : item.sun_number,lote: item.lote, batch_id: item.batch_id, fecha_hora:moment(item.date).format('YYYY-MM-DD HH:mm:ss') } : null  ;                   
-            } catch (error) {
-                console.log('PARSE_DATA_1:', error);
-            }
+        arr.forEach((item)=>{
+          query += `('${item.sun_number}','${item.lote}', '${item.batch_id}', '${moment(item.date).format("YYYY-MM-DD HH:mm:ss")}'),`; 
         });
-        const data = await Promise.all(result);
-        return data;        
+        return query;        
     } catch (error) {
-        console.log('PARSEDATA_ERROR_2 ==>', error);
+        console.log('PARSE_DATA_ERROR ==>', error);
     }
 };
-/******* ADQUISICIÖN SUNS *******/
-cron.schedule('*/10 * * * *', async function () {
-//cron.schedule("*/10 * * * * *", async function (){
+/******* ADQUISICIÓN SUNS *******/
+cron.schedule('*/1 * * * *', async function () {
     try { 
-      synchronizedDataS1 = null;
+
       let initialDate = moment('2021-01-01 00:00:00').format();
       let now = moment().format("YYYY-MM-DD HH:mm:ss");
       let lastQueryS1 = await Database.table('suns.suns_last_query').select('until_date_s1');
@@ -192,76 +187,67 @@ cron.schedule('*/10 * * * *', async function () {
       const server1 = Database.connection('Server1');
       const server2 = Database.connection('Server2');
 
-      let pg_sun_numbers_1 = await Database.select('sun_number').from('suns.producto_lote');
-      pg_sun_numbers_1 = pg_sun_numbers_1.map((sun)=>{
-          return sun.sun_number;
-      });
-
       console.log('LAST QUERY lastQueryS1:', moment(lastQueryS1).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
       console.log('LAST QUERY lastQueryS2:', moment(lastQueryS2).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
-    //   console.log('pg_sun_numbers_1', pg_sun_numbers_1);
 
+      /****** SYNC SERVER 1 *******/
       const res_server_1 = await server1
       .table('producto_lote')
       .select('*')
-      .where( 'date', '>=', moment(lastQueryS1).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"))
-      .whereNotIn('sun_number', pg_sun_numbers_1);
+      .where( 'date', '>=', moment(lastQueryS1).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
 
-      console.log('res_server_1', res_server_1);
+      if(res_server_1.length > 0) {
+        parseData(res_server_1).then( async (dataS1)=> {
+          try {        
+            const inserted = await Database.raw(
+              `INSERT INTO suns.producto_lote ( sun_number, lote, batch_id, fecha_hora) 
+                VALUES ${String(dataS1.slice(0, -1))} 
+                ON CONFLICT ON CONSTRAINT unique_sun 
+                DO NOTHING;`);
+                console.log('Suns sincronizados S1');
 
-      /****** SYNC SERVER 1 *******/
-        if(res_server_1.length > 0) {
-            parseData(res_server_1).then( async (dataS1)=> {
-                if(dataS1){
-                  try {
-                    synchronizedDataS1 = await ProductoLote.createMany(dataS1);
-                    console.log('Suns sincronizados S1');
-                    await Until.query().select('until_date_s1').update({ until_date_s1: now });
-                    //dropOldData(server1, lastQueryS1)                      
-                  } catch (error) {
-                    String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : `Somthing was wrong:${error}`
-                  }
-                };
-            });
-        };
+            //Actualizamos fecha de consulta.
+            await Until.query().select('until_date_s1').update({ until_date_s1: now });
+            //Eliminamos data de mas de 10 días de antiguedad
+            dropOldData(server1, lastQueryS1)                      
+          } catch (error) {
+            String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : `Somthing was wrong:${error}`
+          }
+        });
+      };
 
-        /****** SYNC SERVER 2 *******/
-        let pg_sun_numbers_2 = await Database.select('sun_number').from('suns.producto_lote');
-        pg_sun_numbers_2 = pg_sun_numbers_2.map((sun)=>{
-          return sun.sun_number;
-      });
-        const res_server_2 = await server2
-        .table('producto_lote')
-        .select('*')
-        .where( 'date', '>=', moment(lastQueryS2).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"))
-        .whereNotIn('sun_number', pg_sun_numbers_1);
-
-        console.log('res_server_2', res_server_2);
-        
-        if(res_server_2.length > 0) {
-          parseData(res_server_2).then( async (dataS2)=> {
-              if(dataS2){
-
-                  await ProductoLote.createMany(dataS2)
-                  .then( async ()=> {
-                      console.log('Suns sincronizados S2');
-                      await Until.query().select('until_date_s2').update({ until_date_s2: now });
-                      //dropOldData(server2, lastQueryS2)   
-                  })
-                  .catch ((error) =>{            
-                    String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : `Somthing was wrong:${error}`         
-                  });                 
-              };
-          });
-        };
+      /****** SYNC SERVER 2 *******/
+      const res_server_2 = await server2
+      .table('producto_lote')
+      .select('*')
+      .where( 'date', '>=', moment(lastQueryS2).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
+      
+      if(res_server_2.length > 0) {
+        parseData(res_server_2).then( async (dataS2)=> {
+          try {        
+            const inserted = await Database.raw(
+              `INSERT INTO suns.producto_lote ( sun_number, lote, batch_id, fecha_hora) 
+               VALUES ${String(dataS2.slice(0, -1))} 
+               ON CONFLICT ON CONSTRAINT unique_sun 
+               DO NOTHING;`);
+               console.log('Suns sincronizados S2');
+            //Actualizamos fecha de consulta.
+            await Until.query().select('until_date_s2').update({ until_date_s2: now });
+            //Eliminamos data de mas de 10 días de antiguedad
+            dropOldData(server2, lastQueryS2)                      
+          } catch (error) {
+            String(error).includes('duplicate') ? console.log('No es posible agregar datos duplicados') : `Somthing was wrong:${error}`
+          }
+        });
+      };
 
     } catch (error) {
-        console.log('ERROR CONSULTANDO SUNS: ', error);
+        console.log('ERROR SINCRONIZANDO SUNS: ', error);
     }
 });
 
 /***** SYNC CODES SERVER 1 CIP *****/
-cron.schedule('*/2 * * * *', async function (){
+cron.schedule('*/1 * * * *', async function (){
   console.log('syncing codes server_CIP_1...');
 
   //conectamos SERVER 1 sql
@@ -286,11 +272,11 @@ cron.schedule('*/2 * * * *', async function (){
   .insert(cip_codes_pg)
   .into('codigo')
   .returning('id');
-  console.log('synchronizedCodes', synchronizedCodes);
+  console.log('Synchronized Codes S1:', synchronizedCodes ? synchronizedCodes : 'No hay datos para sincronizar');
 });
 
 /***** SYNC CODES SERVER 2 CIP *****/
-cron.schedule('*/10 * * * *', async function (){
+cron.schedule('*/1 * * * *', async function (){
     console.log('syncing codes server_CIP_2...');
   
     //conectamos SERVER 2 sql
@@ -315,11 +301,11 @@ cron.schedule('*/10 * * * *', async function (){
     .insert(cip_codes_pg)
     .into('codigo')
     .returning('id');
-    console.log('synchronizedCodes', synchronizedCodes);
+    console.log('Synchronized Codes S2:', synchronizedCodes ? synchronizedCodes : 'No hay datos para sincronizar');
   });
 
 /***** SYNC GROUPS SERVER 1 CIP *****/
-cron.schedule('*/10 * * * *', async function (){
+cron.schedule('*/1 * * * *', async function (){
   console.log('syncing groups server_CIP_1...');
 
   //conectamos SERVER 1 sql
@@ -333,26 +319,52 @@ cron.schedule('*/10 * * * *', async function (){
   server1_cip_groups = server1_cip_groups.map((group)=>{
     return group.nombre;
   });
-  //console.log('server1_cip_groups', server1_cip_groups);
 
   //adquirimos los grupos del pg que no estan en S1
   let cip_groups_pg = await Database.select('*')
   .from('cip.groups_washing_rules')
   .whereNotIn('nombre', server1_cip_groups);
 
-  //console.log('cip_groups_pg:', cip_groups_pg);
-
   //Insertando grupos en S1
   const synchronizedGroups = await server1_cip
   .insert(cip_groups_pg)
   .into('grupo')
   .returning('nombre');
-  console.log('synchronizedGroups', synchronizedGroups);
+  console.log('Synchronized Groups S1:', synchronizedGroups ? synchronizedGroups : 'No hay datos para sincronizar');
+});
+
+/***** SYNC GROUPS SERVER 2 CIP *****/
+cron.schedule('*/1 * * * *', async function (){
+  console.log('syncing groups server_CIP_2...');
+
+  //conectamos SERVER 2 sql
+  const server2_cip = Database.connection('Server2_CIP');
+
+  //consultamos GRUPOS S2
+  let server2_cip_groups = await server2_cip
+  .table('grupo')
+  .select('nombre');
+  //conservamos solo los id para la consulta
+  server2_cip_groups = server2_cip_groups.map((group)=>{
+    return group.nombre;
+  });
+
+  //adquirimos los grupos del pg que no estan en S2
+  let cip_groups_pg = await Database.select('*')
+  .from('cip.groups_washing_rules')
+  .whereNotIn('nombre', server2_cip_groups);
+
+  //Insertando grupos en S2
+  const synchronizedGroups = await server2_cip
+  .insert(cip_groups_pg)
+  .into('grupo')
+  .returning('nombre');
+  console.log('Synchronized Groups S2:', synchronizedGroups ? synchronizedGroups : 'No hay datos para sincronizar');
 });
 
 /***** SYNC RULES SERVER 1 CIP *****/
-cron.schedule('*/10 * * * *', async function (){
-    console.log('syncing rules server_CIP_1...');
+cron.schedule('*/1 * * * *', async function (){
+    console.log('Syncing rules server_CIP_1...');
   
     //conectamos SERVER 1 sql
     const server1_cip = Database.connection('Server1_CIP');
@@ -361,13 +373,11 @@ cron.schedule('*/10 * * * *', async function (){
     let server1_cip_rules = await server1_cip
     .table('regla')
     .select('*');
-    //console.log('server1_cip_rules', server1_cip_rules);
 
     //conservamos solo los id's para la consulta
     let rules_ids = server1_cip_rules.map((rule)=>{
         return [ rule.grupo_id_ant, rule.grupo_id_act ];
     });
-    //console.log('rules_ids', rules_ids);
     
     //adquirimos los grupos del pg que no estan en S1
     let cip_rules_pg = await Database.select('*')
@@ -379,6 +389,35 @@ cron.schedule('*/10 * * * *', async function (){
     .insert(cip_rules_pg)
     .into('regla')
     .returning('*');
-    console.log('synchronized_Rules', synchronizedRules);           
-
+    console.log('Synchronized Rules S1: ', synchronizedRules ? synchronizedRules : 'No hay datos para sincronizar');           
   });
+
+  /***** SYNC RULES SERVER 2 CIP *****/
+cron.schedule('*/1 * * * *', async function (){
+  console.log('Syncing rules server_CIP_2...');
+
+  //conectamos SERVER 2 sql
+  const server2_cip = Database.connection('Server2_CIP');
+
+  //consultamos RULES S2
+  let server2_cip_rules = await server2_cip
+  .table('regla')
+  .select('*');
+
+  //conservamos solo los id's para la consulta
+  let rules_ids = server2_cip_rules.map((rule)=>{
+      return [ rule.grupo_id_ant, rule.grupo_id_act ];
+  });
+  
+  //adquirimos los grupos del pg que no estan en S2
+  let cip_rules_pg = await Database.select('*')
+  .from('cip.washing_rules')
+  .whereNotIn(['grupo_id_ant', 'grupo_id_act'], rules_ids)
+
+  //Insertando rules en S2
+  const synchronizedRules = await server2_cip
+  .insert(cip_rules_pg)
+  .into('regla')
+  .returning('*');
+  console.log('Synchronized Rules S2: ', synchronizedRules ? synchronizedRules : 'No hay datos para sincronizar');           
+});

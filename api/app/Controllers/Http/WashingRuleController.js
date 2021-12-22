@@ -24,12 +24,11 @@ class WashingRuleController {
       let query = WashingRule.query();
 
       let { options } = request.only(['options']);
-      //console.log(options)
 
       //Si recibe ambos id's
       if(JSON.parse(options).searched_value){
         let searched_value =  JSON.parse(options).searched_value;
-        console.log('searched_value', searched_value);
+
         if ( searched_value.pre_group_id && searched_value.cur_group_id ) {
           query
           .where('grupo_id_act', searched_value.cur_group_id)
@@ -103,7 +102,6 @@ class WashingRuleController {
     try {
       const user = await auth.getUser();
       let  new_rule = request.all();
-      console.log('new_rule', new_rule.cur_group_id);
 
       let isRule = await Database
       .table('cip.washing_rules')
@@ -122,7 +120,6 @@ class WashingRuleController {
             grupo_id_ant: new_rule.pre_group_id,
             limpiar: new_rule.clean
           });      
-          console.log('inserted_rule', inserted_rule);
 
           //Sincronizando con Server 1
           let messageS1 ={};

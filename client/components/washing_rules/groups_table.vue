@@ -48,7 +48,7 @@
             </template>
 
             <template v-slot:[`item.editar`]="{ item }">
-              <edit-group @click="getGroups" :id_group="item.id"/>
+              <edit-group @click="getGroups" @reload-rules="reloadFromRules" :id_group="item.id"/>
             </template>
 
             <template v-slot:[`item.eliminar`]="{ item }">
@@ -190,6 +190,9 @@ export default {
     ...mapState(["infoModal"]),
   },
   methods: {
+    reloadFromRules(){
+      this.$emit('reloadFromRules');
+    },
     sortAc(arr, parametro, i){
       let ordenado = [];
       ordenado =  arr.sort(function( a, b){ return a[parametro] - b[parametro]; });

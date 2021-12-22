@@ -163,7 +163,7 @@
         <v-card-actions class="d-flex justify-center">
           <v-btn color="red" text @click="hide">Cancelar</v-btn>
           <br>
-          <v-btn color="green darken-1" :loading="loading" text @click="multiple_codes_update(id_group)">
+          <v-btn color="green darken-1" :loading="loading" text @click="multiple_codes_update()">
             Aceptar
           </v-btn>
         </v-card-actions>
@@ -265,13 +265,13 @@ export default {
       this.getGroups();
       this.dialog = true;
     },
-    async multiple_codes_update(group_id){
+    async multiple_codes_update(){
       try {
         let token = Cookies.get("token");
         await axios.put("washing_rules/multiple_codes", {
           included_arr:this.included,
           removed_arr:this.notIncluded,
-          id_group:group_id
+          id_group:this.currentIdGroup
         },{
           headers: { Authorization: `Bearer ${token}` },
         })
@@ -324,6 +324,7 @@ export default {
           });
           this.initial = [...this.included];
           this.dialogSpinner = false;
+          this.getCurrentId(this.id_group)
         })
         .catch((error) => {
           console.log(error);
@@ -357,7 +358,7 @@ export default {
       this.multiple_codes_update(this.currentIdGroup);
       this.changesAlert = false;
       this.dialogChangesAlert = false;
-      //this.getCodesByGroup();
+      this.getCodesByGroup();
     },
     discardChanges(){
       this.changesAlert = false;

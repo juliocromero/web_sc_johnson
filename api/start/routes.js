@@ -35,7 +35,7 @@ Route.post("api/v1/products", "BpSetpointsController.store");
 Route.put("api/v1/products/:id", "BpSetpointsController.update");
 Route.delete("api/v1/products/:id", "BpSetpointsController.destroy");
 
-//WASHING_RULES
+//CIP
 Route.group(() => {
   //CODES
   Route.get("codes", "CodesWashingRulesController.index");
@@ -47,13 +47,13 @@ Route.group(() => {
   Route.get("groups", "GroupWashingRulesController.index");
   Route.post("groups", "GroupWashingRulesController.store");
   Route.put("groups", "GroupWashingRulesController.update");
+  Route.delete("groups/:id", "GroupWashingRulesController.destroy");
   //RULES
   Route.get("rules", "WashingRuleController.index");
   Route.post("rules", "WashingRuleController.store");
   Route.put("rules", "WashingRuleController.update");
   Route.delete("rules/:pre_group_id&:cur_group_id", "WashingRuleController.destroy");
 }).prefix('api/v1/washing_rules/');
-
 
 //SUNS
 Route.get("api/v1/producto_lote", "ProductoLoteController.index");
