@@ -42,7 +42,7 @@
                       :items="groups"
                       item-text="nombre"
                       item-value="id"
-                      label="Grupo posterior"
+                      label="Grupo actual"
                       dense
                       outlined
                       background-color="white"
@@ -77,23 +77,37 @@
                     sm="1"
                     class="py-0 ma-0 d-flex align-center justify-end"
                   >
-                    <v-btn
-                      color="#F44336"
-                      dark
-                      icon
-                      class="px-0 add__rule mr-1"
-                      @click="reset"
-                    >
-                      <img src="@/static/iconos/clear.svg" alt="clear" />
-                    </v-btn>                  
-                    <v-btn
-                      color="#F44336"
-                      dark
-                      class="px-0 add__rule"
-                      @click="add_rule"
-                    >
-                      <img src="@/static/iconos/add.svg" alt="plus" />
-                    </v-btn>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          color="#F44336"
+                          dark
+                          icon
+                          v-bind="attrs"
+                          v-on="on"
+                          class="px-0 add__rule mr-1"
+                          @click="reset"
+                        >
+                          <img src="@/static/iconos/clear.svg" alt="clear" />
+                        </v-btn>    
+                      </template>
+                      <span>Limpiar campos</span>
+                    </v-tooltip>   
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          color="#F44336"
+                          dark
+                          v-bind="attrs"
+                          v-on="on"
+                          class="px-0 add__rule"
+                          @click="add_rule"
+                        >
+                          <img src="@/static/iconos/add.svg" alt="plus" />
+                        </v-btn>   
+                      </template>
+                      <span>Crear nueva regla</span>
+                    </v-tooltip>           
                   </v-col>
                 </v-row>
             </v-form>
@@ -135,7 +149,7 @@
                   :items="groups"
                   item-text="nombre"
                   item-value="id"
-                  label="Grupo posterior"
+                  label="Grupo actual"
                   dense
                   outlined
                   background-color="white"
@@ -146,23 +160,37 @@
               </v-col>
               <v-spacer />
               <v-col cols="2" class="d-flex justify-end align-end pt-0">
-                <v-btn
-                  color="#F44336"
-                  dark
-                  icon
-                  class="px-0 add__rule mr-1"
-                  @click="clearFilter"
-                >
-                  <img src="@/static/iconos/clear_filter.svg" alt="clear" />
-                </v-btn>  
-                <v-btn
-                  color="#F44336"
-                  dark
-                  class="px-0 add__rule"
-                  @click="filtrarTabla"
-                >
-                  <img src="@/static/iconos/filter.svg" alt="filter" />
-                </v-btn>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="#F44336"
+                      dark
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                      class="px-0 add__rule mr-1"
+                      @click="clearFilter"
+                    >
+                      <img src="@/static/iconos/clear_filter.svg" alt="clear" />
+                    </v-btn>  
+                  </template>
+                  <span>Limpiar filtros</span>
+                </v-tooltip>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        color="#F44336"
+                        dark
+                        v-bind="attrs"
+                        v-on="on"
+                        class="px-0 add__rule"
+                        @click="filtrarTabla"
+                      >
+                        <img src="@/static/iconos/filter.svg" alt="filter" />
+                      </v-btn>
+                    </template>
+                    <span>Filtrar resultados</span>
+                  </v-tooltip>
               </v-col>
             </v-row>
           </v-container>
