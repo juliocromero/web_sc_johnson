@@ -64,6 +64,7 @@
                     alt="upload"
                   />
                 </v-btn>
+
               </v-col>
               <v-spacer />
               <v-col cols="8" sm="8" class="mt-0 pt-0">
@@ -204,7 +205,7 @@ export default {
     infoModalCRUD
   },
   data: () => ({
-    searched_value: null,
+    searched_value:null,
     expanded: [],
     singleExpand: true,
     ctrl: [],
@@ -221,9 +222,7 @@ export default {
     dialogSpinner: false,
     total: null,
     suns: [],
-    options: {
-      searched_value: null
-    },
+    options: {},
     files: null,
     headers: [
       { text:"Lote", value:'lote', align:"center", sortable:false },
@@ -266,24 +265,11 @@ export default {
     },
     ...mapMutations(["toggleInfoModal", "SET_DESLOGIN"]),
     async filtrarTabla() {
-      if ( this.searched_value != "") {
-        this.options.searched_value = this.searched_value;
+      if ( this.searched_value && this.searched_value != "") {
         this.getSuns();
         this.expanded = this.suns;
-      } else {
-        this.options = {
-            "page": 1,
-            "itemsPerPage": 10,
-            "sortBy": [],
-            "sortDesc": [],
-            "groupBy": [],
-            "groupDesc": [],
-            "mustSort": false,
-            "multiSort": false
-        };
-        this.getSuns();
-      }
-      //this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
+      } 
+      this.options.page = 1; //para que al filtrar desde otra page se vaya a 1 donde estan los resultados
     },
     async getSuns() {
       this.dialogSpinner = true;
@@ -294,7 +280,8 @@ export default {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            options: this.options
+            options: this.options,
+            searched_value:this.searched_value
           },
         })
         .then((res) => {
@@ -337,20 +324,25 @@ export default {
     },
   },
   watch: {
-    searched_value: {
+    options: {
       handler() {
-        if(this.searched_value == ''){
-          this.filtrarTabla();
+        if(!this.searched_value){
+          this.searched_value = null;
           this.expanded = [];
-        }       
+          this.getSuns();
+        }
       },
       deep: true
     },
-    options: {
+    searched_value:{
       handler() {
-        this.getSuns();
+        if(this.searched_value == ""){
+          this.searched_value = null;
+          this.expanded = [];
+          this.getSuns(); 
+        };
       },
-      deep: true
+      deep: true      
     }
   }
 };
