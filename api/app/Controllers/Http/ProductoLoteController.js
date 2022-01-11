@@ -33,7 +33,7 @@ class ProductoLoteController {
 
       //Si recibe un codigo de lote o sun
       let searched_value =  options.searched_value;
-      console.log(searched_value);
+ 
       if (searched_value) {
         query
         .where('sun_number', searched_value)
@@ -44,7 +44,7 @@ class ProductoLoteController {
       let page = options.page || 1;
       let perPage = options.itemsPerPage || 10;
 
-      let res = await query.fetch();
+      let res = await query.orderBy('fecha_hora', 'desc').fetch();
       res = res.toJSON();
 
       const total = res.reduce((acc,item)=>{
@@ -54,10 +54,11 @@ class ProductoLoteController {
         return acc;
       },[]);
 
-      //cuando usamos paginate se usa res.data en lugar de res de aqui en adelante.
-      //sustituir todos los res por res.data de aqui en adelante.
       res = _.groupBy(res, 'lote');
-      const data = Object.keys(res).map((key) => {return {lote:key, suns:res[key]}});
+      let data = Object.keys(res).map((key) => {return { lote:key, suns:res[key] } });
+      data = data.sort((el1, el2)=>{
+        return new Date(el1.suns[0].fecha_hora) > new Date(el2.suns[0].fecha_hora) ? -1 : 1;
+      });
 
       response.status(200).json({ message: 'Listado de SUNs', suns: data, total:total.length });
 
