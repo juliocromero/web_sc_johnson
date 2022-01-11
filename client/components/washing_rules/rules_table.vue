@@ -407,7 +407,6 @@ export default {
     async add_rule(){
       try {
         if(this.$refs.form.validate()){
-          if( this.new_rule.pre_group_id != this.new_rule.cur_group_id ){
             this.new_rule.clean == true ? this.new_rule.clean = 1 : this.new_rule.clean = 0;
             let token = Cookies.get("token");
             await axios.post("washing_rules/rules", {
@@ -437,10 +436,6 @@ export default {
               this.getRules();
               this.reset();
             });      
-          } 
-          else {
-            alert('Los grupos no pueden ser iguales')
-          }
         }
       } catch (error) {
         if(error.response){

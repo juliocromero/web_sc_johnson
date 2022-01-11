@@ -48,8 +48,8 @@ class WashingRuleController {
       }
 
       //seteo valores por defectos
-      let page = options.page || 1;
-      let perPage = options.itemsPerPage || 10;
+      let page = JSON.parse(options).page || 1;
+      let perPage = JSON.parse(options).itemsPerPage || 10;
 
       let res = await query
       .with('cur_group')
