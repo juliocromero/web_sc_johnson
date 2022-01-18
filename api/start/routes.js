@@ -57,3 +57,4 @@ Route.group(() => {
 
 //SUNS
 Route.get("api/v1/producto_lote", "ProductoLoteController.index");
+Route.get("api/v1/producto_lote/sync", "ProductoLoteController.sync");

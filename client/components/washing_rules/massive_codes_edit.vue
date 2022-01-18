@@ -16,10 +16,10 @@
       <span>Edición multiple</span>
     </v-tooltip>
 
-    <v-dialog v-model="dialog" width="900">
+    <v-dialog v-model="dialog" width="950">
       <v-card>
         <v-card-title class="headline v-card-titulo white--text">Reasignar códigos</v-card-title>
-        <v-card-text class="pb-0">
+        <v-card-text class="py-0">
           <v-form ref="form" v-model="valid" lazy-validation>
             <v-container class="py-0">
               <v-row>
@@ -32,17 +32,50 @@
                     label="Seleccione un grupo"
                     class="py-0"
                     outlined
-                    @change="getCodesByGroup"
+                    @change="getCodesByGroup_BySelectedGroup"
                     @click="getCurrentId(id_group)"
                     :menu-props="{maxHeight: 350}"
+                    hide-details
                   ></v-autocomplete>
                 </v-col>
               </v-row>
 
-              <v-row justify="center"> 
-                <v-col cols="5" align-self="center" class="mt-5 pb-0 pr-0">              
-                  <v-card class="mx-auto" width="100%">
-                    <v-list
+              <v-row> 
+                <v-col cols="5" align-self="center" class="pt-0 pb-10">              
+                    <h4 class="grey-lihgten-1--text overline text-center h6">NO INCLUIDOS</h4>
+                    <v-autocomplete
+                      v-model="selectedNotIncluded"
+                      :items="notIncluded"
+                      item-text="id"
+                      return-object
+                      outlined
+                      chips
+                      small-chips
+                      placeholder="Busque y seleccione"
+                      multiple
+                      no-data-text="Sin codigós"
+                      hide-details
+                      allow-overflow
+                      class="auto__complete"
+                      :menu-props="{maxHeight: 300}"
+                    >
+                    
+                      <template v-slot:selection="data">
+                        <v-chip
+                          v-bind="data.attrs"
+                          :input-value="data.selected"
+                          @click="data.select"
+                          @click:close="removeNotIncluded(data.item)"
+                        >
+                          <div class="d-flex">
+                            <strong>{{ data.item.id }}:</strong>
+                            <i>{{ data.item.nombre }}</i>                           
+                          </div>
+
+                        </v-chip>
+                      </template>
+                    </v-autocomplete>    
+<!--                     <v-list
                       flat
                       subheader
                       three-line
@@ -56,7 +89,6 @@
                         <v-list-item v-for="(item, i) of notIncluded" :key="i" class="mb-3">
                           <template>
                             <v-list-item-action class="mt-1 pt-0">
-                              <!-- <v-checkbox v-model="selectedNotIncluded" :value="item"></v-checkbox> -->
                               <input class="mt-1 checkbox__list" type="checkbox" v-model="selectedNotIncluded" :value="item">
                             </v-list-item-action>
 
@@ -67,54 +99,82 @@
                           </template>
                         </v-list-item>
                       </v-list-item-group>
-                    </v-list>
-                  </v-card>
+                    </v-list> -->
+                 
                 </v-col>
 
-                <v-col cols="2" class="d-flex align-center justify-center px-0">
-                  <div style="text-align:center;">
-                    <!-- ERROR INDICATOR -->
-                    <v-chip class="mb-2" color="error" small v-if="errorAlert">
-                      <v-progress-circular
-                      v-if="loadingPUT"
-                        indeterminate
-                        color="primary"
-                      ></v-progress-circular>
-                        Error
-                    </v-chip>
-                    <v-chip class="mb-2" color="success" small v-if="successAlert">
-                      <v-progress-circular
-                      v-if="loadingPUT"
-                        indeterminate
-                        color="primary"
-                      ></v-progress-circular>
-                        OK
-                    </v-chip>
-                    <br>
-                    <!-- ************************** -->
-                    <v-btn class="mb-2" @click="include" :disabled="selectedNotIncluded.length > 0 ? false : true">
-                      <v-icon>arrow_forward</v-icon>
-                    </v-btn>
-                    <br>
-                    <v-btn @click="exclude" :disabled="selectedIncluded.length > 0 ? false : true">
-                      <v-icon>arrow_back</v-icon>
-                    </v-btn>
-                    <div style="height:30px;">
-                      <span class="red--text" v-if="changesAlert">
+                <v-col cols="2" class="pa-0 mt-5">
+                  <v-row justify="center">
+                    <v-col cols="12" class="d-flex align-center justify-center pa-0">
+                      <v-btn class="mb-2" @click="include" :disabled="selectedNotIncluded.length > 0 ? false : true">
+                        <v-icon>arrow_forward</v-icon>
+                      </v-btn>                      
+                    </v-col>
+                    <v-col class="d-flex align-center justify-center pa-0">
+                      <v-btn @click="exclude" :disabled="selectedIncluded.length > 0 ? false : true">
+                        <v-icon>arrow_back</v-icon>
+                      </v-btn>                      
+                    </v-col>
+
+                    <v-col cols="12" class="d-flex align-center justify-center px-0" style="height:1rem;">
+                       <span class="red--text" v-if="changesAlert">
                         <i>
                           Cambios
                         </i>
                         <i>
                           pendientes
                         </i>               
-                      </span>                      
-                    </div>
-                  </div>
+                      </span>   
+                      <!-- ERROR INDICATOR -->
+                      <v-chip class="mt-3" color="error" small v-if="errorAlert">
+                        <v-progress-circular
+                        v-if="loadingPUT"
+                          indeterminate
+                          color="primary"
+                        ></v-progress-circular>
+                          Error
+                      </v-chip>
+                      <!-- SUCCESS INDICATOR -->
+                      <v-chip class="mt-3" color="success" v-if="successAlert">
+                        <v-progress-circular
+                        v-if="loadingPUT"
+                          indeterminate
+                          color="primary"
+                        ></v-progress-circular>
+                          OK
+                      </v-chip>
+                    </v-col>
+                  </v-row>
                 </v-col>
 
-                <v-col cols="5" align-self="center" class="mt-5 pl-0">
-                 <v-card class="mx-auto">
-                    <v-list
+                <v-col cols="5" align-self="center" class="pt-0 pb-10">
+                   <h4 class="grey-lihgten-1--text overline text-center">INCLUIDOS</h4>
+                    <v-autocomplete
+                      v-model="selectedIncluded"
+                      :items="included"
+                      item-text="id"
+                      return-object
+                      outlined
+                      chips
+                      small-chips
+                      placeholder="Busque y seleccione"
+                      multiple
+                      no-data-text="Sin codigós"
+                      hide-details
+                    >
+                      <template v-slot:selection="data">
+                        <v-chip
+                          v-bind="data.attrs"
+                          :input-value="data.selected"
+                          close
+                          @click="data.select"
+                          @click:close="removeIncluded(data.item)"
+                        >
+                          <strong>{{ data.item.id }}:</strong><i>{{ data.item.nombre }}</i>
+                        </v-chip>
+                      </template>
+                    </v-autocomplete>                   
+<!--                     <v-list
                       flat
                       subheader
                       three-line
@@ -128,7 +188,6 @@
                         <v-list-item :selectable="false" v-for="(item, i) of included" :key="i" class="mb-3">
                           <template>
                             <v-list-item-action class="mt-1 pt-0 d-flex align-center justify-center">
-                              <!-- <v-checkbox v-model="selectedIncluded" :value="item"></v-checkbox> -->
                               <input class="mt-1 checkbox__list" type="checkbox" v-model="selectedIncluded" :value="item">
                             </v-list-item-action>
 
@@ -138,7 +197,7 @@
                             </v-list-item-content>
                           </template>
                         </v-list-item>
-<!--                         <v-list-item v-for="(item, i) of included" :key="i" class="mb-3">
+                        <v-list-item v-for="(item, i) of included" :key="i" class="mb-3">
                         <template v-slot:default="{ active }">
                           <v-list-item-action>
                            <v-checkbox v-model="selectedIncluded" :value="active"></v-checkbox>
@@ -149,18 +208,17 @@
                             <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
                           </v-list-item-content>
                         </template>
-                      </v-list-item> -->
+                      </v-list-item>
                       </v-list-item-group>
-                    </v-list>
-                  </v-card>
+                    </v-list> -->
                 </v-col>
               </v-row>
             </v-container>
-            <div :class="showMsg ? 'my-0':'my-5'"><p v-if="showMsg" class="error--text ml-4 my-0">Al menos una línea debe contener datos correctos</p></div>
+            <div class="my-0"><p v-if="showMsg" class="error--text ml-4 my-0">Al menos una línea debe contener datos correctos</p></div>
           </v-form>
         </v-card-text>
 
-        <v-card-actions class="d-flex justify-center">
+        <v-card-actions class="d-flex justify-center pt-0 mt-0">
           <v-btn color="red" text @click="hide">Cancelar</v-btn>
           <br>
           <v-btn color="green darken-1" :loading="loading" text @click="multiple_codes_update()">
@@ -227,7 +285,11 @@ export default {
     valid: true,
     dialog: false,
     code:null,
-    options:{},
+    options:{
+      page: 1,
+      perPage:10,
+      all:true
+    },
     groups:[],
     id_group:null,
     loadingPUT:false,
@@ -253,6 +315,20 @@ export default {
   }),
   methods: {
     ...mapMutations(["toggleInfoModalCRUD","toggleInfoModal"]),
+    removeIncluded (item) {
+      const index = this.included.indexOf(item.id)
+      if (index >= 0) {
+        this.included.splice(index, 1);
+        this.selectedIncluded.splice(index, 1);
+      }
+    },
+    removeNotIncluded (item) {
+      const index = this.notIncluded.indexOf(item.id)
+      if (index >= 0) {
+        this.notIncluded.splice(index, 1);
+        this.selectedNotIncluded.splice(index, 1);
+      }
+    },
     show(){
       this.setAll = true;
       this.included = [];
@@ -280,6 +356,8 @@ export default {
             this.errorAlert = false;
             this.successAlert = true;
             this.changesAlert = false;
+            this.selectedNotIncluded = [];
+            this.selectedIncluded = [];
             setTimeout(()=>{
               this.successAlert = false;
             },3000);
@@ -315,6 +393,7 @@ export default {
         })
         .then((res) => {
           this.allCodes = res.data.data.data;
+          console.log('All codes:', res)
           this.allCodes.forEach((item)=>{
             if(!item.grupo){
               this.notIncluded.push(item);        
@@ -332,6 +411,13 @@ export default {
       } else {
         this.dialogChangesAlert = true;
       }
+    },
+    getCodesByGroup_BySelectedGroup(){
+      this.options.all = true;
+      this.included = [];
+      this.notIncluded = [];
+      console.log('options', this.options)
+      this.getCodesByGroup();
     },
     async getGroups(){
       try {
@@ -368,20 +454,22 @@ export default {
     include(){
       this.selectedNotIncluded.forEach( item => {
         this.included.push(item);
+        this.selectedIncluded.push(item);
         let index = this.notIncluded.findIndex( el => el.id == item.id );
         this.notIncluded.splice(index, 1);
-        this.selectedNotIncluded = [];
-        this.changesValidation();
       });
+      this.changesValidation();
+      this.selectedNotIncluded = [];
     },
     exclude(){
       this.selectedIncluded.forEach( item => {
         this.notIncluded.push(item);
+        this.selectedNotIncluded.push(item);
         let index = this.included.findIndex( el => el.id == item.id );
         this.included.splice(index, 1);
-        this.selectedIncluded = [];
-        this.changesValidation();
       });
+      this.changesValidation();
+      this.selectedIncluded = [];
     },
     changesValidation(){
       const compareId = (a, b) => {
@@ -444,5 +532,8 @@ input[type="number"] {
   width:30px;
   height:30px;
   cursor: pointer;
+}
+.auto__complete{
+
 }
 </style>

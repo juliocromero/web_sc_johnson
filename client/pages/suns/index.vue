@@ -44,27 +44,29 @@
         <v-card>
           <v-container>
             <v-row>
-              <v-col cols="2" sm="2" class="ml-3">
-                <v-btn
-                  depressed
-                  color="success"
-                  @click="descargaCSV"
-                  block
-                  dark
-                >
-                  <div class="d-sm-none d-md-flex">Descargar .CSV</div>
-                  <img
-                    class="ml-2 d-sm-none d-md-flex"
-                    src="@/static/iconos/baseline_cloud_download_white_1x.png"
-                    alt="upload"
-                  />
-                  <img
-                    class="d-none d-sm-flex d-md-none"
-                    src="@/static/iconos/baseline_cloud_download_white_2x.png"
-                    alt="upload"
-                  />
-                </v-btn>
+              <v-col cols="2" sm="2" class=" d-flex ml-3">
 
+                <!-- <sync class="mr-2" @reload="getSuns"/> -->
+          
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      depressed
+                      color="success"
+                      @click="descargaCSV"
+                      dark
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <!-- <div class="d-sm-none d-md-flex">Descargar .CSV</div> -->
+                      <img
+                        src="@/static/iconos/cloud_download.svg"
+                        alt="upload"
+                      />
+                    </v-btn>   
+                  </template>
+                  <span>Descargar datos en .csv</span>
+                </v-tooltip>
               </v-col>
               <v-spacer />
               <v-col cols="8" sm="8" class="mt-0 pt-0">
@@ -164,6 +166,13 @@
                           height="100%"
                           style="background:rgb(241, 241, 241,0.3);box-shadow: inset 0 0 20px 0 #E7E7E7;"
                         >
+                            <template v-slot:[`item.fecha_hora`]="{ item }">
+                              {{ item.fecha_hora | fecha }}
+                            </template>
+
+                            <template v-slot:[`item.hora`]="{ item }">
+                              {{ item.fecha_hora | hora }}
+                            </template>
                         </v-data-table>                      
                       </div>
                     </td>
@@ -194,6 +203,8 @@ import "material-design-icons-iconfont/dist/material-design-icons.css";
 import axios from "@/plugins/axios";
 import infoModal from "@/components/common/infoModal";
 import infoModalCRUD from "@/components/common/infoModalCRUD.vue";
+import sync from "@/components/suns/sync.vue";
+import moment from "moment";
 import Cookies from "js-cookie";
 let CSVtoJSON = require("csvtojson");
 import { mapState, mapMutations } from "vuex";
@@ -202,7 +213,8 @@ export default {
   middleware: "NOAUTH",
   components: {
     infoModal,
-    infoModalCRUD
+    infoModalCRUD,
+    sync
   },
   data: () => ({
     searched_value:null,
@@ -226,11 +238,12 @@ export default {
     files: null,
     headers: [
       { text:"Lote", value:'lote', align:"center", sortable:false },
-      //{ text:"SUNs", value:'suns', sortable: false },
       { text: "Ver Suns", value: "data-table-expand", width:100, align:"center", sortable:false},
     ],
     headersSuns:[
       { text: 'Suns', value: 'sun_number', sortable: false, class:'my_table_style', align:'center' },
+      { text:"Fecha", value:'fecha_hora', sortable: true, class:'my_table_style', align:'center'  },
+      { text:"Hora", value:'hora', sortable: true, class:'my_table_style', align:'center'  },
     ],
   }),
   computed: {
@@ -242,6 +255,16 @@ export default {
           return this.totalRecords / this.options.itemsPerPage
       },
   },
+filters: {
+  fecha: function (value) {
+    if (!value) return ''
+    return moment(value).format('DD-MM-YYYY');
+  },
+  hora: function (value) {
+    if (!value) return ''
+    return moment(value).format('HH:mm:ss');
+  }
+},
   methods: {
     sortAc(arr, parametro, i) {
       let ordenado = [];

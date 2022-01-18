@@ -36,12 +36,21 @@ class CodesWashingRulesController {
       let page = JSON.parse(options).page || 1;
       let perPage = JSON.parse(options).itemsPerPage || 10;
       
-
       //Si piden todo
       if (JSON.parse(options).all) {
         let res = {};
-        res = await CodesWashingRules.with('grupo.id').all();
-        return response.status(200).json({ message: 'Listado de Códigos de Lavado', data: res });
+        res.data = await query.with('group').fetch();
+        res.data.data = res.data.toJSON();
+
+        res.data = res.data.data.map((item) => {
+          return {
+              id_auto: item.id_auto, 
+              id:item.id, 
+              nombre: item.nombre, 
+              grupo: item.group
+          }
+        });
+        return response.status(200).json({ message: 'Listado completo de Códigos de Lavado', data: res });
       }
 
       //Si recibe un codigo
@@ -63,7 +72,7 @@ class CodesWashingRulesController {
           nombre: item.nombre, 
           grupo: item.group
       }});
-      response.status(200).json({ message: 'Listado de Códigos de Lavado', data: res });
+      response.status(200).json({ message: 'Listado paginado de Códigos de Lavado', data: res });
 
     }catch(error) {
       console.log(error)
@@ -199,10 +208,9 @@ class CodesWashingRulesController {
       let updatedCodigo = null;
       const { current_id, id, nombre, grupo } = request.all();
 
-      console.log("current_code:",current_id, id, nombre, grupo);
       if (true/* user.rol_id == 1 */) {
           codeToUpdated = await CodesWashingRules.findBy('id', current_id);
-          console.log('codeToUpdated', codeToUpdated)
+
           if(codeToUpdated){
             codeToUpdated.id = id;
             codeToUpdated.nombre = nombre;
