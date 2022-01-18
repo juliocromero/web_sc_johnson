@@ -533,7 +533,4 @@ input[type="number"] {
   height:30px;
   cursor: pointer;
 }
-.auto__complete{
-
-}
 </style>
