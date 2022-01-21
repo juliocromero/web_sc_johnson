@@ -158,8 +158,8 @@ cron.schedule('*/30 * * * *', async function () {
       const server1 = Database.connection('Server1');
       const server2 = Database.connection('Server2');
 
-      console.log('LAST QUERY lastQueryS1:', moment(lastQueryS1).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
-      console.log('LAST QUERY lastQueryS2:', moment(lastQueryS2).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
+      console.log('SUN LAST QUERY S1:', moment(lastQueryS1).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
+      console.log('SUN LAST QUERY S2:', moment(lastQueryS2).add(-20,'minutes').format("YYYY-MM-DD HH:mm:ss"));
 
       /****** SYNC SERVER 1 *******/
       const res_server_1 = await server1

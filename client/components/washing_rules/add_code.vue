@@ -127,7 +127,6 @@ export default {
           await axios.post("washing_rules/codes", this.new_code , {
             headers: { Authorization: `Bearer ${token}` },
           }).then((res)=>{
-            this.$emit("reload");
             this.toggleInfoModalCRUD({
               dialog: true,
               msj: `Código ${this.new_code.id} agregado correctamente`,
@@ -143,6 +142,7 @@ export default {
               alertType: "success",
             });
             this.dialog = false;
+            this.$emit("reload");
             this.loading = false;
             this.reset();
           });

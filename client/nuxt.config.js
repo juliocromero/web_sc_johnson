@@ -2,10 +2,10 @@ import colors from 'vuetify/es5/util/colors'
 
 export default {
   
-   server: {
+/*    server: {
      port: process.env.PORT || 8080,  
      host: process.env.HOST || '0.0.0.0', 
-   },
+   }, */
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {

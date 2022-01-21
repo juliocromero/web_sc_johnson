@@ -16,7 +16,7 @@
       <span>Edición multiple</span>
     </v-tooltip>
 
-    <v-dialog v-model="dialog" width="950">
+    <v-dialog v-model="dialog" width="980">
       <v-card>
         <v-card-title class="headline v-card-titulo white--text">Reasignar códigos</v-card-title>
         <v-card-text class="py-0">
@@ -34,8 +34,9 @@
                     outlined
                     @change="getCodesByGroup_BySelectedGroup"
                     @click="getCurrentId(id_group)"
-                    :menu-props="{maxHeight: 350}"
+                    :menu-props="{ maxHeight: 250 }"                  
                     hide-details
+                    :allow-overflow="false"
                   ></v-autocomplete>
                 </v-col>
               </v-row>
@@ -44,67 +45,47 @@
                 <v-col cols="5" align-self="center" class="pt-0 pb-10">              
                     <h4 class="grey-lihgten-1--text overline text-center h6">NO INCLUIDOS</h4>
                     <v-autocomplete
-                      v-model="selectedNotIncluded"
+                      v-model="selectedCodeFromNotIncluidos"
                       :items="notIncluded"
                       item-text="id"
                       return-object
+                      :disabled="id_group == null"
                       outlined
-                      chips
-                      small-chips
-                      placeholder="Busque y seleccione"
-                      multiple
-                      no-data-text="Sin codigós"
+                      :placeholder="id_group == null ? 'Asegurese haber selecionado un grupo': 'Filtrar por código Ej:123456'"         
                       hide-details
-                      allow-overflow
-                      class="auto__complete"
-                      :menu-props="{maxHeight: 300}"
-                    >
-                    
-                      <template v-slot:selection="data">
-                        <v-chip
-                          v-bind="data.attrs"
-                          :input-value="data.selected"
-                          @click="data.select"
-                          @click:close="removeNotIncluded(data.item)"
-                        >
-                          <div class="d-flex">
-                            <strong>{{ data.item.id }}:</strong>
-                            <i>{{ data.item.nombre }}</i>                           
-                          </div>
-
-                        </v-chip>
-                      </template>
-                    </v-autocomplete>    
-<!--                     <v-list
+                      clearable
+                      ref="auto_not_incluidos"
+                      :menu-props="{ maxHeight: 250 }" 
+                      :filled="id_group == null"
                       flat
-                      subheader
-                      three-line
-                      class="list__class"
-                    >
-                      <v-subheader style="text-align:center;"><b>NO INCLUIDOS</b></v-subheader>
-                      <v-divider class="mb-2"/>
-                      <v-list-item-group
-                        multiple
+                      @change="setSelectedCodeFromNotIncluded(selectedCodeFromNotIncluidos)"
+                    />
+                      <v-list
+                        flat
+                        subheader
+                        three-line
+                        class="list__class" 
+                        outlined
                       >
-                        <v-list-item v-for="(item, i) of notIncluded" :key="i" class="mb-3">
-                          <template>
-                            <v-list-item-action class="mt-1 pt-0">
-                              <input class="mt-1 checkbox__list" type="checkbox" v-model="selectedNotIncluded" :value="item">
-                            </v-list-item-action>
-
-                            <v-list-item-content class="py-0">
-                              <v-list-item-title>{{item.id}}</v-list-item-title>
-                              <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
-                            </v-list-item-content>
-                          </template>
-                        </v-list-item>
-                      </v-list-item-group>
-                    </v-list> -->
+                        <v-divider class="mb-2"/>
+                        <v-list-item-group   
+                          multiple
+                        >
+                          <v-list-item :selectable="false" v-for="(item, i) of ComputedSelectedNotIncluded" :key="i" class="mb-3" @click="removeSelectedCodeFromNotIncluded(item)">
+                            <template>
+                              <v-list-item-content class="py-0" :key="i">
+                                <v-list-item-title>{{item.id}}</v-list-item-title>
+                                <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
+                              </v-list-item-content>
+                            </template>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
                  
                 </v-col>
 
-                <v-col cols="2" class="pa-0 mt-5">
-                  <v-row justify="center">
+                <v-col cols="2" class="pa-0 mt-5 d-flex align-center justify-center">
+                  <section>
                     <v-col cols="12" class="d-flex align-center justify-center pa-0">
                       <v-btn class="mb-2" @click="include" :disabled="selectedNotIncluded.length > 0 ? false : true">
                         <v-icon>arrow_forward</v-icon>
@@ -115,7 +96,6 @@
                         <v-icon>arrow_back</v-icon>
                       </v-btn>                      
                     </v-col>
-
                     <v-col cols="12" class="d-flex align-center justify-center px-0" style="height:1rem;">
                        <span class="red--text" v-if="changesAlert">
                         <i>
@@ -144,73 +124,50 @@
                           OK
                       </v-chip>
                     </v-col>
-                  </v-row>
+
+                  </section>
                 </v-col>
 
                 <v-col cols="5" align-self="center" class="pt-0 pb-10">
                    <h4 class="grey-lihgten-1--text overline text-center">INCLUIDOS</h4>
                     <v-autocomplete
-                      v-model="selectedIncluded"
+                      v-model="selectedCodeFromIncluidos"
                       :items="included"
                       item-text="id"
                       return-object
                       outlined
-                      chips
-                      small-chips
-                      placeholder="Busque y seleccione"
-                      multiple
+                      :disabled="id_group == null"
+                      :placeholder="id_group == null ? 'Asegurese haber selecionado un grupo': 'Filtrar por código Ej:123456'"
                       no-data-text="Sin codigós"
                       hide-details
-                    >
-                      <template v-slot:selection="data">
-                        <v-chip
-                          v-bind="data.attrs"
-                          :input-value="data.selected"
-                          close
-                          @click="data.select"
-                          @click:close="removeIncluded(data.item)"
-                        >
-                          <strong>{{ data.item.id }}:</strong><i>{{ data.item.nombre }}</i>
-                        </v-chip>
-                      </template>
-                    </v-autocomplete>                   
-<!--                     <v-list
+                      clearable
+                      ref="auto_incluidos"
+                      :menu-props="{ maxHeight: 250 }" 
+                      :filled="id_group == null"
                       flat
-                      subheader
-                      three-line
-                      class="list__class"
-                    >
-                      <v-subheader style="text-align:center;"><b>INCLUIDOS</b></v-subheader>
-                      <v-divider class="mb-2"/>
-                      <v-list-item-group   
-                        multiple
+                      @change="setSelectedCodeFromIncluded(selectedCodeFromIncluidos)"
+                    />                 
+                      <v-list
+                        flat
+                        subheader
+                        three-line
+                        class="list__class" 
+                        outlined
                       >
-                        <v-list-item :selectable="false" v-for="(item, i) of included" :key="i" class="mb-3">
-                          <template>
-                            <v-list-item-action class="mt-1 pt-0 d-flex align-center justify-center">
-                              <input class="mt-1 checkbox__list" type="checkbox" v-model="selectedIncluded" :value="item">
-                            </v-list-item-action>
-
-                            <v-list-item-content class="py-0">
-                              <v-list-item-title>{{item.id}}</v-list-item-title>
-                              <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
-                            </v-list-item-content>
-                          </template>
-                        </v-list-item>
-                        <v-list-item v-for="(item, i) of included" :key="i" class="mb-3">
-                        <template v-slot:default="{ active }">
-                          <v-list-item-action>
-                           <v-checkbox v-model="selectedIncluded" :value="active"></v-checkbox>
-                          </v-list-item-action>
-
-                          <v-list-item-content>
-                            <v-list-item-title>{{item.id}}</v-list-item-title>
-                            <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
-                          </v-list-item-content>
-                        </template>
-                      </v-list-item>
-                      </v-list-item-group>
-                    </v-list> -->
+                        <v-divider class="mb-2"/>
+                        <v-list-item-group   
+                          multiple
+                        >
+                          <v-list-item :selectable="false" v-for="(item, i) of ComputedSelectedIncluded" :key="i" class="mb-3" @click="removeSelectedCodeFromIncluded(item)">
+                            <template>
+                              <v-list-item-content class="py-0" :key="i">
+                                <v-list-item-title>{{item.id}}</v-list-item-title>
+                                <v-list-item-subtitle>{{item.nombre}}</v-list-item-subtitle>
+                              </v-list-item-content>
+                            </template>
+                          </v-list-item>
+                        </v-list-item-group>
+                      </v-list>
                 </v-col>
               </v-row>
             </v-container>
@@ -280,6 +237,8 @@ import { mapMutations } from "vuex";
 
 export default {
   data: () => ({
+    selectedCodeFromIncluidos:null,
+    selectedCodeFromNotIncluidos:null,
     showMsg:false,
     loading:false,
     valid: true,
@@ -313,21 +272,55 @@ export default {
     selectedNotIncluded:[],
     selectedIncluded:[]
   }),
+  computed:{
+    ComputedSelectedIncluded: function (){
+      return this.selectedIncluded;
+    },
+    ComputedSelectedNotIncluded: function (){
+      return this.selectedNotIncluded;
+    }
+  },
   methods: {
     ...mapMutations(["toggleInfoModalCRUD","toggleInfoModal"]),
-    removeIncluded (item) {
-      const index = this.included.indexOf(item.id)
-      if (index >= 0) {
-        this.included.splice(index, 1);
-        this.selectedIncluded.splice(index, 1);
-      }
+    setSelectedCodeFromIncluded(item){
+      if(item) {
+        let index = this.selectedIncluded.findIndex( el => el.id == item.id);
+        if(index == -1 ){
+          this.selectedIncluded.push(item);
+        };       
+      };
+      this.selectedCodeFromIncluidos = null;
+      this.$refs.auto_incluidos.reset();
     },
-    removeNotIncluded (item) {
-      const index = this.notIncluded.indexOf(item.id)
-      if (index >= 0) {
-        this.notIncluded.splice(index, 1);
-        this.selectedNotIncluded.splice(index, 1);
-      }
+    removeSelectedCodeFromIncluded(item){
+      console.log('clear item', item);
+      if(item) {
+        let index = this.selectedIncluded.findIndex( el => el.id == item.id);
+        if(index >= 0){
+          this.selectedIncluded.splice(index, 1);
+          this.notIncluded.push(item);
+        };       
+      };
+    },
+    setSelectedCodeFromNotIncluded(item){
+      if(item) {
+        let index = this.selectedNotIncluded.findIndex( el => el.id == item.id);
+        if(index == -1 ){
+          this.selectedNotIncluded.push(item);
+        };       
+      };
+      this.selectedCodeFromNotIncluidos = null;
+      this.$refs.auto_not_incluidos.reset();
+    },
+    removeSelectedCodeFromNotIncluded(item){
+      console.log('clear item', item);
+      if(item) {
+        let index = this.selectedNotIncluded.findIndex( el => el.id == item.id);
+        if(index >= 0){
+          this.selectedNotIncluded.splice(index, 1);
+          this.included.push(item);
+        };       
+      };
     },
     show(){
       this.setAll = true;
@@ -444,11 +437,15 @@ export default {
       this.multiple_codes_update(this.currentIdGroup);
       this.changesAlert = false;
       this.dialogChangesAlert = false;
+      this.selectedNotIncluded = [];
+      this.selectedIncluded = [];
       this.getCodesByGroup();
     },
     discardChanges(){
       this.changesAlert = false;
       this.dialogChangesAlert = false;
+      this.selectedNotIncluded = [];
+      this.selectedIncluded = [];
       this.getCodesByGroup();
     },
     include(){
@@ -518,7 +515,7 @@ input[type="number"] {
 }
 .list__class{
   overflow: scroll;
-  height: 350px;
+  height: 18rem !important;
 }
 .v-list--three-line .v-list-item, .v-list-item--three-line{
   min-height: 0px;
@@ -532,5 +529,10 @@ input[type="number"] {
   width:30px;
   height:30px;
   cursor: pointer;
+}
+
+.menu__autocomplete{
+  max-height: 100px;
+  overflow: scroll;
 }
 </style>

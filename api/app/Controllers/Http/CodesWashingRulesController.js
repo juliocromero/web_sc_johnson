@@ -106,16 +106,20 @@ class CodesWashingRulesController {
    async store({ request, response, auth }) {
     try {
       const user = await auth.getUser()
-       let  new_code = request.all();
-
+       let new_code = request.all();
+      console.log('new_code:', new_code)
       let codigoExistente = await CodesWashingRules.findBy('id', new_code.id)
 
       if (codigoExistente) {
         return response.status(400).json({ message: "El código ya existe." })
       }
 
-        if (true/* user.rol_id == 1 */) {
-          const inserted_code = await CodesWashingRules.create(new_code);
+        if (user.rol_id == 1) {
+          const inserted_code = await CodesWashingRules.create({
+              id:new_code.id,
+              nombre:new_code.nombre,
+              grupo:new_code.grupo
+          });
 
           //Sincronizando con Server 1
           let messageS1 ={};

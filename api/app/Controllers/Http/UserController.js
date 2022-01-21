@@ -84,15 +84,16 @@ class UserController {
       const { email, password } = request.all();
       let validationUser = await User.findBy('email', email);
       validationUser = validationUser.toJSON();
-      console.log(validationUser)
+
      if(validationUser != null){
        delete validationUser.password
      }
-     // let resp = await Promise.all(arrUser)
+
       const token = await auth.attempt(email, password)
       const resCustom = new Response(true, 'Logueado con exito', token.token)
       resCustom.data = validationUser
       response.status(200).json(resCustom);
+      
     } catch (error) {
       console.log(error.message)
       var resCustom = ''
