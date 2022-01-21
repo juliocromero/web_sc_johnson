@@ -385,6 +385,8 @@ export default {
             },
         })
         .then((res) => {
+          this.selectedIncluded = [];
+          this.selectedNotIncluded = [];
           this.allCodes = res.data.data.data;
           console.log('All codes:', res)
           this.allCodes.forEach((item)=>{
