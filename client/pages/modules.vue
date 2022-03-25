@@ -7,22 +7,22 @@
         v-slot="{ hover }"
         open-delay="200"
       >
-              <v-card
-                :class="{ 'on-hover': hover }"
-                flat
-                height="157"
-                width="157"
-                class="tarjeta"
-                elevation="2"
-                :to="item.url"
-              >
-                <v-card-text class="d-flex justify-center pb-0 mb-1">
-                  <v-icon size="80"> {{item.icon}} </v-icon>
-                </v-card-text>
-                <v-card-title class="pt-0 px-3 d-flex justify-center" style="text-align:center;font-size:16px;line-height:normal;">
-                  {{item.titulo}}
-                </v-card-title>
-              </v-card>
+        <v-card
+          :class="{ 'on-hover': hover }"
+          flat
+          height="157"
+          width="157"
+          class="tarjeta"
+          elevation="2"
+          @click="routesParser(item.url)"
+        >
+          <v-card-text class="d-flex justify-center pb-0 mb-1">
+            <v-icon size="80"> {{item.icon}} </v-icon>
+          </v-card-text>
+          <v-card-title class="pt-0 px-3 d-flex justify-center" style="text-align:center;font-size:16px;line-height:normal;">
+            {{item.titulo}}
+          </v-card-title>
+        </v-card>
       </v-hover>
         </v-col>
       </v-row>
@@ -39,8 +39,18 @@ export default {
       opciones:[
         {titulo:'Setpoints Baños de Pruebas', icon:'fact_check', url:'/washing_set_points'},
         {titulo:'SUNs', icon:'widgets', url:'/suns'},
-        {titulo:'Reglas de Lavado', icon:'waves', url:'/washing_rules'}
+        {titulo:'Reglas de Lavado', icon:'waves', url:'/washing_rules'},
+        {titulo:'Reportes Batch', icon:'assignment', url:'http://192.168.1.182:50080/'}
       ],
+    }
+  },
+  methods:{
+    routesParser(path){
+      if(path == 'http://192.168.1.182:50080/'){
+        return window.location.href = path;
+      } else {
+        return $nuxt.$router.push(path)
+      }
     }
   }
 }

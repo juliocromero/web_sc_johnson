@@ -1,3 +1,7 @@
+# [5.1.0](https://github.com/adonisjs/adonis-validation-provider/compare/v5.0.6...v5.1.0) (2021-03-26)
+
+
+
 <a name="5.0.6"></a>
 ## [5.0.6](https://github.com/adonisjs/adonis-validation-provider/compare/v5.0.5...v5.0.6) (2018-10-16)
 

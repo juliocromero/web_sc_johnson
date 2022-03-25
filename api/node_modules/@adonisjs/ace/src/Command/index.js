@@ -70,6 +70,7 @@ class Command {
       error: this.chalk.red('×')
     }
   }
+
   /**
    * Returns a string for registered arguments
    * to be displayed in the help output.
@@ -288,7 +289,7 @@ class Command {
    */
   static addArgument (arg = {}) {
     this._ensureIsBooted()
-    let mergedArg = {}
+    const mergedArg = {}
     _.merge(mergedArg, defaults, arg)
     this._validateName(mergedArg.name)
     this.args.push(mergedArg)
@@ -329,7 +330,7 @@ class Command {
    */
   static addOption (option = {}) {
     this._ensureIsBooted()
-    let mergedOption = {}
+    const mergedOption = {}
     _.merge(mergedOption, defaults, option)
     this._validateName(mergedOption.name)
     this.options.push(mergedOption)
@@ -532,7 +533,7 @@ class Command {
      * Options to be passed to the handle method
      */
     const options = _.transform(command.opts(), (result, option, name) => {
-      result[name] = result[name] = command.hasOwnProperty(name) ? command[name] : null
+      result[name] = result[name] = Object.prototype.hasOwnProperty.call(command, name) ? command[name] : null
       return result
     }, {})
 
@@ -556,18 +557,11 @@ class Command {
    *
    * @return {Mixed}
    */
-  static exec (args, options, viaAce) {
+  static async exec (args, options, viaAce) {
     const commandInstance = typeof (global.make) === 'function' ? global.make(this) : new this()
     commandInstance.viaAce = viaAce
 
-    return new Promise(async (resolve, reject) => {
-      try {
-        const response = await commandInstance.handle(args, options)
-        resolve(response)
-      } catch (error) {
-        reject(error)
-      }
-    })
+    return commandInstance.handle(args, options)
   }
 
   /**

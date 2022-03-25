@@ -1,3 +1,7 @@
+# [4.1.0](https://github.com/poppinss/adonis-fold/compare/v4.0.9...v4.1.0) (2021-03-26)
+
+
+
 <a name="4.0.9"></a>
 ## [4.0.9](https://github.com/poppinss/adonis-fold/compare/v4.0.8...v4.0.9) (2018-07-15)
 

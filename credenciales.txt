@@ -1,5 +1,5 @@
 Escritorio remoto production: 10.8.0.94 puerto:50050
-user: johnson 
+user: ES\johnson 
 pw: johnson
 
 Puty: 10.8.0.94 puerto:50000 (usuario systelec pw:edsd5450)

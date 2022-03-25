@@ -599,7 +599,7 @@ class Ioc {
    * @return {void}
    */
   executeExtendCalls () {
-    _.remove(this._extendCalls, ([ namespace, key, closure, ...options ]) => {
+    _.remove(this._extendCalls, ([namespace, key, closure, ...options]) => {
       if (!this._hasManager(namespace)) {
         const message = `${namespace} cannot be extended, since their is no public interface to extend`
         throw GE.InvalidArgumentException.invoke(message, 500, 'E_CANNOT_EXTEND_BINDING')

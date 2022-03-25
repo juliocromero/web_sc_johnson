@@ -5,9 +5,8 @@ Ace is powerful command line to create command line applications in Node.js and 
 This repo contains the code to use and build ace commands.
 
 [![NPM Version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
+[![Build Status][circleci-image]][circleci-url]
 [![Appveyor][appveyor-image]][appveyor-url]
-[![Coveralls][coveralls-image]][coveralls-url]
 
 <img src="http://res.cloudinary.com/adonisjs/image/upload/q_100/v1497112678/adonis-purple_pzkmzt.svg" width="200px" align="right" hspace="30px" vspace="140px">
 
@@ -152,16 +151,11 @@ It is always helpful if we try to follow certain practices when creating issues 
 ## Documentation
 You can learn more about ace in the [official documentation](https://adonisjs.com/docs/ace)
 
-[appveyor-image]: https://img.shields.io/appveyor/ci/thetutlage/ace/master.svg?style=flat-square
-
+[appveyor-image]: https://img.shields.io/appveyor/ci/thetutlage/ace/legacy.svg?style=for-the-badge
 [appveyor-url]: https://ci.appveyor.com/project/thetutlage/ace
 
-[npm-image]: https://img.shields.io/npm/v/@adonisjs/ace.svg?style=flat-square
+[npm-image]: https://img.shields.io/npm/v/@adonisjs/ace/legacy.svg?style=for-the-badge
 [npm-url]: https://npmjs.org/package/@adonisjs/ace
 
-[travis-image]: https://img.shields.io/travis/adonisjs/ace/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/adonisjs/ace
-
-[coveralls-image]: https://img.shields.io/coveralls/adonisjs/ace/develop.svg?style=flat-square
-
-[coveralls-url]: https://coveralls.io/github/adonisjs/ace
+[circleci-image]: https://img.shields.io/circleci/project/github/adonisjs/ace/legacy.svg?style=for-the-badge&logo=circleci
+[circleci-url]: https://circleci.com/gh/adonisjs/ace "circleci"

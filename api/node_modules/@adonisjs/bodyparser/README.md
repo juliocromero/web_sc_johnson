@@ -4,11 +4,8 @@ This is the official body parser middleware for the Adonis framework. Apart from
 
 > **NOTE**: Only support Adonis4.0 or greater
 
-
 [![NPM Version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
-[![Appveyor][appveyor-image]][appveyor-url]
-[![Coveralls][coveralls-image]][coveralls-url]
+[![Build Status][circleci-image]][circleci-url]
 
 <img src="http://res.cloudinary.com/adonisjs/image/upload/q_100/v1497112678/adonis-purple_pzkmzt.svg" width="200px" align="right" hspace="30px" vspace="80px">
 
@@ -98,16 +95,8 @@ test.failing('2 + 2 is always 4, but add method returns 6', (assert) => {
 
 Now since the `add` method has a bug, it will return `6` instead of `4`. But the build will pass.
 
-[appveyor-image]: https://img.shields.io/appveyor/ci/thetutlage/adonis-bodyparser/master.svg?style=flat-square
-
-[appveyor-url]: https://ci.appveyor.com/project/thetutlage/adonis-bodyparser
-
-[npm-image]: https://img.shields.io/npm/v/@adonisjs/bodyparser.svg?style=flat-square
+[npm-image]: https://img.shields.io/npm/v/@adonisjs/bodyparser/legacy.svg?style=for-the-badge
 [npm-url]: https://npmjs.org/package/@adonisjs/bodyparser
 
-[travis-image]: https://img.shields.io/travis/adonisjs/adonis-bodyparser/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/adonisjs/adonis-bodyparser
-
-[coveralls-image]: https://img.shields.io/coveralls/adonisjs/adonis-bodyparser/develop.svg?style=flat-square
-
-[coveralls-url]: https://coveralls.io/github/adonisjs/adonis-bodyparser
+[circleci-image]: https://img.shields.io/circleci/project/github/adonisjs/bodyparser/legacy.svg?style=for-the-badge&logo=circleci
+[circleci-url]: https://circleci.com/gh/adonisjs/bodyparser "circleci"

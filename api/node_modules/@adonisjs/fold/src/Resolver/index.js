@@ -153,7 +153,7 @@ class Resolver {
     if (typeof (binding) !== 'string') {
       throw GE
         .InvalidArgumentException
-        .invalidParameter(`Resolver.translate expects binding to be a valid string`, binding)
+        .invalidParameter('Resolver.translate expects binding to be a valid string', binding)
     }
 
     /**
